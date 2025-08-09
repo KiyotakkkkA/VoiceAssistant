@@ -1,0 +1,43 @@
+{
+  "name": "assistant-desktop-client",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "main.js",
+  "description": "Electron + React + TypeScript + Tailwind starter",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development concurrently \"npm:dev:services\" \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:services": "tsc -p tsconfig.services.json -w",
+    "dev:renderer": "vite",
+    "dev:electron": "wait-on tcp:5173 && electron .",
+    "build": "rimraf dist && vite build && npm run build:services",
+    "build:services": "tsc -p tsconfig.services.json",
+    "start": "electron .",
+    "start:prod": "cross-env NODE_ENV=production electron .",
+    "speech:dev": "ts-node --project tsconfig.services.json src/app/ts/services/speechRecognitionService.ts",
+    "lint": "eslint . --ext .js,.ts,.tsx"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^37.2.6",
+    "eslint": "^9.7.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "postcss": "^8.4.41",
+    "rimraf": "^5.0.7",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+  "dotenv": "^16.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "ws": "^8.18.3"
+  }
+}

@@ -1,0 +1,73 @@
+# === SET_VOLUME ===
+установи громкость 50	SET_VOLUME
+громкость 30	SET_VOLUME
+увеличь громкость до 80	SET_VOLUME
+уменьши громкость до 20	SET_VOLUME
+поставь громкость на 75	SET_VOLUME
+уровень звука 60	SET_VOLUME
+
+задай громкость 40	SET_VOLUME
+настрой громкость 45	SET_VOLUME
+сделай громкость 35	SET_VOLUME
+выстави громкость 55	SET_VOLUME
+установить громкость 65	SET_VOLUME
+настроить звук 70	SET_VOLUME
+
+сделай звук погромче 90	SET_VOLUME
+сделай звук потише 10	SET_VOLUME
+звук погромче 85	SET_VOLUME
+звук потише 15	SET_VOLUME
+повысь громкость до 70	SET_VOLUME
+понизь громкость до 25	SET_VOLUME
+
+сделай громкость 50	SET_VOLUME
+сделай звук 40	SET_VOLUME
+сделай уровень звука 30	SET_VOLUME
+
+поставь звук 60	SET_VOLUME
+поставь уровень звука 55	SET_VOLUME
+поставь громкость 65	SET_VOLUME
+
+измени громкость на 75	SET_VOLUME
+измени звук до 80	SET_VOLUME
+измени уровень звука до 20	SET_VOLUME
+
+на 50 громкость	SET_VOLUME
+на 60 звук	SET_VOLUME
+на 70 уровень звука	SET_VOLUME
+
+до 80 громкость	SET_VOLUME
+до 90 звук	SET_VOLUME
+до 10 уровень звука	SET_VOLUME
+
+на 45 установи громкость	SET_VOLUME
+на 55 повысь звук	SET_VOLUME
+на 25 понизь уровень звука	SET_VOLUME
+
+до 75 поставь громкость	SET_VOLUME
+до 85 увеличь звук	SET_VOLUME
+до 15 уменьши уровень звука	SET_VOLUME
+
+установи громкость на 50 процентов	SET_VOLUME
+поставь звук на 60 процентов	SET_VOLUME
+увеличь громкость до 70 процентов	SET_VOLUME
+уменьши звук до 30 процентов	SET_VOLUME
+
+громкость 50	SET_VOLUME
+звук 40	SET_VOLUME
+уровень звука 30	SET_VOLUME
+звук 60 процентов	SET_VOLUME
+
+установи громкость 50 пожалуйста	SET_VOLUME
+поставь звук 60 пожалуйста	SET_VOLUME
+увеличь громкость до 70 пожалуйста	SET_VOLUME
+уменьши звук до 30 пожалуйста	SET_VOLUME
+
+увеличь громкость	SET_VOLUME
+уменьши звук	SET_VOLUME
+сделай погромче	SET_VOLUME
+сделай потише	SET_VOLUME
+звук погромче	SET_VOLUME
+звук потише	SET_VOLUME
+повысь громкость	SET_VOLUME
+понизь звук	SET_VOLUME

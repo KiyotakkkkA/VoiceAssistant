@@ -1,0 +1,66 @@
+# === OPEN_PROJECT ===
+включить проект аттестации	OPEN_PROJECT
+запустить проект аттестации	OPEN_PROJECT
+открыть проект аттестации	OPEN_PROJECT
+врубить проект аттестации	OPEN_PROJECT
+активировать проект аттестации	OPEN_PROJECT
+запускать проект аттестации	OPEN_PROJECT
+
+включить проект исследования	OPEN_PROJECT
+запустить проект исследования	OPEN_PROJECT
+открыть проект исследования	OPEN_PROJECT
+врубить проект исследования	OPEN_PROJECT
+активировать проект исследования	OPEN_PROJECT
+запускать проект исследования	OPEN_PROJECT
+
+включить проект журнала	OPEN_PROJECT
+запустить проект журнала	OPEN_PROJECT
+открыть проект журнала	OPEN_PROJECT
+врубить проект журнала	OPEN_PROJECT
+активировать проект журнала	OPEN_PROJECT
+запускать проект журнала	OPEN_PROJECT
+
+запусти проект аттестации	OPEN_PROJECT
+открой проект аттестации	OPEN_PROJECT
+включи проект аттестации	OPEN_PROJECT
+активируй проект аттестации	OPEN_PROJECT
+
+запусти проект исследования	OPEN_PROJECT
+открой проект исследования	OPEN_PROJECT
+включи проект исследования	OPEN_PROJECT
+активируй проект исследования	OPEN_PROJECT
+
+запусти проект журнала	OPEN_PROJECT
+открой проект журнала	OPEN_PROJECT
+включи проект журнала	OPEN_PROJECT
+активируй проект журнала	OPEN_PROJECT
+
+стартуй проект аттестации	OPEN_PROJECT
+запускай проект аттестации	OPEN_PROJECT
+включай проект аттестации	OPEN_PROJECT
+открывай проект аттестации	OPEN_PROJECT
+
+стартуй проект исследования	OPEN_PROJECT
+запускай проект исследования	OPEN_PROJECT
+включай проект исследования	OPEN_PROJECT
+открывай проект исследования	OPEN_PROJECT
+
+стартуй проект журнала	OPEN_PROJECT
+запускай проект журнала	OPEN_PROJECT
+включай проект журнала	OPEN_PROJECT
+открывай проект журнала	OPEN_PROJECT
+
+открой мой проект	OPEN_PROJECT
+запусти мой проект	OPEN_PROJECT
+включи мой проект	OPEN_PROJECT
+активируй мой проект	OPEN_PROJECT
+
+открой наш проект	OPEN_PROJECT
+запусти наш проект	OPEN_PROJECT
+включи наш проект	OPEN_PROJECT
+активируй наш проект	OPEN_PROJECT
+
+проект аттестации	OPEN_PROJECT
+проект исследования	OPEN_PROJECT
+проект журнала	OPEN_PROJECT
+проект	OPEN_PROJECT

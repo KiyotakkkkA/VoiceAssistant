@@ -1,0 +1,60 @@
+# === CREATE_PROJECT ===
+создать шаблон сайт	CREATE_PROJECT
+создать шаблон веб-сайт	CREATE_PROJECT
+создать шаблон вебсайт	CREATE_PROJECT
+создать шаблон сайта	CREATE_PROJECT
+создать шаблон веб-сайта	CREATE_PROJECT
+
+сделать шаблон приложение	CREATE_PROJECT
+сделать шаблон приложение	CREATE_PROJECT
+сделать шаблон приложение	CREATE_PROJECT
+сделать шаблон приложение	CREATE_PROJECT
+сделать шаблон приложение	CREATE_PROJECT
+
+сгенерировать шаблон бот	CREATE_PROJECT
+сгенерировать шаблон бот	CREATE_PROJECT
+сгенерировать шаблон бот	CREATE_PROJECT
+сгенерировать шаблон бот	CREATE_PROJECT
+сгенерировать шаблон бот	CREATE_PROJECT
+
+инициализировать шаблон андроид	CREATE_PROJECT
+инициализировать шаблон андроид	CREATE_PROJECT
+инициализировать шаблон андроид	CREATE_PROJECT
+инициализировать шаблон андроид	CREATE_PROJECT
+инициализировать шаблон андроид	CREATE_PROJECT
+
+настроить шаблон десктоп	CREATE_PROJECT
+настроить шаблон десктоп	CREATE_PROJECT
+настроить шаблон десктоп	CREATE_PROJECT
+настроить шаблон десктоп	CREATE_PROJECT
+настроить шаблон десктоп	CREATE_PROJECT
+
+шаблон сайт	CREATE_PROJECT
+шаблон веб-сайт	CREATE_PROJECT
+шаблон вебсайт	CREATE_PROJECT
+шаблон сайта	CREATE_PROJECT
+шаблон веб-сайта	CREATE_PROJECT
+
+шаблон приложение	CREATE_PROJECT
+шаблон приложение	CREATE_PROJECT
+шаблон приложение	CREATE_PROJECT
+шаблон приложение	CREATE_PROJECT
+шаблон приложение	CREATE_PROJECT
+
+шаблон бот	CREATE_PROJECT
+шаблон бот	CREATE_PROJECT
+шаблон бот	CREATE_PROJECT
+шаблон бот	CREATE_PROJECT
+шаблон бот	CREATE_PROJECT
+
+шаблон андроид	CREATE_PROJECT
+шаблон андроид	CREATE_PROJECT
+шаблон андроид	CREATE_PROJECT
+шаблон андроид	CREATE_PROJECT
+шаблон андроид	CREATE_PROJECT
+
+шаблон десктоп	CREATE_PROJECT
+шаблон десктоп	CREATE_PROJECT
+шаблон десктоп	CREATE_PROJECT
+шаблон десктоп	CREATE_PROJECT
+шаблон десктоп	CREATE_PROJECT
