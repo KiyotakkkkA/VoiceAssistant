@@ -36,7 +36,7 @@ class AppManageService(ISingleton):
         }
         
         self.PATH_TO_YAML_CONFIGS_DIR = os.getenv('PATH_TO_YAML_CONFIGS_DIR', 'resources/config')
-        self.PATH_TO_TEMPLATES_DIR = os.getenv('PATH_TO_TEMPLATES_DIR', 'resources/templates')
+        self.PATH_TO_TEMPLATES_DIR = os.getenv('PATH_TO_TEMPLATES_DIR_PATH', 'resources/templates')
         
         self.load_apps_configs()
         self.load_projects_configs()
@@ -164,9 +164,16 @@ class AppManageService(ISingleton):
             
         if _project:
             try:
-                code_path = self.apps["code_windsurf"]["path"]
+                editor_id = "code_vscode"
+
+                code_path = self.apps[editor_id]["path"]
                 project_path = _project['path']
-                process = subprocess.Popen(f"{code_path} \"{project_path}\"", shell=True)
+                process = None
+                
+                if editor_id != "code_vscode":
+                    process = subprocess.Popen(f"{code_path} \"{project_path}\"", shell=True)
+                else:
+                    process = subprocess.Popen(f"code \"{project_path}\"", shell=True)
                 pid = process.pid
                 
                 self.services["audio"].play_sound("opening_app")

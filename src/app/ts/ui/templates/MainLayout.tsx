@@ -1,9 +1,13 @@
 import React from 'react';
-import { StatePanel } from '../molecules/StatePanel';
-import { EventLog } from '../organisms/EventLog';
-import { Visualizer } from '../organisms/Visualizer';
+import { Badge } from '../atoms';
+import { StatePanel } from '../molecules';
+import { 
+  EventLog,
+  Visualizer,
+  RightNav,
+  AppsGrid
+} from '../organisms';
 import { useState } from 'react';
-import { Badge } from '../atoms/Badge';
 
 declare const __SOCKET_PORT__: number;
 
@@ -13,10 +17,20 @@ interface Props {
   transcript: string;
   messages: {type:string;payload:any;from?:string}[];
   onSend: (text:string)=>void;
+  apps: Record<string, any>;
 }
 
-export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend }) => {
+export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps }) => {
+
+  const pages: Record<string, React.ReactNode> = {
+    home: <Visualizer mode={mode} />,
+    apps: <AppsGrid apps={apps || {}} />
+  };
+
   const [logOpen, setLogOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<
+    'home' | 'apps'
+  >('home');
   const modeClass: Record<string,string> = {
     'Ожидание': 'bg-[#3c3c3c] text-gray-200',
     'wake': 'bg-[#007acc] text-white',
@@ -42,8 +56,13 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
             <StatePanel assistantName={assistantName} mode={mode} transcript={transcript} />
           </div>
         </div>
-        <div className='flex-1 relative bottom-[125px]'>
-          <Visualizer mode={mode} />
+        <div className='flex-1 relative flex'>
+          <div className='flex-1 relative'>
+            <div>
+              {pages[activeTab]}
+            </div>
+          </div>
+          <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'apps')} />
         </div>
       </div>
       <div className={`absolute left-0 right-0 bottom-0 z-20 transition-[height] duration-300 ease-in-out bg-[#1e1e1e]/95 backdrop-blur-[2px] border-t border-[#333] flex flex-col ${logOpen? 'h-64':'h-8'}`}>        

@@ -4,7 +4,7 @@ interface Props {
   mode: string;
 }
 
-export const Visualizer: React.FC<Props> = ({ mode }) => {
+const Visualizer: React.FC<Props> = ({ mode }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const modeRef = useRef(mode);
   modeRef.current = mode;
@@ -110,3 +110,5 @@ export const Visualizer: React.FC<Props> = ({ mode }) => {
     </div>
   );
 };
+
+export default Visualizer;

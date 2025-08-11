@@ -2,8 +2,9 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
-import { spawn } from 'child_process';
+import { spawn, exec } from 'child_process';
 import fs from 'fs';
+import { YamlParsingService } from './src/app/js/services/YamlParsingService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,15 @@ const createWindow = () => {
 
 let wss = null;
 const connectedClients = new Set();
+const yamlService = YamlParsingService.getInstance();
+
+function loadInitialConfigs() {
+  const cfgDir = path.join(__dirname, process.env.PATH_TO_YAML_CONFIGS_DIR || 'resources/configs');
+  const appsCfg = path.join(cfgDir, 'apps.yml');
+  if (fs.existsSync(appsCfg)) {
+    yamlService.load('apps', appsCfg);
+  }
+}
 
 function startWebSocketServer() {
   if (wss) return;
@@ -54,6 +64,21 @@ function startWebSocketServer() {
       }
       if (!msg.type) msg.type = 'unknown';
       if (!msg.from) msg.from = 'unknown';
+      if (msg.type === 'open_app_path' && msg.payload?.path) {
+        try {
+          const appPath = msg.payload.path;
+          const folder = path.dirname(appPath);
+          if (process.platform === 'win32') {
+            exec(`explorer.exe /select,"${appPath}"`);
+          } else if (process.platform === 'darwin') {
+            exec(`open "${folder}"`);
+          } else {
+            exec(`xdg-open "${folder}"`);
+          }
+        } catch (e) {
+          console.error('[WS] open_app_path error', e);
+        }
+      }
       for (const client of connectedClients) {
         if (client !== ws && client.readyState === 1) {
           client.send(JSON.stringify(msg));
@@ -67,6 +92,13 @@ function startWebSocketServer() {
       }
     });
     ws.send(JSON.stringify({ type: 'server_welcome', payload: 'connected', from: 'server' }));
+
+    const cfgData = {
+      apps: yamlService.get('apps')
+    }
+    if (cfgData) {
+      ws.send(JSON.stringify({ type: 'set_yaml_configs', from: 'server', payload: { data: cfgData } }));
+    }
   });
   wss.on('error', (err) => console.error('[WS] Error', err));
 }
@@ -111,6 +143,7 @@ function stopPythonProcess() {
 
 app.whenReady().then(() => {
   startWebSocketServer();
+  loadInitialConfigs();
   startPythonProcess();
   createWindow();
   app.on('activate', () => {

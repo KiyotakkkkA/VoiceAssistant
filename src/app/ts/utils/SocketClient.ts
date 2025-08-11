@@ -52,7 +52,7 @@ class SocketClient {
 	send(obj: any) {
 		if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return false;
 		try {
-			const payload = { from: 'ui', ...obj }; // enforce from
+			const payload = { from: 'ui', ...obj };
 			if (this.log) console.log('[SocketClient] =>', payload);
 			this.ws.send(JSON.stringify(payload));
 			return true;

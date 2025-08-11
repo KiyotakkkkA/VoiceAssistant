@@ -1,6 +1,6 @@
 import React from 'react';
 interface Msg { type: string; payload: any; from?: string }
-export const EventLog: React.FC<{messages: Msg[]}> = ({ messages }) => (
+const EventLog: React.FC<{messages: Msg[]}> = ({ messages }) => (
   <div className='flex-1 overflow-auto p-3 space-y-2 font-mono text-[11px] bg-[#1e1e1e]'>
     {messages.map((m,i)=>(
       <div key={i} className='px-2 py-1 rounded border border-[#333] bg-[#252526]'>
@@ -11,3 +11,5 @@ export const EventLog: React.FC<{messages: Msg[]}> = ({ messages }) => (
     {messages.length===0 && <div className='opacity-50'>Нет событий</div>}
   </div>
 );
+
+export default EventLog;

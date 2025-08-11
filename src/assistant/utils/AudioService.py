@@ -8,7 +8,7 @@ from interfaces import ISingleton
 class AudioService(ISingleton):
     SERVICE_NAME = "AudioService"
     
-    audio_dir = Path(f"{str(Path(__file__).resolve().parent.parent).replace('\\src\\assistant', '')}\\{os.getenv('PATH_TO_AUDIO_DIR_PATH', 'resources/audio')}")
+    audio_dir = Path(f"{str(Path(__file__).resolve().parent.parent).replace('\\src\\assistant', '')}\\{os.getenv('PATH_TO_TEMPLATES_DIR', 'resources/audio')}")
 
     def __init__(self):
         super().__init__()

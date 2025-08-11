@@ -201,3 +201,4 @@ npm run start:prod
 - `transcript` – финальная расшифровка фразы.
 - `python_shutdown` – корректное завершение.
 - `ui_message` – отправлено из интерфейса вручную.
+- `set_yaml_configs` – подгрузка yml конфигов. 

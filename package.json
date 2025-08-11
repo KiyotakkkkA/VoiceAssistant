@@ -17,6 +17,7 @@
     "lint": "eslint . --ext .js,.ts,.tsx"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -35,7 +36,8 @@
     "wait-on": "^7.2.0"
   },
   "dependencies": {
-  "dotenv": "^16.4.5",
+    "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "ws": "^8.18.3"

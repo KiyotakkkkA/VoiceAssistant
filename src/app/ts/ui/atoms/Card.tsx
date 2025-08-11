@@ -1,8 +1,12 @@
 import React from 'react';
 interface Props { title?: string; children: React.ReactNode; className?: string }
-export const Card: React.FC<Props> = ({ title, children, className='' }) => (
-  <div className={`bg-[#2f2f2f] rounded border border-[#3d3d3d] ${className}`}>
-    {title && <div className='text-[10px] uppercase opacity-60 px-3 pt-2'>{title}</div>}
-    <div className='p-3 text-xs leading-relaxed whitespace-pre-wrap break-words'>{children}</div>
+const Card: React.FC<Props> = ({ title, children, className='' }) => (
+  <div className={`relative rounded-md border border-[#3a3a3a] bg-gradient-to-br from-[#2b2b2b] to-[#242424] overflow-hidden group ${className}`}>
+    <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none'
+         style={{background:'radial-gradient(circle at 80% 20%, rgba(0,122,204,0.12), transparent 60%)'}} />
+    {title && <div className='text-[10px] font-medium tracking-wider text-gray-400 px-3 pt-2 select-none'>{title}</div>}
+    <div className='p-3 text-xs leading-relaxed whitespace-pre-wrap break-words relative z-10'>{children}</div>
   </div>
 );
+
+export default Card;

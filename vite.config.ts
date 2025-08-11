@@ -8,7 +8,9 @@ const envPath = path.resolve(__dirname, '.env');
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
 }
+
 const assistantName = (process.env.ASSISTANT_NAME || '').replace(/^"|"$/g, '');
+const configDir = (process.env.PATH_TO_YAML_CONFIGS_DIR || 'resources/configs')
 
 export default defineConfig({
   root: '.',
@@ -25,6 +27,6 @@ export default defineConfig({
   define: {
     __ASSISTANT_NAME__: JSON.stringify(assistantName),
     __SOCKET_HOST__: JSON.stringify(process.env.SOCKET_HOST || 'localhost'),
-    __SOCKET_PORT__: JSON.stringify(process.env.SOCKET_PORT || 8765)
+    __SOCKET_PORT__: JSON.stringify(process.env.SOCKET_PORT || 8765),
   }
 });
