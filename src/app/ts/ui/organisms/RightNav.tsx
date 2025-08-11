@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavItem } from '../molecules';
-import { IconApp, IconHome } from '../atoms/icons';
+import { IconApp, IconHome, IconSettings } from '../atoms/icons';
 
 interface Props {
   active: string;
@@ -8,11 +8,17 @@ interface Props {
 }
 
 const RightNav: React.FC<Props> = ({ active, onChange }) => {
+  const items = [
+    { icon: <IconSettings />, label: 'Настройки', active: active === 'settings', onClick: () => onChange('settings') },
+    { icon: <IconHome />, label: 'Главная', active: active === 'home', onClick: () => onChange('home') },
+    { icon: <IconApp />, label: 'Приложения', active: active === 'apps', onClick: () => onChange('apps') },
+  ];
   return (
-    <nav className='h-full w-14 flex flex-col items-stretch bg-[#252526] border-l border-black select-none'>
+            <nav className='h-full w-14 flex flex-col items-stretch th-panel border-l th-panel-border select-none' style={{background:'var(--th-panel)'}}> 
         <div className='flex-1 flex flex-col pt-2 gap-1'>
-            <NavItem icon={<IconHome />} label='Главная' active={active==='home'} onClick={()=>onChange('home')} />
-            <NavItem icon={<IconApp />} label='Приложения' active={active==='apps'} onClick={()=>onChange('apps')} />
+          {items.map(item => (
+            <NavItem key={item.label} {...item} />
+          ))}
         </div>
         <div className='p-2 text-[10px] text-gray-600 tracking-wider uppercase'>v1</div>
     </nav>

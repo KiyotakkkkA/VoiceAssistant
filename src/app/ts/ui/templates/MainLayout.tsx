@@ -35,6 +35,32 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
   };
 
   const [logOpen, setLogOpen] = useState(true);
+  const [logHeight, setLogHeight] = useState(256); // px
+  const [dragging, setDragging] = useState(false);
+  const startRef = React.useRef<{y:number; h:number}>();
+  const didDragRef = React.useRef(false);
+
+  const onDragStart = (e: React.MouseEvent) => {
+    if (!logOpen) return;
+    setDragging(true);
+    didDragRef.current = false;
+    startRef.current = { y: e.clientY, h: logHeight };
+    window.addEventListener('mousemove', onDragMove);
+    window.addEventListener('mouseup', onDragEnd);
+  };
+  const onDragMove = (e: MouseEvent) => {
+    if (!startRef.current) return;
+    const dy = startRef.current.y - e.clientY; // dragging upward increases height
+    if (Math.abs(dy) > 2) didDragRef.current = true;
+    let newH = startRef.current.h + dy;
+    newH = Math.max(120, Math.min(window.innerHeight*0.9, newH));
+    setLogHeight(newH);
+  };
+  const onDragEnd = () => {
+    setDragging(false);
+    window.removeEventListener('mousemove', onDragMove);
+    window.removeEventListener('mouseup', onDragEnd);
+  };
   const [activeTab, setActiveTab] = useState<
     'home' | 'apps'
   >('home');
@@ -73,11 +99,25 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
           <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'apps')} />
         </div>
       </div>
-      <div className={`absolute left-0 right-0 bottom-0 z-20 transition-[height] duration-300 ease-in-out bg-[#1e1e1e]/95 backdrop-blur-[2px] border-t border-[#333] flex flex-col ${logOpen? 'h-64':'h-8'}`}>        
-        <div className='h-8 flex items-center justify-between px-4 text-[11px] uppercase tracking-wider text-gray-500 cursor-pointer select-none' onClick={()=>setLogOpen(o=>!o)}>
+      <div className={`absolute left-0 right-0 bottom-0 z-20 bg-[#1e1e1e]/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
+        {/* Top drag handle (larger hit area) */}
+        {logOpen && (
+          <div
+            onMouseDown={onDragStart}
+            className={`absolute top-0 left-0 right-0 h-2 -translate-y-full cursor-row-resize ${dragging? 'bg-[#007acc33]' : 'bg-transparent hover:bg-[#ffffff08]'}`}
+          >
+            <div className={`w-full h-px bg-gradient-to-r from-[#007acc55] via-[#0dbc7955] to-[#007acc55] translate-y-[7px] pointer-events-none ${dragging? 'animate-pulse':''}`}></div>
+          </div>
+        )}
+        <div
+          onMouseDown={onDragStart}
+          className={`relative flex items-center justify-between px-4 text-[11px] uppercase tracking-wider text-gray-500 select-none h-8 ${dragging? 'cursor-row-resize':'cursor-pointer'}`}
+          onClick={(e)=>{ if(!didDragRef.current) setLogOpen(o=>!o); }}
+        >
+          <div className={`absolute left-0 right-0 top-0 h-[2px] -translate-y-full ${dragging? 'bg-gradient-to-r from-[#007acc] via-[#0dbc79] to-[#007acc] animate-pulse':'bg-transparent'}`}></div>
           <div className='flex items-center gap-2'>
             <span className='font-semibold text-gray-300'>Лог событий</span>
-            <span className='text-gray-600'>{logOpen? '▼':'▲'}</span>
+            <span className='text-gray-600'>{logOpen? (dragging ? '⇕' :'▼'):'▲'}</span>
           </div>
           <div className='text-gray-600'>{messages.length}</div>
         </div>
