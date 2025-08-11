@@ -1,13 +1,18 @@
 import { Card } from '../atoms';
-import React, { useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
+import { GContext } from '../../providers';
 
 interface Props { assistantName: string; mode: string; transcript: string | Object }
 const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
 
+  const ctx = useContext(GContext);
+
+  if (!ctx?.states) return null;
+
   const stateColors = {
-    'Слушание': 'bg-emerald-400',
-    'Ожидание': 'bg-gray-500',
-    'Инициализация': 'bg-red-400'
+    'listening': 'bg-emerald-400',
+    'waiting': 'bg-sky-500',
+    'initializing': 'bg-red-400'
   }
 
   return (
@@ -24,7 +29,7 @@ const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
             <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-40'></span>
             <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${stateColors[mode as keyof typeof stateColors]}`}></span>
           </span>
-          {mode}
+          {ctx.states[mode]}
         </div>
       </Card>
     </div>

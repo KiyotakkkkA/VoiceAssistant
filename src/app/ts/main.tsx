@@ -3,6 +3,7 @@ import '../css/index.css';
 import { useEffect, useState } from 'react';
 import { socketClient } from './utils';
 import { MainLayout } from './ui/templates/MainLayout';
+import { GlobalContext } from './providers';
 
 interface IncomingMsg { type: string; payload: any; from?: string }
 
@@ -10,19 +11,19 @@ declare const __ASSISTANT_NAME__: string;
 
 const App = () => {
   const [messages, setMessages] = useState<IncomingMsg[]>([]);
-  const [mode, setMode] = useState<'Ожидание' | 'wake' | 'Слушание' | "Инициализация">('Инициализация');
+  const [mode, setMode] = useState<'waiting' | 'wake' | 'listening' | "initializing">('initializing');
   const [transcript, setTranscript] = useState({});
   const [apps, setApps] = useState<Record<string, any>>({});
   const [toasts, setToasts] = useState<{id:string; message:string;}[]>([]);
   const [systemReady, setSystemReady] = useState(false);
 
   const handleWake = () => {
-    setMode('Слушание');
+    setMode('listening');
   };
 
   const handleTranscript = (m: any) => {
     setTranscript(m || '');
-    setMode('Ожидание');
+    setMode('waiting');
   };
 
   const handleYamlConfig = (m: any) => {
@@ -47,7 +48,22 @@ const App = () => {
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 3500);
-    setMode('Ожидание');
+    setMode('waiting');
+  };
+
+  const handleUiShowSetBrightness = (m: any) => {
+    const lvlRaw = m?.payload?.text?.result?.level ?? m?.payload?.result?.level;
+    let level: number | undefined;
+    if (typeof lvlRaw === 'number') level = Math.round(lvlRaw);
+    else if (typeof lvlRaw === 'string') {
+      const parsed = parseFloat(lvlRaw.replace(/[^0-9.,]/g,'').replace(',','.'));
+      if (!isNaN(parsed)) level = Math.round(parsed);
+    }
+    const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const message = `Яркость: ${level !== undefined ? level+'%' : '?'}`;
+    setToasts(prev => [...prev, { id, message }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+    setMode('waiting');
   };
 
   const bindings = {
@@ -55,9 +71,10 @@ const App = () => {
     transcript: handleTranscript,
     set_yaml_configs: handleYamlConfig,
     ui_show_set_volume: handleUiShowSetVolume,
+    ui_show_set_brightness: handleUiShowSetBrightness,
     python_ready: () => {
       setSystemReady(true);
-      setMode('Ожидание');
+      setMode('waiting');
     }
   };
 
@@ -77,7 +94,13 @@ const App = () => {
     socketClient.send({ type: 'ui_message', from: 'ui', payload: text.trim() });
   };
 
-  return <MainLayout assistantName={__ASSISTANT_NAME__} mode={mode} transcript={transcript as any} messages={messages} onSend={handleSend} apps={apps} toasts={toasts} systemReady={systemReady} />;
+  return (
+    <GlobalContext>
+      <MainLayout assistantName={__ASSISTANT_NAME__} mode={mode} transcript={transcript as any} messages={messages} onSend={handleSend} apps={apps} toasts={toasts} systemReady={systemReady} />
+    </GlobalContext>
+  
+  );
 };
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(<App />);
+  

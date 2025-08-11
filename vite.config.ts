@@ -14,6 +14,7 @@ const configDir = (process.env.PATH_TO_YAML_CONFIGS_DIR || 'resources/configs')
 
 export default defineConfig({
   root: '.',
+  base: './',
   plugins: [react()],
   build: {
     outDir: 'dist',

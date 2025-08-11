@@ -40,6 +40,7 @@ const createWindow = () => {
 let wss = null;
 const connectedClients = new Set();
 const yamlService = YamlParsingService.getInstance();
+let pythonIsReady = false;
 
 function loadInitialConfigs() {
   const cfgDir = path.join(__dirname, process.env.PATH_TO_YAML_CONFIGS_DIR || 'resources/configs');
@@ -64,6 +65,9 @@ function startWebSocketServer() {
       }
       if (!msg.type) msg.type = 'unknown';
       if (!msg.from) msg.from = 'unknown';
+      if (msg.type === 'python_ready') {
+        pythonIsReady = true;
+      }
       if (msg.type === 'open_app_path' && msg.payload?.path) {
         try {
           const appPath = msg.payload.path;
@@ -98,6 +102,9 @@ function startWebSocketServer() {
     }
     if (cfgData) {
       ws.send(JSON.stringify({ type: 'set_yaml_configs', from: 'server', payload: { data: cfgData } }));
+    }
+    if (pythonIsReady && ws.readyState === 1) {
+      ws.send(JSON.stringify({ type: 'python_ready', from: 'server', payload: 'replay' }));
     }
   });
   wss.on('error', (err) => console.error('[WS] Error', err));

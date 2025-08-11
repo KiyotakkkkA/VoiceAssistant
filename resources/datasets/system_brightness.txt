@@ -1,0 +1,73 @@
+# === SET_BRIGHTNESS ===
+установи яркость 50	SET_BRIGHTNESS
+яркость 30	SET_BRIGHTNESS
+увеличь яркость до 80	SET_BRIGHTNESS
+уменьши яркость до 20	SET_BRIGHTNESS
+поставь яркость на 75	SET_BRIGHTNESS
+уровень освещённостьа 60	SET_BRIGHTNESS
+
+задай яркость 40	SET_BRIGHTNESS
+настрой яркость 45	SET_BRIGHTNESS
+сделай яркость 35	SET_BRIGHTNESS
+выстави яркость 55	SET_BRIGHTNESS
+установить яркость 65	SET_BRIGHTNESS
+настроить освещённость 70	SET_BRIGHTNESS
+
+сделай освещённость погромче 90	SET_BRIGHTNESS
+сделай освещённость потише 10	SET_BRIGHTNESS
+освещённость погромче 85	SET_BRIGHTNESS
+освещённость потише 15	SET_BRIGHTNESS
+повысь яркость до 70	SET_BRIGHTNESS
+понизь яркость до 25	SET_BRIGHTNESS
+
+сделай яркость 50	SET_BRIGHTNESS
+сделай освещённость 40	SET_BRIGHTNESS
+сделай уровень освещённостьа 30	SET_BRIGHTNESS
+
+поставь освещённость 60	SET_BRIGHTNESS
+поставь уровень освещённостьа 55	SET_BRIGHTNESS
+поставь яркость 65	SET_BRIGHTNESS
+
+измени яркость на 75	SET_BRIGHTNESS
+измени освещённость до 80	SET_BRIGHTNESS
+измени уровень освещённостьа до 20	SET_BRIGHTNESS
+
+на 50 яркость	SET_BRIGHTNESS
+на 60 освещённость	SET_BRIGHTNESS
+на 70 уровень освещённостьа	SET_BRIGHTNESS
+
+до 80 яркость	SET_BRIGHTNESS
+до 90 освещённость	SET_BRIGHTNESS
+до 10 уровень освещённостьа	SET_BRIGHTNESS
+
+на 45 установи яркость	SET_BRIGHTNESS
+на 55 повысь освещённость	SET_BRIGHTNESS
+на 25 понизь уровень освещённостьа	SET_BRIGHTNESS
+
+до 75 поставь яркость	SET_BRIGHTNESS
+до 85 увеличь освещённость	SET_BRIGHTNESS
+до 15 уменьши уровень освещённостьа	SET_BRIGHTNESS
+
+установи яркость на 50 процентов	SET_BRIGHTNESS
+поставь освещённость на 60 процентов	SET_BRIGHTNESS
+увеличь яркость до 70 процентов	SET_BRIGHTNESS
+уменьши освещённость до 30 процентов	SET_BRIGHTNESS
+
+яркость 50	SET_BRIGHTNESS
+освещённость 40	SET_BRIGHTNESS
+уровень освещённостьа 30	SET_BRIGHTNESS
+освещённость 60 процентов	SET_BRIGHTNESS
+
+установи яркость 50 пожалуйста	SET_BRIGHTNESS
+поставь освещённость 60 пожалуйста	SET_BRIGHTNESS
+увеличь яркость до 70 пожалуйста	SET_BRIGHTNESS
+уменьши освещённость до 30 пожалуйста	SET_BRIGHTNESS
+
+увеличь яркость	SET_BRIGHTNESS
+уменьши освещённость	SET_BRIGHTNESS
+сделай погромче	SET_BRIGHTNESS
+сделай потише	SET_BRIGHTNESS
+освещённость погромче	SET_BRIGHTNESS
+освещённость потише	SET_BRIGHTNESS
+повысь яркость	SET_BRIGHTNESS
+понизь освещённость	SET_BRIGHTNESS

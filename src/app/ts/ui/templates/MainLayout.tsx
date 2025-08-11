@@ -8,6 +8,7 @@ import {
   AppsGrid
 } from '../organisms';
 import { useState } from 'react';
+import { GContext } from '../../providers';
 
 declare const __SOCKET_PORT__: number;
 
@@ -24,6 +25,10 @@ interface Props {
 
 export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false }) => {
 
+  const ctx = React.useContext(GContext);
+
+  if (!ctx?.states) return null;
+
   const pages: Record<string, React.ReactNode> = {
   home: <Visualizer mode={mode} systemReady={systemReady} />,
     apps: <AppsGrid apps={apps || {}} />
@@ -34,16 +39,16 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
     'home' | 'apps'
   >('home');
   const modeClass: Record<string,string> = {
-    'Ожидание': 'bg-[#3c3c3c] text-gray-200',
+    'waiting': 'bg-sky-600 text-gray-200',
     'wake': 'bg-[#007acc] text-white',
-    'Слушание': 'bg-[#0dbc79] text-white',
-    'Инициализация': 'bg-[#971216] text-white'
+    'listening': 'bg-[#0dbc79] text-white',
+    'initializing': 'bg-[#971216] text-white'
   };
   return (
     <div className='h-screen flex flex-col bg-[#1e1e1e] text-gray-200 font-sans overflow-hidden relative'>
       <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-[#2d2d2d] border-b border-black select-none shadow-inner'>
         <div className='flex items-center gap-3'>
-          <Badge label={mode} className={modeClass[mode]||'bg-gray-600'} />
+          <Badge label={ctx.states[mode]} className={modeClass[mode]||'bg-gray-600'} />
           <span className='tracking-wider uppercase text-gray-500'>Голосовой ассистент</span>
           <span className='text-sm text-gray-300'>{assistantName||'—'}</span>
         </div>

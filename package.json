@@ -13,7 +13,6 @@
     "build:services": "tsc -p tsconfig.services.json",
     "start": "electron .",
     "start:prod": "cross-env NODE_ENV=production electron .",
-    "speech:dev": "ts-node --project tsconfig.services.json src/app/ts/services/speechRecognitionService.ts",
     "lint": "eslint . --ext .js,.ts,.tsx"
   },
   "devDependencies": {
