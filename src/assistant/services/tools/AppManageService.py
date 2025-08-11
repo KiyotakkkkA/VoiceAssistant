@@ -4,15 +4,16 @@ import shutil
 import subprocess
 from interfaces import ISingleton
 from utils import YamlParsingService, AudioService
+from paths import path_resolver
 
 class AppManageService(ISingleton):
     SERVICE_NAME = "AppManageService"
     
     def __init__(self):
         super().__init__()
-        
-        self.extract_templ_path = os.getenv('PATH_TO_NEW_PROJECTS_DIR', 'DESKTOP')
-        
+
+        self.extract_templ_path = path_resolver['new_projects_path']
+
         if self.extract_templ_path == 'DESKTOP':
             self.extract_templ_path = os.path.join(os.path.expanduser('~'), 'Desktop')
         
@@ -35,9 +36,6 @@ class AppManageService(ISingleton):
             "CREATE_PROJECT": self.create_project_handler,
         }
         
-        self.PATH_TO_YAML_CONFIGS_DIR = os.getenv('PATH_TO_YAML_CONFIGS_DIR', 'resources/config')
-        self.PATH_TO_TEMPLATES_DIR = os.getenv('PATH_TO_TEMPLATES_DIR_PATH', 'resources/templates')
-        
         self.load_apps_configs()
         self.load_projects_configs()
         
@@ -50,10 +48,10 @@ class AppManageService(ISingleton):
         self.make_mapped_pairs()
     
     def load_apps_configs(self):
-        self.services["yaml_parsing"].load("apps_config", f"{os.getcwd()}/{self.PATH_TO_YAML_CONFIGS_DIR}/apps.yml")
+        self.services["yaml_parsing"].load("apps_config", "apps.yml")
 
     def load_projects_configs(self):
-        self.services["yaml_parsing"].load("projects_config", f"{os.getcwd()}/{self.PATH_TO_YAML_CONFIGS_DIR}/projects.yml")
+        self.services["yaml_parsing"].load("projects_config", "projects.yml")
 
     def make_mapped_pairs(self):
         for app_key, app_data in self.apps.items():
@@ -132,7 +130,7 @@ class AppManageService(ISingleton):
             }
             
         try:
-            shutil.copytree(f"{self.PATH_TO_TEMPLATES_DIR}/{_project['folder']}", f"{self.extract_templ_path}/{_project['display_name_after_expanding']}")
+            shutil.copytree(f"{path_resolver['templates_path']}/{_project['folder']}", f"{self.extract_templ_path}/{_project['display_name_after_expanding']}")
             self.services["audio"].play_sound("creating_project")
                 
             return {

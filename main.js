@@ -5,6 +5,7 @@ import { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
 import fs from 'fs';
 import { YamlParsingService } from './src/app/js/services/YamlParsingService.js';
+import { paths } from './src/app/js/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,10 +44,11 @@ const yamlService = YamlParsingService.getInstance();
 let pythonIsReady = false;
 
 function loadInitialConfigs() {
-  const cfgDir = path.join(__dirname, process.env.PATH_TO_YAML_CONFIGS_DIR || 'resources/configs');
-  const appsCfg = path.join(cfgDir, 'apps.yml');
+  const appsCfg = path.join(paths.yaml_configs_path, 'apps.yml');
   if (fs.existsSync(appsCfg)) {
     yamlService.load('apps', appsCfg);
+  } else {
+    console.warn('[Config] apps.yml not found at', appsCfg);
   }
 }
 

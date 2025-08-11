@@ -5,8 +5,7 @@ import os
 import argparse
 from utils import SocketClient
 from Assistant import Assistant
-from dotenv import load_dotenv
-from pathlib import Path
+from paths import path_resolver
 
 running = True
 
@@ -14,15 +13,11 @@ parser = argparse.ArgumentParser(description="Голосовой ассисте�
 parser.add_argument("--train", action="store_true", help="Обучить модель")
 args = parser.parse_args()
 
-env_path = Path(f"{str(Path(__file__).resolve().parent.parent).replace(r'\src', '')}\\.env")
-if env_path.exists():
-    load_dotenv(env_path)
-
 assistant = Assistant(
     name=os.getenv('ASSISTANT_NAME', 'Ассистент').strip('"'),
-    VOICE_RECOGNITION_MODEL_DIR_PATH=os.getenv('VOICE_RECOGNITION_MODEL_DIR_PATH', 'models/voice_small').strip('"'),
-    TEXT_CLASSIFICATION_DATASETS_DIR_PATH=os.getenv('TEXT_CLASSIFICATION_DATASETS_DIR_PATH', 'resources/datasets').strip('"'),
-    TEXT_CLASSIFICATION_MODEL_DIR_PATH=os.getenv('TEXT_CLASSIFICATION_MODEL_DIR_PATH', 'resources/temp').strip('"'),
+    VOICE_RECOGNITION_MODEL_DIR_PATH=path_resolver['voice_model_path'],
+    TEXT_CLASSIFICATION_DATASETS_DIR_PATH=path_resolver['cl_datasets_path'],
+    TEXT_CLASSIFICATION_MODEL_DIR_PATH=path_resolver['cl_model_path'],
     prediction_threshold=float(os.getenv('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', '0.85'))
 )
 

@@ -4,11 +4,12 @@ import os
 from pathlib import Path
 from colorama import Fore, Style
 from interfaces import ISingleton
+from paths import path_resolver
 
 class AudioService(ISingleton):
     SERVICE_NAME = "AudioService"
-    
-    audio_dir = Path(f"{str(Path(__file__).resolve().parent.parent).replace('\\src\\assistant', '')}\\{os.getenv('PATH_TO_TEMPLATES_DIR', 'resources/audio')}")
+
+    audio_dir = Path(path_resolver['audio_path'])
 
     def __init__(self):
         super().__init__()

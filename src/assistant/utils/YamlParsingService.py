@@ -2,6 +2,7 @@ from typing import Any, Dict, Optional
 from colorama import Fore, Style
 from interfaces import ISingleton
 from pathlib import Path
+from paths import path_resolver
 import yaml
 import os
 
@@ -15,19 +16,21 @@ class YamlParsingService(ISingleton):
         self._main_config_data: Optional[Dict[str, Any]] = None
         self._loaded_configs: Dict[str, Dict[str, Any]] = {}
 
-    def load(self, key: str, yaml_path: str) -> None:
+    def load(self, key: str, filename: str) -> None:
         """
         Загружает дополнительный YAML-файл и сохраняет его данные под указанным ключом.
 
         Args:
             key (str): Ключ для доступа к данным загруженного файла.
-            yaml_path (str): Путь к YAML-файлу для загрузки.
-        
+            filename (str): Название YAML-файла для загрузки.
+
         Raises:
             FileNotFoundError: Если файл не найден.
             ValueError: Если произошла ошибка парсинга YAML.
             RuntimeError: Если произошла другая ошибка при загрузке.
         """
+
+        yaml_path = f"{path_resolver['yaml_configs_path']}/{filename}"
 
         if not os.path.exists(yaml_path):
             raise FileNotFoundError(f"{Fore.RED}[ОШИБКА]{Style.RESET_ALL} Конфигурационный файл для загрузки не найден: {Fore.MAGENTA}'{yaml_path}'{Style.RESET_ALL}")

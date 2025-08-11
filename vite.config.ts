@@ -10,7 +10,6 @@ if (fs.existsSync(envPath)) {
 }
 
 const assistantName = (process.env.ASSISTANT_NAME || '').replace(/^"|"$/g, '');
-const configDir = (process.env.PATH_TO_YAML_CONFIGS_DIR || 'resources/configs')
 
 export default defineConfig({
   root: '.',
