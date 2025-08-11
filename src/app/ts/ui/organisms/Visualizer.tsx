@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { GContext } from '../../providers';
+import { TimeTracker, BatteryStatus } from '../molecules/widgets';
 
 interface Props {
   mode: string;
@@ -116,6 +117,10 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
   return (
     <div className='w-full h-full relative select-none'>
       <canvas ref={canvasRef} className='w-full h-full block' />
+      <div className="absolute top-4 right-6 flex flex-row gap-4 pointer-events-none z-20">
+        <BatteryStatus />
+        <TimeTracker />
+      </div>
       <div className='absolute inset-0 pointer-events-none flex items-center justify-center'>
         <div className='text-center'>
           <div className='text-xs tracking-widest uppercase text-gray-500 mb-2'>СТАТУС</div>

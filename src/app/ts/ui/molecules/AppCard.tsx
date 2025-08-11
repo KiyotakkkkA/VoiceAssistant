@@ -39,7 +39,7 @@ const AppCard: React.FC<{ appKey: string; cfg: AppConfig }> = ({ appKey, cfg }) 
                     <span className='truncate max-w-[110px]' title={cfg.path}>{fileName}</span>
                     <span className='flex items-center gap-1 text-[#007acc] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0'>
                         <svg width='10' height='10' viewBox='0 0 24 24' className='opacity-70'><path fill='currentColor' d='M10 4v2H5v13h13v-5h2v6H3V4h7zm9-2v8h-2V6.414l-7.793 7.793-1.414-1.414L15.586 5H12V3h7z'/></svg>
-                        Открыть
+                        Перейти
                     </span>
                 </div>
             </div>

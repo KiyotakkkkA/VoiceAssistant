@@ -100,7 +100,6 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
         </div>
       </div>
       <div className={`absolute left-0 right-0 bottom-0 z-20 bg-[#1e1e1e]/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
-        {/* Top drag handle (larger hit area) */}
         {logOpen && (
           <div
             onMouseDown={onDragStart}
