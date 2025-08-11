@@ -1,13 +1,15 @@
 import { Card } from '../atoms';
 import React, { useEffect, useRef } from 'react';
 
-interface Props { assistantName: string; mode: string; transcript: string }
-const pulseMap: Record<string, string> = {
-  'Ожидание': 'from-gray-500/40 via-slate-500/20 to-transparent',
-  'Слушание': 'from-emerald-400/60 via-teal-400/20 to-transparent'
-};
-
+interface Props { assistantName: string; mode: string; transcript: string | Object }
 const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
+
+  const stateColors = {
+    'Слушание': 'bg-emerald-400',
+    'Ожидание': 'bg-gray-500',
+    'Инициализация': 'bg-red-400'
+  }
+
   return (
     <div className='px-3 pb-4 pt-2 space-y-4 overflow-y-auto h-full custom-scrollbar relative'>
       <div className='relative'>
@@ -20,7 +22,7 @@ const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
         <div className='text-sm flex items-center gap-2'>
           <span className='relative flex h-2.5 w-2.5'>
             <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-40'></span>
-            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${mode==='Слушание' ? 'bg-emerald-400':'bg-sky-400'}`}></span>
+            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${stateColors[mode as keyof typeof stateColors]}`}></span>
           </span>
           {mode}
         </div>

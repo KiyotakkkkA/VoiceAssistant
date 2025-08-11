@@ -58,6 +58,8 @@ def main():
 					client.send({'type': 'wake', 'from': 'python', 'payload': { 'name': assistant.name }})
 				elif item.get('event') == 'transcript':
 					client.send({'type': 'transcript', 'from': 'python', 'payload': item.get('text')})
+				else:
+					client.send({"type": item.get('event', 'unknown'), "from": "python", "payload": item})
 
 	import threading
 	t = threading.Thread(target=speech_loop, daemon=True)

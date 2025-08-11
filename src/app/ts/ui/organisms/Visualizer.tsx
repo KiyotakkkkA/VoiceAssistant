@@ -2,12 +2,15 @@ import React, { useEffect, useRef } from 'react';
 
 interface Props {
   mode: string;
+  systemReady?: boolean;
 }
 
-const Visualizer: React.FC<Props> = ({ mode }) => {
+const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const modeRef = useRef(mode);
   modeRef.current = mode;
+  const readyRef = useRef(systemReady);
+  readyRef.current = systemReady;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -29,8 +32,9 @@ const Visualizer: React.FC<Props> = ({ mode }) => {
     };
     window.addEventListener('resize', onResize);
 
-    const rings = 9;
-    const pointsPerRing = 90;
+  // NOTE: rings/points won't resize dynamically; acceptable for init visual.
+  const rings = !readyRef.current ? 7 : 9;
+  const pointsPerRing = !readyRef.current ? 70 : 90;
     const particles: {r:number; a:number; spd:number; baseR:number;}[] = [];
     for (let i=0;i<rings;i++) {
       for (let j=0;j<pointsPerRing;j++) {
@@ -49,28 +53,34 @@ const Visualizer: React.FC<Props> = ({ mode }) => {
       ctx.save();
       ctx.translate(width/2,height/2);
 
-      const m = modeRef.current;
+  const m = modeRef.current;
+  const mal = !readyRef.current;
       if (m !== lastMode) {
         if (m === 'wake') flash = 1.2;
         lastMode = m;
       }
 
       const time = performance.now()/1000;
-      const globalRot = time * (m === 'Слушание' ? 0.25 : 0.08);
+  const globalRot = mal ? time * 0.01 + Math.sin(time*3)*0.002 : time * (m === 'Слушание' ? 0.25 : 0.08);
 
       if (flash>0) flash *= 0.92;
 
       for (const p of particles) {
         let pulse = 0;
-        if (m === 'Слушание') pulse = Math.sin(time*4 + p.baseR)*2.2;
-        else if (m === 'wake') pulse = Math.sin(time*8 + p.baseR)*1.2;
-        p.a += p.spd * 0.002 + (m==='Слушание'?0.0005:0);
+        if (mal) {
+          pulse = Math.sin(time*10 + p.baseR*1.7) * 0.6 + Math.sin(time*25 + p.a*13)*0.3;
+          p.a += p.spd * 0.0005 * (Math.sin(time*2)+1.2);
+        } else {
+          if (m === 'Слушание') pulse = Math.sin(time*4 + p.baseR)*2.2;
+          else if (m === 'wake') pulse = Math.sin(time*8 + p.baseR)*1.2;
+          p.a += p.spd * 0.002 + (m==='Слушание'?0.0005:0);
+        }
         const rr = p.r + pulse;
         const x = Math.cos(p.a + globalRot)*rr;
         const y = Math.sin(p.a + globalRot)*rr;
 
-        const baseColor = m === 'Слушание' ? [0,173,133] : m === 'wake' ? [0,122,204] : [80,100,120];
-        const alpha = 0.25 + 0.55*( (Math.sin(time*3 + p.a*5)+1)/2 );
+  const baseColor = mal ? [160+Math.sin(time*6 + p.a*9)*60, 20+Math.sin(time*4 + p.a*3)*10, 25+Math.sin(time*5 + p.a*2)*20] : (m === 'Слушание' ? [0,173,133] : m === 'wake' ? [0,122,204] : [80,100,120]);
+  const alpha = mal ? (0.15 + 0.6*((Math.sin(time*6 + p.a*7)+1)/2)) : 0.25 + 0.55*( (Math.sin(time*3 + p.a*5)+1)/2 );
         const f = flash>0 ? flash : 0;
         const r = Math.min(255, baseColor[0] + f*120);
         const g = Math.min(255, baseColor[1] + f*120);
@@ -83,7 +93,7 @@ const Visualizer: React.FC<Props> = ({ mode }) => {
       }
 
   const gradient = ctx.createRadialGradient(0,0,12,0,0, Math.min(width,height)/3);
-  gradient.addColorStop(0, m==='Слушание' ? 'rgba(0,173,133,0.22)' : m==='wake' ? 'rgba(0,122,204,0.22)' : 'rgba(0,150,180,0.12)');
+  gradient.addColorStop(0, mal ? 'rgba(200,30,40,0.25)' : m==='Слушание' ? 'rgba(0,173,133,0.22)' : m==='wake' ? 'rgba(0,122,204,0.22)' : 'rgba(0,150,180,0.12)');
       gradient.addColorStop(1,'rgba(0,0,0,0)');
       ctx.beginPath();
       ctx.fillStyle = gradient;
@@ -104,7 +114,10 @@ const Visualizer: React.FC<Props> = ({ mode }) => {
       <div className='absolute inset-0 pointer-events-none flex items-center justify-center'>
         <div className='text-center'>
           <div className='text-xs tracking-widest uppercase text-gray-500 mb-2'>СТАТУС</div>
-          <div className='text-4xl font-light'>{mode}</div>
+          <div className={`text-4xl font-light ${!systemReady ? 'text-red-400 drop-shadow-[0_0_6px_rgba(255,0,0,0.4)] animate-pulse' : ''}`}>{!systemReady ? 'ИНИЦИАЛИЗАЦИЯ' : mode}</div>
+          {!systemReady && (
+            <div className='mt-4 text-[10px] tracking-widest text-red-500/70 animate-[blink_1.2s_steps(2,start)_infinite]'>СИСТЕМА НЕ ГОТОВА</div>
+          )}
         </div>
       </div>
     </div>

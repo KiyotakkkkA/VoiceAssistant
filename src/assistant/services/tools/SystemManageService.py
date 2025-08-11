@@ -83,6 +83,7 @@ class SystemManageService(ISingleton):
             
             return {
                 "status": True,
+                "event": "ui_show_set_volume",
                 "result": {
                     "message": f"Громкость системы установлена на {level}%",
                     "level": level

@@ -48,6 +48,7 @@ class CommandBusService(ISingleton):
         
         return {
             "status": result.get("status"),
+            "event": result.get("event", None),
             "original_text": msg_data.get("original_text"),
             "result": result.get("result")
         }

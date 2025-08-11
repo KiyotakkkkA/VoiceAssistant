@@ -8,3 +8,16 @@ html, body, #root {
 body {
   @apply bg-gray-900 text-gray-100 antialiased;
 }
+
+@keyframes toastIn {
+  0% { transform: translateX(16px) translateY(-8px); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translateX(0) translateY(0); opacity: 1; }
+}
+@keyframes toastBar {
+  0% { width: 100%; opacity:1; }
+  90% { width: 0%; opacity:1; }
+  100% { width:0; opacity:0; }
+}
+.animate-slide-in { animation: toastIn 0.45s cubic-bezier(.32,.72,.29,.99); }
+.animate-toast-bar { animation: toastBar 3.3s linear forwards; }

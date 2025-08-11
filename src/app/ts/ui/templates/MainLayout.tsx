@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge } from '../atoms';
+import { Badge, Toast } from '../atoms';
 import { StatePanel } from '../molecules';
 import { 
   EventLog,
@@ -14,16 +14,18 @@ declare const __SOCKET_PORT__: number;
 interface Props {
   assistantName: string;
   mode: string;
-  transcript: string;
+  transcript: string | Object;
   messages: {type:string;payload:any;from?:string}[];
   onSend: (text:string)=>void;
   apps: Record<string, any>;
+  toasts?: { id:string; message:string }[];
+  systemReady?: boolean;
 }
 
-export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps }) => {
+export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false }) => {
 
   const pages: Record<string, React.ReactNode> = {
-    home: <Visualizer mode={mode} />,
+  home: <Visualizer mode={mode} systemReady={systemReady} />,
     apps: <AppsGrid apps={apps || {}} />
   };
 
@@ -34,7 +36,8 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
   const modeClass: Record<string,string> = {
     'Ожидание': 'bg-[#3c3c3c] text-gray-200',
     'wake': 'bg-[#007acc] text-white',
-    'Слушание': 'bg-[#0dbc79] text-white'
+    'Слушание': 'bg-[#0dbc79] text-white',
+    'Инициализация': 'bg-[#971216] text-white'
   };
   return (
     <div className='h-screen flex flex-col bg-[#1e1e1e] text-gray-200 font-sans overflow-hidden relative'>
@@ -80,6 +83,11 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
             </div>
           </>
         )}
+      </div>
+      <div className='pointer-events-none fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm'>
+        {toasts.map(t => (
+          <Toast key={t.id} title={t.message} />
+        ))}
       </div>
     </div>
   );

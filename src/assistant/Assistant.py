@@ -69,9 +69,11 @@ class Assistant:
                     
                     if not command_result.get("status"):
                         self.services["audio"].play_sound("not_understood")
-                    
-                    yield { "event": "transcript", "text": command_result }
-                    
+
+                    if not command_result.get("event"):
+                        yield { "event": "transcript", "text": command_result }
+                    else:
+                        yield { "event": command_result["event"], "text": command_result }
                 else:
                     print(f"{Fore.RED}Сервис классификации интентов не настроен или модель не загружена.{Style.RESET_ALL}")
 
