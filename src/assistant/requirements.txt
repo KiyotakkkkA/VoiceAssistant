@@ -1,5 +1,4 @@
-websocket>=0.2.1
-websocket-client>=1.8.0
+websocket-client==1.8.0
 vosk>=0.3.45
 colorama>=0.4.6
 setuptools>=62.0.0
