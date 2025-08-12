@@ -1,11 +1,5 @@
-/**
- * Theme utilities: map JSON token keys to CSS variables and apply them
- * so Tailwind can reference them via arbitrary values (e.g., border-[rgb(var(--sidebars-border))]).
- */
-
 export type ThemeTokens = Record<string, string | number> | Record<string, any>;
 
-/** Convert token key like "sidebars.border" into CSS var name: --sidebars-border */
 export function keyToCssVar(key: string, opts?: { prefix?: string }): string {
   const prefix = opts?.prefix ? `${opts.prefix}-` : '';
   const normalized = key
@@ -16,7 +10,6 @@ export function keyToCssVar(key: string, opts?: { prefix?: string }): string {
   return `--${prefix}${normalized}`;
 }
 
-/** Parse #rgb, #rgba, #rrggbb, #rrggbbaa into [r,g,b] */
 export function hexToRgbTuple(hex: string): [number, number, number] | null {
   let h = hex.trim();
   if (!h.startsWith('#')) return null;
@@ -36,17 +29,15 @@ export function hexToRgbTuple(hex: string): [number, number, number] | null {
   return null;
 }
 
-/** Normalize color into CSS var payload. Prefer "r g b" (space-separated). */
 export function toCssVarValue(value: string | number): string {
   if (typeof value === 'number') return String(value);
   const v = String(value).trim();
   const tuple = hexToRgbTuple(v);
   if (tuple) return `${tuple[0]} ${tuple[1]} ${tuple[2]}`;
-  if (/^\d+\s+\d+\s+\d+$/.test(v)) return v; // already "r g b"
-  return v; // raw string (e.g., named color or rgb())
+  if (/^\d+\s+\d+\s+\d+$/.test(v)) return v;
+  return v;
 }
 
-/** Flatten nested objects into dot-joined keys */
 export function flattenTokens(
   obj: Record<string, any>,
   parentKey = ''
@@ -64,11 +55,10 @@ export function flattenTokens(
 }
 
 export interface ApplyThemeOptions {
-  scope?: HTMLElement; // default: document.documentElement
-  prefix?: string;     // optional CSS var prefix
+  scope?: HTMLElement;
+  prefix?: string;
 }
 
-/** Apply token object to CSS variables on the given scope */
 export function applyThemeTokens(tokens: ThemeTokens, options?: ApplyThemeOptions) {
   const scope = options?.scope ?? document.documentElement;
   const flat = flattenTokens(tokens as Record<string, any>);
@@ -79,7 +69,6 @@ export function applyThemeTokens(tokens: ThemeTokens, options?: ApplyThemeOption
   }
 }
 
-/** Optional helper to set data-theme on <html> */
 export function setThemeOnHtml(themeKey: string) {
   document.documentElement.setAttribute('data-theme', themeKey);
 }

@@ -31,7 +31,7 @@ const resources = 'resources';
 
 export const paths = {
   yaml_configs_path: resolvePath(process.env.PATH_TO_YAML_CONFIGS_DIR, `${resources}/configs`),
-  themes_configs_path: resolvePath(process.env.PATH_TO_THEMES_CONFIGS_DIR, `${resources}/assets/themes`),
+  themes_path: resolvePath(process.env.PATH_TO_THEMES_CONFIGS_DIR, `${resources}/assets/themes`),
   global_path: resolvePath(process.env.PATH_TO_GLOBAL_DIR, `${resources}/global`)
 };
 

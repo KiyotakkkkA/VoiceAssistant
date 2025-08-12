@@ -5,7 +5,8 @@ import {
   EventLog,
   Visualizer,
   RightNav,
-  AppsGrid
+  AppsGrid,
+  SettingsPanel
 } from '../organisms';
 import { useState } from 'react';
 import { GContext } from '../../providers';
@@ -22,22 +23,33 @@ interface Props {
   toasts?: { id:string; message:string }[];
   systemReady?: boolean;
   theme?: Record<string, any> | null;
+  settings?: Record<string, any> | null;
   themeNames?: string[];
 }
 
-export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false }) => {
+export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false, theme, themeNames, settings }) => {
 
   const ctx = React.useContext(GContext);
 
   if (!ctx?.states) return null;
 
-  const pages: Record<string, React.ReactNode> = {
-  home: <Visualizer mode={mode} systemReady={systemReady} />,
-    apps: <AppsGrid apps={apps || {}} />
+  const pages: Record<string, Record<string, React.ReactNode>> = {
+    home: {
+      component: <Visualizer mode={mode} systemReady={systemReady} />,
+      fullmode: false
+    },
+    apps: {
+      component: <AppsGrid apps={apps || {}} />,
+      fullmode: true
+    },
+    settings: {
+      component: <SettingsPanel themeNames={themeNames || []} currentTheme={settings?.['ui.current.theme.id'] || 'dark'} />,
+      fullmode: true
+    },
   };
 
   const [logOpen, setLogOpen] = useState(true);
-  const [logHeight, setLogHeight] = useState(256); // px
+  const [logHeight, setLogHeight] = useState(256);
   const [dragging, setDragging] = useState(false);
   const startRef = React.useRef<{y:number; h:number}>();
   const didDragRef = React.useRef(false);
@@ -64,7 +76,7 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
     window.removeEventListener('mouseup', onDragEnd);
   };
   const [activeTab, setActiveTab] = useState<
-    'home' | 'apps'
+    'home' | 'apps' | 'settings'
   >('home');
   const modeClass: Record<string,string> = {
     'waiting': 'bg-badge-waiting text-white',
@@ -94,8 +106,8 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
         </div>
         <div className='flex-1 relative flex'>
           <div className='flex-1 relative'>
-            <div>
-              {pages[activeTab]}
+            <div className={`${pages[activeTab].fullmode ? 'h-full' : ''}`}>
+              {pages[activeTab].component}
             </div>
           </div>
           <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'apps')} />

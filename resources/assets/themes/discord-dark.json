@@ -1,0 +1,98 @@
+{
+    "setup.theme.title": "Discord Dark",
+
+    "main.bg": "#2b2d31",
+
+    "topbar.bg": "#35373c",
+    "topbar.border": "#3f4247",
+
+    "sidebars.bg": "#35373c",
+    "sidebars.border": "#3f4247",
+
+    "log.bg": "#2b2d31",
+    "log.panel.bg": "#35373c",
+    "log.item.border": "#3f4247",
+
+    "appcard.bg": "#35373c",
+    "appcard.border": "#3f4247",
+    "appcard.border.hover": "#5865f2",
+    "appcard.divider": "#3f4247",
+    "appcard.accent": "#5865f2",
+
+    "widget.bg": "#35373c",
+    "widget.border": "#3f4247",
+    "widget.muted": "#b5bac1",
+    "widget.accent.a": "#5865f2",
+    "widget.accent.b": "#23a55a",
+    "widget.success": "#23a55a",
+    "widget.danger": "#ed4245",
+
+    "eventlog.json.key": "#ed4245",
+    "eventlog.json.string": "#23a55a",
+    "eventlog.json.keyword": "#5865f2",
+    "eventlog.json.number": "#fee75c",
+    "eventlog.bg.wake": "#5865f2",
+    "eventlog.bg.transcript": "#23a55a",
+    "eventlog.bg.pyready": "#faa61a",
+    "eventlog.bg.yaml": "#b5bac1",
+    "eventlog.bg.default": "#3c3f45",
+    "eventlog.divider": "#3f4247",
+    "eventlog.button.bg": "#3c3f45",
+    "eventlog.button.bg.hover": "#4f5357",
+    "eventlog.button.border": "#3f4247",
+    "eventlog.button.border.hover": "#5865f2",
+    "eventlog.button.accent": "#5865f2",
+    "eventlog.button.accent.hover": "#4752c4",
+    "eventlog.item.bg.from": "#35373c",
+    "eventlog.item.bg.to": "#3c3f45",
+    "eventlog.from.text": "#b5bac1",
+    "eventlog.button.text": "rgba(219, 222, 225, 0.8)",
+    "eventlog.button.text.hover": "#dbdee1",
+
+    "badge.wake": "#5865f2",
+    "badge.listening": "#23a55a",
+    "badge.initializing": "#ed4245",
+    "badge.waiting": "#eb459e",
+    "badge.default": "#b5bac1",
+
+    "button.bg": "#3c3f45",
+    "button.bg.hover": "#4f5357",
+    "button.border": "#3f4247",
+
+    "draghandle.bg.active": "#5865f2",
+    "draghandle.bg.hover": "#3f4247",
+
+    "ui.text.primary": "#dbdee1",
+    "ui.text.secondary": "#b5bac1",
+    "ui.text.muted": "#949ba4",
+    "ui.text.accent": "#dbdee1",
+
+    "state.listening.bg": "#23a55a",
+    "state.listening.gradient": "rgba(35,165,90,0.15)",
+    "state.waiting.bg": "#eb459e",
+    "state.waiting.gradient": "rgba(235,69,158,0.15)",
+    "state.initializing.bg": "#ed4245",
+    "state.initializing.gradient": "rgba(237,66,69,0.15)",
+
+    "nav.text": "#b5bac1",
+    "nav.text.hover": "#dbdee1",
+    "nav.text.active": "#ffffff",
+    "nav.bg.hover": "#3c3f45",
+    "nav.bg.active": "#4f5357",
+    "nav.tooltip.bg": "#1e1f22",
+    "nav.tooltip.border": "#3f4247",
+    "nav.tooltip.text": "#dbdee1",
+
+    "toast.border": "#3f4247",
+    "toast.bg.from": "#35373c",
+    "toast.bg.to": "#3c3f45",
+    "toast.accent": "#5865f2",
+    "toast.bar": "#5865f2",
+
+    "card.border": "#3f4247",
+    "card.bg.from": "#35373c",
+    "card.bg.to": "#3c3f45",
+    "card.title": "#b5bac1",
+    
+    "version.text": "#949ba4"
+}

@@ -180,3 +180,4 @@ npm run start:prod
 - `ui_show_set_brightness` – обновление яркости. 
 - `ui_show_set_volume` – обновление громкости. 
 - `action_open_app_path` – действие открытия приложения. 
+- `action_set_theme` – действие смены цветовой темы. 

@@ -50,6 +50,17 @@ const services = {
 
 let pythonIsReady = false;
 
+function createBaseFiles() {
+  const settingsPath = `${paths.global_path}/settings.json`;
+  const content = {
+    "ui.current.theme.id": "github-dark"
+  }
+
+  if (!fs.existsSync(settingsPath)) {
+    fs.writeFileSync(settingsPath, JSON.stringify(content, null, 2));
+  }
+}
+
 function loadInitialConfigs() {
 
   const cfgs = {
@@ -90,8 +101,8 @@ function loadInitialConfigs() {
     }
   }
 
-  const selectedTheme = services.json.get('settings')['ui.current.theme'];
-  services.json.load('theme', `${paths.themes_configs_path}/${selectedTheme}.json`);
+  const selectedTheme = services.json.get('settings')['ui.current.theme.id'];
+  services.json.load('theme', `${paths.themes_path}/${selectedTheme}.json`);
 
 }
 
@@ -128,6 +139,44 @@ function startWebSocketServer() {
           console.error('[WS] action_open_app_path error', e);
         }
       }
+      
+      if (msg.type === 'action_set_theme' && msg.payload?.theme) {
+        try {
+          const themeName = msg.payload.theme;
+          const themePath = `${paths.themes_path}/${themeName}.json`;
+          
+          if (fs.existsSync(themePath)) {
+            services.json.load('theme', themePath);
+            
+            const settings = services.json.get('settings') || {};
+            settings['ui.current.theme.id'] = themeName;
+            
+            const settingsPath = `${paths.global_path}/settings.json`;
+            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+            services.json.load('settings', settingsPath);
+            
+            const updatedData = {
+              themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
+              theme: services.json.get('theme'),
+              settings: services.json.get('settings')
+            };
+            
+            for (const client of connectedClients) {
+              if (client.readyState === 1) {
+                client.send(JSON.stringify({ 
+                  type: 'set_json_data', 
+                  from: 'server', 
+                  payload: { data: updatedData } 
+                }));
+              }
+            }
+            
+            console.log(`[Theme] Switched to ${themeName}`);
+          }
+        } catch (e) {
+          console.error('[WS] action_set_theme error', e);
+        }
+      }
       for (const client of connectedClients) {
         if (client !== ws && client.readyState === 1) {
           client.send(JSON.stringify(msg));
@@ -146,6 +195,7 @@ function startWebSocketServer() {
       apps: services.yaml.get('apps')
     }
     const jsonCfgsData = {
+      themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
       theme: services.json.get('theme'),
       settings: services.json.get('settings')
     };
@@ -202,6 +252,7 @@ function stopPythonProcess() {
 
 app.whenReady().then(() => {
   startWebSocketServer();
+  createBaseFiles();
   loadInitialConfigs();
   startPythonProcess();
   createWindow();

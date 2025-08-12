@@ -17,7 +17,8 @@ const App = () => {
   const [toasts, setToasts] = useState<{id:string; message:string;}[]>([]);
   const [systemReady, setSystemReady] = useState(false);
   const [theme, setTheme] = useState<Record<string, string> | null>(null);
-  const [themeNames, setThemeNames] = useState<string[]>([]);
+  const [settings, setSettings] = useState<Record<string, any> | null>(null);
+  const [themesList, setThemesList] = useState<string[]>([]);
 
   const handleWake = () => {
     setMode('listening');
@@ -75,8 +76,9 @@ const App = () => {
     ui_show_set_volume: handleUiShowSetVolume,
     ui_show_set_brightness: handleUiShowSetBrightness,
     set_json_data: (m: any) => {
+      setThemesList(m?.payload?.data?.themesList || []);
       setTheme(m?.payload?.data?.theme || null);
-      setThemeNames(m?.payload?.data?.themeNames || []);
+      setSettings(m?.payload?.data?.settings || null);
     },
     python_ready: () => {
       setSystemReady(true);
@@ -102,7 +104,19 @@ const App = () => {
 
   return (
     <GlobalContext themes={theme || {}}>
-      <MainLayout assistantName={__ASSISTANT_NAME__} mode={mode} transcript={transcript as any} messages={messages} onSend={handleSend} apps={apps} toasts={toasts} systemReady={systemReady} theme={theme} themeNames={themeNames} />
+      <MainLayout
+        assistantName={__ASSISTANT_NAME__}
+        mode={mode}
+        transcript={transcript as any}
+        messages={messages}
+        onSend={handleSend}
+        apps={apps}
+        toasts={toasts}
+        systemReady={systemReady}
+        theme={theme}
+        themeNames={themesList}
+        settings={settings}
+      />
     </GlobalContext>
   
   );

@@ -1,0 +1,98 @@
+{
+    "setup.theme.title": "High Contrast Light",
+
+    "main.bg": "#ffffff",
+
+    "topbar.bg": "#f0f0f0",
+    "topbar.border": "#000000",
+
+    "sidebars.bg": "#f8f8f8",
+    "sidebars.border": "#000000",
+
+    "log.bg": "#ffffff",
+    "log.panel.bg": "#f8f8f8",
+    "log.item.border": "#000000",
+
+    "appcard.bg": "#ffffff",
+    "appcard.border": "#000000",
+    "appcard.border.hover": "#0066cc",
+    "appcard.divider": "#cccccc",
+    "appcard.accent": "#0066cc",
+
+    "widget.bg": "#ffffff",
+    "widget.border": "#000000",
+    "widget.muted": "#666666",
+    "widget.accent.a": "#0066cc",
+    "widget.accent.b": "#008000",
+    "widget.success": "#008000",
+    "widget.danger": "#cc0000",
+
+    "eventlog.json.key": "#cc0000",
+    "eventlog.json.string": "#008000",
+    "eventlog.json.keyword": "#0000cc",
+    "eventlog.json.number": "#6600cc",
+    "eventlog.bg.wake": "#0066cc",
+    "eventlog.bg.transcript": "#008000",
+    "eventlog.bg.pyready": "#ff6600",
+    "eventlog.bg.yaml": "#666666",
+    "eventlog.bg.default": "#f0f0f0",
+    "eventlog.divider": "#000000",
+    "eventlog.button.bg": "#f0f0f0",
+    "eventlog.button.bg.hover": "#e0e0e0",
+    "eventlog.button.border": "#000000",
+    "eventlog.button.border.hover": "#0066cc",
+    "eventlog.button.accent": "#0066cc",
+    "eventlog.button.accent.hover": "#0052a3",
+    "eventlog.item.bg.from": "#ffffff",
+    "eventlog.item.bg.to": "#f8f8f8",
+    "eventlog.from.text": "#666666",
+    "eventlog.button.text": "rgba(0, 0, 0, 0.8)",
+    "eventlog.button.text.hover": "#000000",
+
+    "badge.wake": "#0066cc",
+    "badge.listening": "#008000",
+    "badge.initializing": "#cc0000",
+    "badge.waiting": "#6600cc",
+    "badge.default": "#666666",
+
+    "button.bg": "#f0f0f0",
+    "button.bg.hover": "#e0e0e0",
+    "button.border": "#000000",
+
+    "draghandle.bg.active": "#0066cc",
+    "draghandle.bg.hover": "#000000",
+
+    "ui.text.primary": "#000000",
+    "ui.text.secondary": "#333333",
+    "ui.text.muted": "#666666",
+    "ui.text.accent": "#000000",
+
+    "state.listening.bg": "#008000",
+    "state.listening.gradient": "rgba(0,128,0,0.15)",
+    "state.waiting.bg": "#6600cc",
+    "state.waiting.gradient": "rgba(102,0,204,0.15)",
+    "state.initializing.bg": "#cc0000",
+    "state.initializing.gradient": "rgba(204,0,0,0.15)",
+
+    "nav.text": "#666666",
+    "nav.text.hover": "#000000",
+    "nav.text.active": "#000000",
+    "nav.bg.hover": "#f0f0f0",
+    "nav.bg.active": "#e0e0e0",
+    "nav.tooltip.bg": "#000000",
+    "nav.tooltip.border": "#333333",
+    "nav.tooltip.text": "#ffffff",
+
+    "toast.border": "#000000",
+    "toast.bg.from": "#ffffff",
+    "toast.bg.to": "#f0f0f0",
+    "toast.accent": "#0066cc",
+    "toast.bar": "#0066cc",
+
+    "card.border": "#000000",
+    "card.bg.from": "#ffffff",
+    "card.bg.to": "#f8f8f8",
+    "card.title": "#333333",
+    
+    "version.text": "#666666"
+}
