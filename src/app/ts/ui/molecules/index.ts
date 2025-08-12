@@ -5,7 +5,7 @@ import { AppCard, AppConfig } from "./AppCard";
 export {
     NavItem,
     StatePanel,
-    AppCard
+    AppCard,
 }
 
 export type {

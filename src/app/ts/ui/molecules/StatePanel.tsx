@@ -11,16 +11,16 @@ const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
 
   const stateColors = {
     'listening': {
-      main: 'bg-emerald-400',
-      alphaGradient: 'rgba(20,184,166,0.12)'
+      main: 'bg-state-listening-bg',
+      alphaGradient: 'var(--state-listening-gradient)'
     },
     'waiting': {
-      main: 'bg-sky-500',
-      alphaGradient: 'rgba(0,112,204,0.12)'
+      main: 'bg-state-waiting-bg',
+      alphaGradient: 'var(--state-waiting-gradient)'
     },
     'initializing': {
-      main: 'bg-red-400',
-      alphaGradient: 'rgba(255,0,0,0.12)'
+      main: 'bg-state-initializing-bg',
+      alphaGradient: 'var(--state-initializing-gradient)'
     }
   }
 

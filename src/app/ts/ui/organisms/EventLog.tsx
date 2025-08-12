@@ -11,17 +11,17 @@ function highlightJson(obj: any) {
     .replace(/(&)/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
-    .replace(/("(\\"|[^"])*"\s*:)/g, '<span class="text-[#569CD6]">$1</span>')
-    .replace(/(:\s"(\\"|[^"])*")/g,'<span class="text-[#CE9178]">$1</span>')
-    .replace(/\b(true|false|null)\b/g,'<span class="text-[#569CD6]">$1</span>')
-    .replace(/\b(-?\d+(?:\.\d+)?)\b/g,'<span class="text-[#B5CEA8]">$1</span>');
+    .replace(/("(\\"|[^"])*"\s*:)/g, '<span class="text-eventlog-json-key">$1</span>')
+    .replace(/(:\s"(\\"|[^"])*")/g,'<span class="text-eventlog-json-string">$1</span>')
+    .replace(/\b(true|false|null)\b/g,'<span class="text-eventlog-json-keyword">$1</span>')
+    .replace(/\b(-?\d+(?:\.\d+)?)\b/g,'<span class="text-eventlog-json-number">$1</span>');
 }
 
 const typeColors: Record<string,string> = {
-  wake: 'bg-[#007acc]',
-  transcript: 'bg-[#0dbc79]',
-  python_ready: 'bg-[#ffcc00] text-black',
-  set_yaml_configs: 'bg-[#444]',
+  wake: 'bg-eventlog-bg-wake',
+  transcript: 'bg-eventlog-bg-transcript',
+  python_ready: 'bg-eventlog-bg-pyready text-black',
+  set_yaml_configs: 'bg-eventlog-bg-yaml',
 };
 
 const EventLog: React.FC<Props> = ({ messages }) => {
@@ -37,22 +37,22 @@ const EventLog: React.FC<Props> = ({ messages }) => {
   });
 
   return (
-    <div className='flex-1 overflow-auto p-3 space-y-2 font-mono text-[11px] bg-[#1e1e1e]'>
+    <div className='flex-1 overflow-auto p-3 space-y-2 font-mono text-[11px] bg-log-bg'>
       {messages.map((m,i)=>{
         const defaultOpen = i > messages.length - 10;
         const isOpen = expanded[i] ?? defaultOpen;
-        const color = typeColors[m.type] || 'bg-[#2d2d2d]';
+        const color = typeColors[m.type] || 'bg-eventlog-bg-default';
         const payload = typeof m.payload==='string'? m.payload : m.payload;
         const highlighted = typeof payload === 'string' ? payload : highlightJson(payload);
         return (
-          <div key={i} className='group relative rounded-md border border-[#343434] bg-gradient-to-br from-[#262626] to-[#202020] shadow-sm hover:shadow-md transition-colors'>
-            <div className='flex items-center gap-2 px-2 py-1 border-b border-[#303030] text-[11px]'>
+          <div key={i} className='group relative rounded-md border border-log-item-border bg-gradient-to-br from-eventlog-item-bg-from to-eventlog-item-bg-to shadow-sm hover:shadow-md transition-colors'>
+            <div className='flex items-center gap-2 px-2 py-1 border-b border-eventlog-divider text-[11px]'>
               <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold ${color}`}>{m.type}</span>
-              <span className='text-gray-500'>{m.from||'unknown'}</span>
+              <span className='text-eventlog-from-text'>{m.from||'unknown'}</span>
               <div className='ml-auto flex items-center gap-1'>
                 <button
                   onClick={()=>toggle(i, defaultOpen)}
-                  className='relative px-2 py-0.5 rounded-md border border-[#3a3a3a] bg-[#2d2d2d] hover:border-[#4a4a4a] hover:bg-[#343434] text-gray-300/80 hover:text-gray-100 transition-colors text-[10px]'
+                  className='relative px-2 py-0.5 rounded-md border border-eventlog-button-border bg-eventlog-button-bg hover:border-eventlog-button-border-hover hover:bg-eventlog-button-bg-hover text-eventlog-button-text hover:text-eventlog-button-text-hover transition-colors text-[10px]'
                 >{isOpen?'Свернуть':'Развернуть'}</button>
                 <button
                   onClick={()=>{
@@ -61,7 +61,7 @@ const EventLog: React.FC<Props> = ({ messages }) => {
                     setToasts(prev => [...prev, { id, message: 'Скопировано в буфер обмена' }]);
                     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
                   }}
-                  className='px-2 py-0.5 rounded-md border border-[#3a3a3a] bg-[#2d2d2d] hover:border-[#4a4a4a] hover:bg-[#343434] text-[#569CD6] hover:text-[#6ab8ff] text-[10px] font-semibold tracking-wide'
+                  className='px-2 py-0.5 rounded-md border border-eventlog-button-border bg-eventlog-button-bg hover:border-eventlog-button-border-hover hover:bg-eventlog-button-bg-hover text-eventlog-button-accent hover:text-eventlog-button-accent-hover text-[10px] font-semibold tracking-wide'
                 >КОПИЯ</button>
               </div>
             </div>

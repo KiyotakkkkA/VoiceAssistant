@@ -5,7 +5,9 @@ import { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
 import fs from 'fs';
 import { YamlParsingService } from './src/app/js/services/YamlParsingService.js';
+import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
 import { paths } from './src/app/js/paths.js';
+import { json } from 'stream/consumers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,16 +42,57 @@ const createWindow = () => {
 
 let wss = null;
 const connectedClients = new Set();
-const yamlService = YamlParsingService.getInstance();
+
+const services = {
+  yaml: YamlParsingService.getInstance(),
+  json: JsonParsingService.getInstance()
+}
+
 let pythonIsReady = false;
 
 function loadInitialConfigs() {
-  const appsCfg = path.join(paths.yaml_configs_path, 'apps.yml');
-  if (fs.existsSync(appsCfg)) {
-    yamlService.load('apps', appsCfg);
-  } else {
-    console.warn('[Config] apps.yml not found at', appsCfg);
+
+  const cfgs = {
+    yaml: {
+      loader: services.yaml,
+      objs: [
+        {
+          dir: paths.yaml_configs_path,
+          filename: 'apps',
+          ext: "yml"
+        }
+      ]
+    },
+    json: {
+      loader: services.json,
+      objs: [
+        {
+          dir: paths.global_path,
+          filename: 'settings',
+          ext: "json"
+        }
+      ]
+    }
+  };
+
+  for (const [type, cfg] of Object.entries(cfgs)) {
+    for (const obj of cfg.objs || []) {
+      const filePath = path.join(obj.dir, `${obj.filename}.${obj.ext}`);
+      if (fs.existsSync(filePath)) {
+        try {
+          cfg.loader.load(obj.filename, filePath);
+        } catch (e) {
+          console.error(`[Config] Error loading ${type} config from ${filePath}:`, e);
+        }
+      } else {
+        console.warn(`[Config] File not found: ${filePath}`);
+      }
+    }
   }
+
+  const selectedTheme = services.json.get('settings')['ui.current.theme'];
+  services.json.load('theme', `${paths.themes_configs_path}/${selectedTheme}.json`);
+
 }
 
 function startWebSocketServer() {
@@ -70,7 +113,7 @@ function startWebSocketServer() {
       if (msg.type === 'python_ready') {
         pythonIsReady = true;
       }
-      if (msg.type === 'open_app_path' && msg.payload?.path) {
+      if (msg.type === 'action_open_app_path' && msg.payload?.path) {
         try {
           const appPath = msg.payload.path;
           const folder = path.dirname(appPath);
@@ -82,7 +125,7 @@ function startWebSocketServer() {
             exec(`xdg-open "${folder}"`);
           }
         } catch (e) {
-          console.error('[WS] open_app_path error', e);
+          console.error('[WS] action_open_app_path error', e);
         }
       }
       for (const client of connectedClients) {
@@ -99,11 +142,18 @@ function startWebSocketServer() {
     });
     ws.send(JSON.stringify({ type: 'server_welcome', payload: 'connected', from: 'server' }));
 
-    const cfgData = {
-      apps: yamlService.get('apps')
+    const yamlCfgsData = {
+      apps: services.yaml.get('apps')
     }
-    if (cfgData) {
-      ws.send(JSON.stringify({ type: 'set_yaml_configs', from: 'server', payload: { data: cfgData } }));
+    const jsonCfgsData = {
+      theme: services.json.get('theme'),
+      settings: services.json.get('settings')
+    };
+    if (yamlCfgsData) {
+      ws.send(JSON.stringify({ type: 'set_yaml_configs', from: 'server', payload: { data: yamlCfgsData } }));
+    }
+    if (jsonCfgsData) {
+      ws.send(JSON.stringify({ type: 'set_json_data', from: 'server', payload: { data: jsonCfgsData } }));
     }
     if (pythonIsReady && ws.readyState === 1) {
       ws.send(JSON.stringify({ type: 'python_ready', from: 'server', payload: 'replay' }));

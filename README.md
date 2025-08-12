@@ -176,5 +176,7 @@ npm run start:prod
 - `python_shutdown` – корректное завершение.
 - `ui_message` – отправлено из интерфейса вручную.
 - `set_yaml_configs` – подгрузка yml конфигов. 
+- `set_json_data` – подгрузка json данных. 
 - `ui_show_set_brightness` – обновление яркости. 
 - `ui_show_set_volume` – обновление громкости. 
+- `action_open_app_path` – действие открытия приложения. 
