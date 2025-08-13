@@ -24,11 +24,21 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
       title: 'Внешний вид',
       children: [
         {
-          id: 'themes',
+          id: 'appearance-themes',
           title: 'Темы',
-        }
+        },
       ]
-    }
+    },
+    {
+      id: 'models',
+      title: 'Модели AI',
+      children: [
+        {
+          id: 'models-apikeys',
+          title: 'Ключи API',
+        },
+      ]
+    },
   ];
 
   const toggleCategory = (categoryId: string) => {

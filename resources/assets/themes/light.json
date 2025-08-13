@@ -90,8 +90,7 @@
     "toast.bar": "#0066cc",
 
     "card.border": "#e0e0e0",
-    "card.bg.from": "#ffffff",
-    "card.bg.to": "#fafafa",
+    "card.bg": "#fafafa",
     "card.title": "#616161",
     
     "version.text": "#9e9e9e"

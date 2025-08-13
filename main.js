@@ -213,8 +213,8 @@ function startWebSocketServer() {
 }
 
 function resolvePythonExecutable() {
-  const venvWin = path.join(__dirname, 'src', 'assistant', '.venv', 'Scripts', 'python.exe');
-  const venvUnix = path.join(__dirname, 'src', 'assistant', '.venv', 'bin', 'python');
+  const venvWin = path.join(__dirname, 'assistant', '.venv', 'Scripts', 'python.exe');
+  const venvUnix = path.join(__dirname, 'assistant', '.venv', 'bin', 'python');
   if (fs.existsSync(venvWin)) return venvWin;
   if (fs.existsSync(venvUnix)) return venvUnix;
   return process.platform === 'win32' ? 'python' : 'python3';
@@ -223,7 +223,7 @@ function resolvePythonExecutable() {
 function startPythonProcess() {
   if (pythonProc) return;
   const pyExec = resolvePythonExecutable();
-  const assistantDir = path.join(__dirname, 'src', 'assistant');
+  const assistantDir = path.join(__dirname, 'assistant');
   const mainPy = path.join(assistantDir, 'main.py');
   if (!fs.existsSync(mainPy)) {
     console.warn('[Python] main.py not found at', mainPy);

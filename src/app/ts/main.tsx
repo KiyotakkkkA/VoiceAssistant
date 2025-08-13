@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { socketClient } from './utils';
 import { MainLayout } from './ui/templates/MainLayout';
 import { GlobalContext } from './providers';
+import { observer } from 'mobx-react-lite';
+
+import settingsStore from './store/SettingsStore';
 
 interface IncomingMsg { type: string; payload: any; from?: string }
 
 declare const __ASSISTANT_NAME__: string;
 
-const App = () => {
+const App = observer(() => {
   const [messages, setMessages] = useState<IncomingMsg[]>([]);
   const [mode, setMode] = useState<'waiting' | 'wake' | 'listening' | "initializing">('initializing');
   const [transcript, setTranscript] = useState({});
@@ -17,8 +20,6 @@ const App = () => {
   const [toasts, setToasts] = useState<{id:string; message:string;}[]>([]);
   const [systemReady, setSystemReady] = useState(false);
   const [theme, setTheme] = useState<Record<string, string> | null>(null);
-  const [settings, setSettings] = useState<Record<string, any> | null>(null);
-  const [themesList, setThemesList] = useState<string[]>([]);
 
   const handleWake = () => {
     setMode('listening');
@@ -76,9 +77,9 @@ const App = () => {
     ui_show_set_volume: handleUiShowSetVolume,
     ui_show_set_brightness: handleUiShowSetBrightness,
     set_json_data: (m: any) => {
-      setThemesList(m?.payload?.data?.themesList || []);
+      settingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themesList;
+      settingsStore.data.settings = m?.payload?.data?.settings || null;
       setTheme(m?.payload?.data?.theme || null);
-      setSettings(m?.payload?.data?.settings || null);
     },
     python_ready: () => {
       setSystemReady(true);
@@ -113,14 +114,11 @@ const App = () => {
         apps={apps}
         toasts={toasts}
         systemReady={systemReady}
-        theme={theme}
-        themeNames={themesList}
-        settings={settings}
       />
     </GlobalContext>
   
   );
-};
+});
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(<App />);
   

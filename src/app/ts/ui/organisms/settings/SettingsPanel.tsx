@@ -1,22 +1,29 @@
 import React, { useState } from 'react';
 import { SettingsSidebar, SettingsSection, ThemeSelector } from '../../molecules/settings';
+import { observer } from 'mobx-react-lite';
 
-interface Props {
-  themeNames: string[];
-  currentTheme: string;
-}
+import settingsStore from '../../../store/SettingsStore';
 
-const SettingsPanel: React.FC<Props> = ({ themeNames, currentTheme }) => {
-  const [activeTab, setActiveTab] = useState('themes');
+const SettingsPanel: React.FC = observer(() => {
+  const [activeTab, setActiveTab] = useState('appearance-themes');
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'themes':
+      case 'models-apikeys':
         return (
-          <SettingsSection title="Темы">
+          <SettingsSection title="Модели AI / Ключи API">
             <ThemeSelector 
-              themeNames={themeNames} 
-              currentTheme={currentTheme}
+              themeNames={settingsStore.data.appearance.themes.themeNames} 
+              currentTheme={settingsStore.data.settings?.['ui.current.theme.id'] || 'dark'}
+            />
+          </SettingsSection>
+        );
+      case 'appearance-themes':
+        return (
+          <SettingsSection title="Внешний вид / Темы">
+            <ThemeSelector 
+              themeNames={settingsStore.data.appearance.themes.themeNames} 
+              currentTheme={settingsStore.data.settings?.['ui.current.theme.id'] || 'dark'}
             />
           </SettingsSection>
         );
@@ -50,6 +57,6 @@ const SettingsPanel: React.FC<Props> = ({ themeNames, currentTheme }) => {
       </div>
     </div>
   );
-};
+});
 
 export { SettingsPanel };

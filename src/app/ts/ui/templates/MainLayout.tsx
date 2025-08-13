@@ -19,12 +19,9 @@ interface Props {
   apps: Record<string, any>;
   toasts?: { id:string; message:string }[];
   systemReady?: boolean;
-  theme?: Record<string, any> | null;
-  settings?: Record<string, any> | null;
-  themeNames?: string[];
 }
 
-export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false, theme, themeNames, settings }) => {
+export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false }) => {
 
   const ctx = React.useContext(GContext);
 
@@ -40,7 +37,7 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
       fullmode: true
     },
     settings: {
-      component: <SettingsPanel themeNames={themeNames || []} currentTheme={settings?.['ui.current.theme.id'] || 'dark'} />,
+      component: <SettingsPanel />,
       fullmode: true
     },
   };
@@ -86,7 +83,7 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
       <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-topbar-bg border-b border-topbar-border select-none shadow-inner'>
         <div className='flex items-center gap-3'>
           <Badge label={ctx.states[mode]} className={modeClass[mode]||'bg-badge-default text-white'} />
-          <span className='tracking-wider uppercase text-ui-text-secondary'>Голосовой ассистент</span>
+          <span className='tracking-wider uppercase text-ui-text-secondary text-[14px]'>Голосовой ассистент</span>
           <span className='text-sm text-ui-text-accent'>{assistantName||'—'}</span>
         </div>
         <div className='flex items-center gap-4 text-ui-text-secondary'>

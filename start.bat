@@ -1,10 +1,12 @@
 @echo off
+
+:: For valid russian characters you need to convert it to CP 866 in editor
 chcp 866 >nul
 
 for /F %%A in ('echo prompt $E ^| cmd') do set "ESC=%%A"
 
 set "BASE_DIR=%cd%"
-set "PY_BASE_DIR=%BASE_DIR%\src\assistant"
+set "PY_BASE_DIR=%BASE_DIR%\assistant"
 
 set "PY_VENV_PATH=%PY_BASE_DIR%\.venv"
 set "PY_ACTIVATE_PATH=%PY_VENV_PATH%\Scripts\activate"

@@ -97,8 +97,7 @@ module.exports = {
         'toast-bar': withOpacity('--toast-bar'),
 
         'card-border': withOpacity('--card-border'),
-        'card-bg-from': withOpacity('--card-bg-from'),
-        'card-bg-to': withOpacity('--card-bg-to'),
+        'card-bg': withOpacity('--card-bg'),
         'card-title': withOpacity('--card-title'),
         
         'version-text': withOpacity('--version-text'),
