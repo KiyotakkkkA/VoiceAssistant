@@ -8,7 +8,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-const SettingsCategory: React.FC<Props> = ({ 
+const Category: React.FC<Props> = ({ 
   title, 
   icon, 
   isExpanded = false, 
@@ -40,4 +40,4 @@ const SettingsCategory: React.FC<Props> = ({
   );
 };
 
-export default SettingsCategory;
+export { Category };

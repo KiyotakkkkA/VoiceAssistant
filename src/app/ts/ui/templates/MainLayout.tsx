@@ -1,15 +1,12 @@
 import React from 'react';
-import { Badge, Toast } from '../atoms';
+import { Badge, Toast } from '../atoms/feedback';
 import { StatePanel } from '../molecules';
-import { 
-  EventLog,
-  Visualizer,
-  RightNav,
-  AppsGrid,
-  SettingsPanel
-} from '../organisms';
 import { useState } from 'react';
 import { GContext } from '../../providers';
+import { Visualizer } from '../organisms/home';
+import { AppsGrid } from '../organisms/applications';
+import { SettingsPanel } from '../organisms/settings';
+import { EventLog, RightNav } from '../organisms/layout';
 
 declare const __SOCKET_PORT__: number;
 

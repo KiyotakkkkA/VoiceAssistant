@@ -20,4 +20,4 @@ const NavItem: React.FC<Props> = ({ icon, label, active, onClick }) => {
   );
 };
 
-export default NavItem;
+export { NavItem };

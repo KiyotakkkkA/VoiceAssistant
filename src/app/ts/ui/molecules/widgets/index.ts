@@ -1,7 +1,5 @@
-import TimeTracker from "./TimeTracker";
-import BatteryStatus from "./BatteryStatus";
+export { AppCard } from "./AppCard";
+export { BatteryStatus } from "./BatteryStatus";
+export { TimeTracker } from "./TimeTracker";
 
-export {
-    TimeTracker,
-    BatteryStatus
-};
+export type { AppConfig } from "./AppCard";

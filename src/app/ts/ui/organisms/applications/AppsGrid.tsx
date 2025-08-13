@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppCard, AppConfig} from '../molecules';
+import { AppCard, AppConfig} from '../../molecules/widgets';
 
 interface AppsGridProps {
 	apps: Record<string, AppConfig>;
@@ -39,4 +39,4 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 	);
 };
 
-export default AppsGrid;
+export { AppsGrid };

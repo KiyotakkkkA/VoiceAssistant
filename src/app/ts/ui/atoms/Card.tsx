@@ -9,4 +9,4 @@ const Card: React.FC<Props> = ({ title, children, className='', gradientColor })
   </div>
 );
 
-export default Card;
+export { Card };

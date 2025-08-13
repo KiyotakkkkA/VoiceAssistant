@@ -1,6 +1,6 @@
 import { Card } from '../atoms';
-import React, { useContext } from 'react';
 import { GContext } from '../../providers';
+import React, { useContext } from 'react';
 
 interface Props { assistantName: string; mode: string; transcript: string | Object }
 const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
@@ -45,4 +45,4 @@ const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
   );
 };
 
-export default StatePanel;
+export { StatePanel };

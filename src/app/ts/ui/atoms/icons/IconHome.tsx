@@ -17,4 +17,4 @@ const IconHome: React.FC<{ className?: string; size?: number }> = ({ className='
   </svg>
 );
 
-export default IconHome;
+export { IconHome };

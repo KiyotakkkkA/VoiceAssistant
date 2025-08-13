@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { GContext } from '../../providers';
-import { TimeTracker, BatteryStatus } from '../molecules/widgets';
+import { GContext } from '../../../providers';
+import { TimeTracker, BatteryStatus } from '../../molecules/widgets';
 
 interface Props {
   mode: string;
@@ -134,4 +134,4 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
   );
 };
 
-export default Visualizer;
+export { Visualizer };

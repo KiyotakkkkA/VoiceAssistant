@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SettingsSidebar, SettingsSection, ThemeSelector } from '../molecules';
+import { SettingsSidebar, SettingsSection, ThemeSelector } from '../../molecules/settings';
 
 interface Props {
   themeNames: string[];
@@ -52,4 +52,4 @@ const SettingsPanel: React.FC<Props> = ({ themeNames, currentTheme }) => {
   );
 };
 
-export default SettingsPanel;
+export { SettingsPanel };

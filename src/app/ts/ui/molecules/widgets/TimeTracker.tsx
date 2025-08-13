@@ -35,4 +35,4 @@ const TimeTracker = () => {
     )
 }
 
-export default TimeTracker;
+export { TimeTracker };

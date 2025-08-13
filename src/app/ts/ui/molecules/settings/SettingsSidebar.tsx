@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SettingsCategory } from '../atoms';
+import { Category } from '../../atoms';
 
 interface SettingsTab {
   id: string;
@@ -54,7 +54,7 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
 
     if (hasChildren) {
       return (
-        <SettingsCategory
+        <Category
           key={tab.id}
           title={tab.title}
           icon={tab.icon}
@@ -62,7 +62,7 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
           onToggle={() => toggleCategory(tab.id)}
         >
           {tab.children!.map(child => renderSettingsTab(child, level + 1))}
-        </SettingsCategory>
+        </Category>
       );
     }
 
@@ -93,4 +93,4 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
   );
 };
 
-export default SettingsSidebar;
+export { SettingsSidebar };

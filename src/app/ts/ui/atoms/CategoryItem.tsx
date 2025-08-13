@@ -6,7 +6,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-const SettingsItem: React.FC<Props> = ({ label, description, children }) => {
+const CategoryItem: React.FC<Props> = ({ label, description, children }) => {
   return (
     <div className="py-3 border-b border-ui-text-secondary/10 last:border-b-0">
       <div className="flex items-start justify-between gap-4">
@@ -28,4 +28,4 @@ const SettingsItem: React.FC<Props> = ({ label, description, children }) => {
   );
 };
 
-export default SettingsItem;
+export { CategoryItem };

@@ -1,11 +1,4 @@
-import IconHome from "./IconHome";
-import IconApp from "./IconApp";
-import IconSettings from "./IconSettings";
-
-export {
-    IconHome,
-    IconApp,
-    IconSettings
-}
-
+export { IconHome } from "./IconHome";
+export { IconApp } from "./IconApp";
+export { IconSettings } from "./IconSettings";
 

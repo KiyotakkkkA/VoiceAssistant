@@ -18,4 +18,4 @@ const SettingsSection: React.FC<Props> = ({ title, children }) => {
   );
 };
 
-export default SettingsSection;
+export { SettingsSection };

@@ -81,4 +81,4 @@ const Dropdown: React.FC<Props> = ({ options, value, onChange, placeholder = "В
   );
 };
 
-export default Dropdown;
+export { Dropdown };

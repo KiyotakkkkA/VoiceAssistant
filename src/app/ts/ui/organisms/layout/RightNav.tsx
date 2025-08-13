@@ -1,6 +1,6 @@
 import React from 'react';
-import { NavItem } from '../molecules';
-import { IconApp, IconHome, IconSettings } from '../atoms/icons';
+import { NavItem } from '../../molecules';
+import { IconApp, IconHome, IconSettings } from '../../atoms/icons';
 
 interface Props {
   active: string;
@@ -25,4 +25,4 @@ const RightNav: React.FC<Props> = ({ active, onChange }) => {
   );
 };
 
-export default RightNav;
+export { RightNav };

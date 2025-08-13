@@ -13,4 +13,4 @@ const Toast: React.FC<Props> = ({ title, className }) => {
   )
 };
 
-export default Toast;
+export { Toast };

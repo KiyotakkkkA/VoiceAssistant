@@ -1,4 +1,4 @@
-import { socketClient } from '../../utils';
+import { socketClient } from '../../../utils';
 import React from 'react';
 
 interface AppConfig {

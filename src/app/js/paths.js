@@ -7,6 +7,15 @@ const __dirname = path.dirname(__filename);
 
 const APP_ROOT = path.normalize(path.join(__dirname, '..', '..', '..'));
 
+let BASE_ROOT = APP_ROOT;
+try {
+  const { app } = await import('electron');
+  if (app && app.isPackaged) {
+    BASE_ROOT = process.resourcesPath;
+  }
+} catch {
+}
+
 try {
   const dotenvPath = path.join(APP_ROOT, '.env');
   if (fs.existsSync(dotenvPath)) {
@@ -22,8 +31,9 @@ function clean(v) {
 
 function resolvePath(val, defaultRel) {
   const raw = clean(val);
+  // Prefer absolute env override; otherwise join relative to BASE_ROOT
   let p = raw ? raw : defaultRel;
-  if (!path.isAbsolute(p)) p = path.join(APP_ROOT, p);
+  if (!path.isAbsolute(p)) p = path.join(BASE_ROOT, p);
   return path.normalize(p);
 }
 

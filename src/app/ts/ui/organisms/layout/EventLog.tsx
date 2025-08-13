@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Toast } from '../atoms';
+import { Toast } from '../../atoms/feedback';
 
 interface Msg { type: string; payload: any; from?: string; _ts?: number }
 interface Props { messages: Msg[] }
@@ -83,4 +83,4 @@ const EventLog: React.FC<Props> = ({ messages }) => {
   );
 };
 
-export default EventLog;
+export { EventLog };

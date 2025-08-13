@@ -52,4 +52,4 @@ const BatteryStatus = () => {
     );
 };
 
-export default BatteryStatus;
+export { BatteryStatus };

@@ -19,4 +19,4 @@ const IconApp: React.FC<{ className?: string; size?: number }> = ({ className = 
   </svg>
 );
 
-export default IconApp;
+export { IconApp };

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import { GContext } from '../../providers';
-import { SettingsItem, Dropdown } from '../atoms';
-import { socketClient } from '../../utils';
+import { GContext } from '../../../providers';
+import { CategoryItem, Dropdown } from '../../atoms';
+import { socketClient } from '../../../utils';
 
 interface Props {
   themeNames: string[];
@@ -26,7 +26,7 @@ const ThemeSelector: React.FC<Props> = ({ themeNames, currentTheme }) => {
   }));
 
   return (
-    <SettingsItem 
+    <CategoryItem 
       label="Цветовая тема"
       description="Выберите цветовую схему интерфейса приложения"
     >
@@ -36,8 +36,8 @@ const ThemeSelector: React.FC<Props> = ({ themeNames, currentTheme }) => {
         onChange={handleThemeChange}
         placeholder="Выберите тему"
       />
-    </SettingsItem>
+    </CategoryItem>
   );
 };
 
-export default ThemeSelector;
+export { ThemeSelector };

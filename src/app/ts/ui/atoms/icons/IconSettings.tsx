@@ -17,4 +17,4 @@ const IconSettings: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-export default IconSettings;
+export { IconSettings };
