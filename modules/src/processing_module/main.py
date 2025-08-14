@@ -24,7 +24,7 @@ def run(stop_event):
         for out in executor.run(msg):
             client.emit({
                 'type': EventsType.SERVICE_ACTION.value,
-                'topic': out['result']['event'] if out.get("result", {}).get('event') else EventsTopic.ACTION_TRANSCRIPT.value,
+                'topic': out['event'] if out.get("event") else EventsTopic.ACTION_TRANSCRIPT.value,
                 'payload': out,
                 'from': 'processing_module'
             })

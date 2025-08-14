@@ -42,7 +42,7 @@ const App = observer(() => {
   };
 
   const handleUiShowSetVolume = (m: any) => {
-    const lvlRaw = m?.payload?.text?.result?.level;
+    const lvlRaw = m?.payload?.data?.additional?.level;
     let level: number | undefined;
     if (typeof lvlRaw === 'number') {
       level = lvlRaw <= 1 ? Math.round(lvlRaw * 100) : Math.round(lvlRaw);
@@ -60,7 +60,7 @@ const App = observer(() => {
   };
 
   const handleUiShowSetBrightness = (m: any) => {
-    const lvlRaw = m?.payload?.text?.result?.level ?? m?.payload?.result?.level;
+    const lvlRaw = m?.payload?.data?.additional?.level;
     let level: number | undefined;
     if (typeof lvlRaw === 'number') level = Math.round(lvlRaw);
     else if (typeof lvlRaw === 'string') {
