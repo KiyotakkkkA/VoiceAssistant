@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { GContext } from '../../../providers';
 import { TimeTracker, BatteryStatus } from '../../molecules/widgets';
+import { EventsTopic } from '../../../../js/enums/Events';
 
 interface Props {
   mode: string;
@@ -62,7 +63,6 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
   const m = modeRef.current;
   const mal = !readyRef.current;
       if (m !== lastMode) {
-        if (m === 'wake') flash = 1.2;
         lastMode = m;
       }
 
@@ -78,14 +78,13 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
           p.a += p.spd * 0.0005 * (Math.sin(time*2)+1.2);
         } else {
           if (m === 'listening') pulse = Math.sin(time*4 + p.baseR)*2.2;
-          else if (m === 'wake') pulse = Math.sin(time*8 + p.baseR)*1.2;
           p.a += p.spd * 0.002 + (m==='listening'?0.0005:0);
         }
         const rr = p.r + pulse;
         const x = Math.cos(p.a + globalRot)*rr;
         const y = Math.sin(p.a + globalRot)*rr;
 
-  const baseColor = mal ? [160+Math.sin(time*6 + p.a*9)*60, 20+Math.sin(time*4 + p.a*3)*10, 25+Math.sin(time*5 + p.a*2)*20] : (m === 'listening' ? [0,173,133] : m === 'wake' ? [0,122,204] : [80,100,120]);
+  const baseColor = mal ? [160+Math.sin(time*6 + p.a*9)*60, 20+Math.sin(time*4 + p.a*3)*10, 25+Math.sin(time*5 + p.a*2)*20] : (m === 'listening' ? [0,173,133] : [0,122,204]);
   const alpha = mal ? (0.15 + 0.6*((Math.sin(time*6 + p.a*7)+1)/2)) : 0.25 + 0.55*( (Math.sin(time*3 + p.a*5)+1)/2 );
         const f = flash>0 ? flash : 0;
         const r = Math.min(255, baseColor[0] + f*120);
@@ -99,7 +98,7 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
       }
 
   const gradient = ctx.createRadialGradient(0,0,12,0,0, Math.min(width,height)/3);
-  gradient.addColorStop(0, mal ? 'rgba(200,30,40,0.25)' : m==='listening' ? 'rgba(0,173,133,0.22)' : m==='wake' ? 'rgba(0,122,204,0.22)' : 'rgba(0,150,180,0.12)');
+  gradient.addColorStop(0, mal ? 'rgba(200,30,40,0.25)' : m==='listening' ? 'rgba(0,173,133,0.22)' : 'rgba(0,150,180,0.12)');
       gradient.addColorStop(1,'rgba(0,0,0,0)');
       ctx.beginPath();
       ctx.fillStyle = gradient;

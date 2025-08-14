@@ -1,14 +1,13 @@
-import json
+import os
 import threading
 import time
-import os
-from typing import Callable, Any, Optional
+import json
+from typing import Callable, Any, Optional, Dict, List
 
 try:
 	import websocket
 except ImportError as e:
 	raise SystemExit("Install dependency first: pip install websocket-client") from e
-
 
 class SocketClient:
 	def __init__(self,
@@ -26,6 +25,7 @@ class SocketClient:
 		self._stop = threading.Event()
 		self._on_message = None
 		self._on_open = None
+		self._subscriptions: Dict[str, List[Callable[[Any], None]]] = {}
 		self._hb = auto_heartbeat
 		self._hb_interval = heartbeat_interval
 		self._echo_ui = echo_ui
@@ -38,12 +38,51 @@ class SocketClient:
 	def on_message(self, handler: Callable[[Any], None]):
 		self._on_message = handler
 
+	def subscribe(self, topic: str, handler: Callable[[Any], None]):
+		if topic not in self._subscriptions:
+			self._subscriptions[topic] = []
+		self._subscriptions[topic].append(handler)
+		return lambda: self.unsubscribe(topic, handler)
+
+	def unsubscribe(self, topic: str, handler: Callable[[Any], None]):
+		lst = self._subscriptions.get(topic)
+		if not lst:
+			return
+		try:
+			lst.remove(handler)
+		except ValueError:
+			pass
+		if not lst:
+			del self._subscriptions[topic]
+
+	def _match_topic(self, topic: str, pattern: str) -> bool:
+		if pattern.endswith('*'):
+			prefix = pattern[:-1]
+			return topic.startswith(prefix)
+		return topic == pattern
+
+	def _dispatch(self, data: Any):
+		if isinstance(data, dict):
+			topic = data.get('topic') or data.get('type')
+			if topic:
+				for pattern, handlers in list(self._subscriptions.items()):
+					if self._match_topic(topic, pattern):
+						for h in list(handlers):
+							try:
+								h(data)
+							except Exception as e:
+								self._log('subscription handler error', e)
+		if self._on_message:
+			try:
+				self._on_message(data)
+			except Exception as e:
+				self._log('on_message handler error', e)
+
 	def on_open(self, handler: Callable[[], None]):
 		self._on_open = handler
 
 	def _run(self):
 		def _on_open(_ws):
-			self.send({"type": "python_ready", "from": "python", "payload": "online"})
 			if self._on_open:
 				try:
 					self._on_open()
@@ -57,8 +96,7 @@ class SocketClient:
 				data = message
 			if isinstance(data, dict) and self._echo_ui and data.get('from') == 'ui' and data.get('type') == 'ui_message':
 				self.send({'type': 'python_echo', 'from': 'python', 'payload': f"Получено от UI: {data.get('payload')}"})
-			if self._on_message:
-				self._on_message(data)
+			self._dispatch(data)
 
 		def _on_error(_ws, err):
 			self._log("error", err)

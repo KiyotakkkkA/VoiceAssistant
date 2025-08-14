@@ -6,11 +6,11 @@ chcp 866 >nul
 for /F %%A in ('echo prompt $E ^| cmd') do set "ESC=%%A"
 
 set "BASE_DIR=%cd%"
-set "PY_BASE_DIR=%BASE_DIR%\assistant"
+set "PY_BASE_DIR=%BASE_DIR%\modules"
 
 set "PY_VENV_PATH=%PY_BASE_DIR%\.venv"
 set "PY_ACTIVATE_PATH=%PY_VENV_PATH%\Scripts\activate"
-set "PY_MAIN_PATH=%PY_BASE_DIR%\main.py"
+set "PY_TRAINER_PATH=%PY_BASE_DIR%\training.py"
 set "NODE_MODULES_PATH=%BASE_DIR%\node_modules"
 
 set "BLACK=%ESC%[30m"
@@ -65,7 +65,7 @@ if "%~1"=="" (
 )
 
 if "%1"=="--tr" (
-    python "%PY_MAIN_PATH%" --train
+    python "%PY_TRAINER_PATH%"
 ) else if "%1"=="--dev" (
     npm run dev
 ) else if "%1"=="--install" (

@@ -3,7 +3,7 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from .IntentFilesMerger import IntentFilesMerger
+from src.processing_module.services.classification.IntentFilesMerger import IntentFilesMerger
 from colorama import Fore, Style
 from interfaces import ISingleton
 import os

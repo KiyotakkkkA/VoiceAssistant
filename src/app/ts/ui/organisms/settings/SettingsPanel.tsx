@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { SettingsSidebar, SettingsSection, ThemeSelector } from '../../molecules/settings';
+import {
+  SettingsSidebar,
+  SettingsSection,
+  ThemeSelector,
+  ApiKeysField } from '../../molecules/settings';
 import { observer } from 'mobx-react-lite';
 
 import settingsStore from '../../../store/SettingsStore';
@@ -12,9 +16,7 @@ const SettingsPanel: React.FC = observer(() => {
       case 'models-apikeys':
         return (
           <SettingsSection title="Модели AI / Ключи API">
-            <ThemeSelector 
-              themeNames={settingsStore.data.appearance.themes.themeNames} 
-              currentTheme={settingsStore.data.settings?.['ui.current.theme.id'] || 'dark'}
+            <ApiKeysField 
             />
           </SettingsSection>
         );

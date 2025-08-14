@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Toast } from '../../atoms/feedback';
+import { EventsTopic } from '../../../../js/enums/Events';
 
-interface Msg { type: string; payload: any; from?: string; _ts?: number }
+interface Msg { type: string; topic: string; payload: any; from?: string; _ts?: number }
 interface Props { messages: Msg[] }
 
 function highlightJson(obj: any) {
@@ -18,10 +19,9 @@ function highlightJson(obj: any) {
 }
 
 const typeColors: Record<string,string> = {
-  wake: 'bg-eventlog-bg-wake',
-  transcript: 'bg-eventlog-bg-transcript',
-  python_ready: 'bg-eventlog-bg-pyready text-black',
-  set_yaml_configs: 'bg-eventlog-bg-yaml',
+  [EventsTopic.ACTION_TRANSCRIPT]: 'bg-eventlog-bg-transcript',
+  voice_recognizer_ready: 'bg-eventlog-bg-pyready text-black',
+  [EventsTopic.YAML_DATA_SET]: 'bg-eventlog-bg-yaml',
 };
 
 const EventLog: React.FC<Props> = ({ messages }) => {
@@ -48,6 +48,9 @@ const EventLog: React.FC<Props> = ({ messages }) => {
           <div key={i} className='group relative rounded-md border border-log-item-border bg-gradient-to-br from-eventlog-item-bg-from to-eventlog-item-bg-to shadow-sm hover:shadow-md transition-colors'>
             <div className='flex items-center gap-2 px-2 py-1 border-b border-eventlog-divider text-[11px]'>
               <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold ${color}`}>{m.type}</span>
+              <span className='text-eventlog-from-text'> - </span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold ${color}`}>{m.topic}</span>
+              <span className='text-eventlog-from-text'> :: </span>
               <span className='text-eventlog-from-text'>{m.from||'unknown'}</span>
               <div className='ml-auto flex items-center gap-1'>
                 <button

@@ -35,25 +35,35 @@
 ┌──────────────────────────────────┐
 │            Electron              │
 │  (main.js)                       │
-│  • Запуск окна                   │
-│  • Запуск Python процесса        │
+│  • Окно приложения               │
 │  • WebSocketServer (ws://:8765)  │
+│  • Запуск Python процесса        │
 └──────────────┬───────────────────┘
                │ JSON события
 ┌──────────────▼───────────────────┐
 │  Renderer (React + Vite)         │
 │  • SocketClient.ts (reconnect)   │
-│  • Атомарный UI + визуализация   │
-│  • Лог, состояния, матрица       │
+│  • UI / визуализация / логи      │
 └──────────────┬───────────────────┘
                │ WS сообщения
-┌──────────────▼───────────────────┐
-│   Python (assistant/)            │
-│   • main.py                      │
-│   • SocketClient.py (HB, echo)   │
-│   • SpeechRecognitionService     │
-│   • Assistant (orchestrator)     │
-└──────────────────────────────────┘
+┌──────────────▼─────────────────────────────────────────────────────────┐
+│                    Python (Оркестратор + Модули)                       │
+│  ┌───────────────────────────┐          Shared                         │
+│  │ Orchestrator (modules/    │          • clients/ModuleClient.py      │
+│  │ master.py)                │          • enums/Events.py              │
+│  │  • Загрузка manifest'ов   │          • paths.py                     │
+│  │  • Старт/стоп модулей     │                                         │
+│  │  • Реестр сервисов        │                                         │
+│  └───────────────┬───────────┘                                         │
+│                  │ запускает                                           │
+│  ┌───────────────▼───────────┐     ┌──────────────────────────────┐    │
+│  │ speech_rec_module         │     │ processing_module            │    │
+│  │  • main.py                │     │  • main.py                   │    │
+│  │  • Recognizer (Vosk)      │     │  • Executor                  │    │
+│  │  • SpeechRecognitionSvc   │     │  • CommandBus, IntentML      │    │
+│  └───────────────────────────┘     └──────────────────────────────┘    │
+│  Каждый модуль = WS‑клиент (ModuleClient: heartbeat, reconnect, route) │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🚀 Возможности
@@ -162,22 +172,27 @@ npm run start:prod
 Пример формата:
 ```jsonc
 {
-  "type": "wake" | "transcript" | "python_heartbeat" | "ui_message" | "python_shutdown" | "server_ack" | ...,
+  "type": "init" | "action" | "ping" | "event" | ...,
+  "topic": "json_data_set" | "yaml_data_set" | "action_theme_set" | "ui_show_set_brightness" | ...,
   "from": "python" | "ui" | "server",
   "payload": any
 }
 ```
 События:
-- `server_welcome` – приветствие сервера при подключении.
-- `server_ack` – подтверждение любого полученного сообщения.
-- `python_heartbeat` – регулярный пинг от Python.
-- `wake` – ассистент активирован (начало речевого сегмента).
-- `transcript` – финальная расшифровка фразы.
-- `python_shutdown` – корректное завершение.
-- `ui_message` – отправлено из интерфейса вручную.
-- `set_yaml_configs` – подгрузка yml конфигов. 
-- `set_json_data` – подгрузка json данных. 
-- `ui_show_set_brightness` – обновление яркости. 
-- `ui_show_set_volume` – обновление громкости. 
-- `action_open_app_path` – действие открытия приложения. 
-- `action_set_theme` – действие смены цветовой темы. 
+- `SERVICE_WAS_REGISTERED` - Новый сервис зарегистрирован,
+- `SERVICE_HEARTBEAT` - Периодический пинг,
+
+- `JSON_DATA_SET` - Получение JSON данных,
+- `YAML_DATA_SET` - Получение YAML данных,
+    
+- `RAW_TEXT_DATA_RECOGNIZED` - Перевод речи в текст и первичная её отчистка,
+
+- `ACTION_APP_OPEN` - Открытие приложения,
+- `ACTION_THEME_SET` - Установка темы,
+- `ACTION_WAKE` - Инициализация Ассистента,
+- `ACTION_TRANSCRIPT` - Обработанный текст,
+
+- `UI_SHOW_SET_VOLUME` - Отображение информации о смене громкости,
+- `UI_SHOW_SET_BRIGHTNESS` - Отображение информации о смене яркости,
+
+- `READY_VOICE_RECOGNIZER` - Событие готовности голосового модуля

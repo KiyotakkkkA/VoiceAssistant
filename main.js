@@ -6,11 +6,13 @@ import { spawn, exec } from 'child_process';
 import fs from 'fs';
 import { YamlParsingService } from './src/app/js/services/YamlParsingService.js';
 import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
+import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
 import { paths } from './src/app/js/paths.js';
-import { json } from 'stream/consumers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const __py_modules_dirname = path.join(__dirname, 'modules');
+const __py_master_filename = "master.py"
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -41,14 +43,13 @@ const createWindow = () => {
 };
 
 let wss = null;
+let voiceRecognizerIsReady = false;
 const connectedClients = new Set();
 
 const services = {
   yaml: YamlParsingService.getInstance(),
   json: JsonParsingService.getInstance()
-}
-
-let pythonIsReady = false;
+};
 
 function createBaseFiles() {
   const settingsPath = `${paths.global_path}/settings.json`;
@@ -110,6 +111,98 @@ function startWebSocketServer() {
   if (wss) return;
   wss = new WebSocketServer({ port: WS_PORT });
   console.log(`[WS] Server listening on ws://localhost:${WS_PORT}`);
+
+  const wsresolver = {
+    [EventsType.EVENT]: (ws, msg) => {
+      switch (msg.topic) {
+        case EventsTopic.SERVICE_HEARTBEAT:
+          break;
+        case EventsTopic.SERVICE_WAS_REGISTERED:
+          break;
+        default:
+          break;
+      }
+    },
+    [EventsType.SERVICE_INIT]: (ws, msg) => {
+      switch (msg.topic) {
+        case EventsTopic.READY_VOICE_RECOGNIZER:
+          voiceRecognizerIsReady = true;
+          break;
+      }
+    },
+    [EventsType.SERVICE_PING]: (ws, msg) => {
+      console.log('[WS] Service ping:', msg);
+    },
+    [EventsType.SERVICE_ACTION]: (ws, msg) => {
+      switch (msg.topic) {
+        case EventsTopic.ACTION_APP_OPEN:
+
+          if (!msg.payload?.path) {
+            console.warn('[WS] ACTION_APP_OPEN missing path');
+            return;
+          }
+
+          try {
+            const appPath = msg.payload.path;
+            const folder = path.dirname(appPath);
+            if (process.platform === 'win32') {
+              exec(`explorer.exe /select,"${appPath}"`);
+            } else if (process.platform === 'darwin') {
+              exec(`open "${folder}"`);
+            } else {
+              exec(`xdg-open "${folder}"`);
+            }
+          } catch (e) {
+            console.error('[WS] opening app error', e);
+          }
+
+          break;
+        case EventsTopic.ACTION_THEME_SET:
+          if (!msg.payload?.theme) {
+            console.warn('[WS] ACTION_THEME_SET missing theme');
+            return;
+          }
+          try {
+            const themeName = msg.payload.theme;
+            const themePath = `${paths.themes_path}/${themeName}.json`;
+
+            if (fs.existsSync(themePath)) {
+              services.json.load('theme', themePath);
+
+              const settings = services.json.get('settings') || {};
+              settings['ui.current.theme.id'] = themeName;
+
+              const settingsPath = `${paths.global_path}/settings.json`;
+              fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+              services.json.load('settings', settingsPath);
+
+              const updatedData = {
+                themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
+                theme: services.json.get('theme'),
+                settings: services.json.get('settings')
+              };
+
+              for (const client of connectedClients) {
+                if (client.readyState === 1) {
+                  client.send(JSON.stringify({
+                    type: EventsType.EVENT,
+                    topic: EventsTopic.JSON_DATA_SET,
+                    from: 'server',
+                    payload: { data: updatedData }
+                  }));
+                }
+              }
+
+              console.log(`[Theme] Switched to ${themeName}`);
+            }
+          } catch (e) {
+            console.error('[WS] theme setting error', e);
+          }
+          break;
+      }
+    }
+  }
+
   wss.on('connection', (ws) => {
     connectedClients.add(ws);
     ws.on('close', () => connectedClients.delete(ws));
@@ -121,75 +214,20 @@ function startWebSocketServer() {
       }
       if (!msg.type) msg.type = 'unknown';
       if (!msg.from) msg.from = 'unknown';
-      if (msg.type === 'python_ready') {
-        pythonIsReady = true;
-      }
-      if (msg.type === 'action_open_app_path' && msg.payload?.path) {
-        try {
-          const appPath = msg.payload.path;
-          const folder = path.dirname(appPath);
-          if (process.platform === 'win32') {
-            exec(`explorer.exe /select,"${appPath}"`);
-          } else if (process.platform === 'darwin') {
-            exec(`open "${folder}"`);
-          } else {
-            exec(`xdg-open "${folder}"`);
-          }
-        } catch (e) {
-          console.error('[WS] action_open_app_path error', e);
-        }
+
+      if (wsresolver[msg.type]) {
+        wsresolver[msg.type](ws, msg);
       }
       
-      if (msg.type === 'action_set_theme' && msg.payload?.theme) {
-        try {
-          const themeName = msg.payload.theme;
-          const themePath = `${paths.themes_path}/${themeName}.json`;
-          
-          if (fs.existsSync(themePath)) {
-            services.json.load('theme', themePath);
-            
-            const settings = services.json.get('settings') || {};
-            settings['ui.current.theme.id'] = themeName;
-            
-            const settingsPath = `${paths.global_path}/settings.json`;
-            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-            services.json.load('settings', settingsPath);
-            
-            const updatedData = {
-              themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
-              theme: services.json.get('theme'),
-              settings: services.json.get('settings')
-            };
-            
-            for (const client of connectedClients) {
-              if (client.readyState === 1) {
-                client.send(JSON.stringify({ 
-                  type: 'set_json_data', 
-                  from: 'server', 
-                  payload: { data: updatedData } 
-                }));
-              }
-            }
-            
-            console.log(`[Theme] Switched to ${themeName}`);
-          }
-        } catch (e) {
-          console.error('[WS] action_set_theme error', e);
-        }
-      }
       for (const client of connectedClients) {
         if (client !== ws && client.readyState === 1) {
           client.send(JSON.stringify(msg));
         }
       }
-      if (msg.type !== 'ping') {
+      if (msg.type !== 'ping' && msg.topic !== 'heartbeat') {
         console.log('[WS] Message', msg);
       }
-      if (ws.readyState === 1) {
-        ws.send(JSON.stringify({ type: 'server_ack', from: 'server', payload: { receivedType: msg.type } }));
-      }
     });
-    ws.send(JSON.stringify({ type: 'server_welcome', payload: 'connected', from: 'server' }));
 
     const yamlCfgsData = {
       apps: services.yaml.get('apps')
@@ -200,21 +238,21 @@ function startWebSocketServer() {
       settings: services.json.get('settings')
     };
     if (yamlCfgsData) {
-      ws.send(JSON.stringify({ type: 'set_yaml_configs', from: 'server', payload: { data: yamlCfgsData } }));
+      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.YAML_DATA_SET, from: 'server', payload: { data: yamlCfgsData } }));
     }
     if (jsonCfgsData) {
-      ws.send(JSON.stringify({ type: 'set_json_data', from: 'server', payload: { data: jsonCfgsData } }));
+      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
     }
-    if (pythonIsReady && ws.readyState === 1) {
-      ws.send(JSON.stringify({ type: 'python_ready', from: 'server', payload: 'replay' }));
+    if (voiceRecognizerIsReady && ws.readyState === 1) {
+      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.READY_VOICE_RECOGNIZER, from: 'server', payload: 'replay' }));
     }
   });
   wss.on('error', (err) => console.error('[WS] Error', err));
 }
 
 function resolvePythonExecutable() {
-  const venvWin = path.join(__dirname, 'assistant', '.venv', 'Scripts', 'python.exe');
-  const venvUnix = path.join(__dirname, 'assistant', '.venv', 'bin', 'python');
+  const venvWin = path.join(__py_modules_dirname, '.venv', 'Scripts', 'python.exe');
+  const venvUnix = path.join(__py_modules_dirname, '.venv', 'bin', 'python');
   if (fs.existsSync(venvWin)) return venvWin;
   if (fs.existsSync(venvUnix)) return venvUnix;
   return process.platform === 'win32' ? 'python' : 'python3';
@@ -223,8 +261,8 @@ function resolvePythonExecutable() {
 function startPythonProcess() {
   if (pythonProc) return;
   const pyExec = resolvePythonExecutable();
-  const assistantDir = path.join(__dirname, 'assistant');
-  const mainPy = path.join(assistantDir, 'main.py');
+  const modulesDir = path.join(__py_modules_dirname);
+  const mainPy = path.join(modulesDir, __py_master_filename);
   if (!fs.existsSync(mainPy)) {
     console.warn('[Python] main.py not found at', mainPy);
     return;

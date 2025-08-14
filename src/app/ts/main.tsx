@@ -5,16 +5,17 @@ import { socketClient } from './utils';
 import { MainLayout } from './ui/templates/MainLayout';
 import { GlobalContext } from './providers';
 import { observer } from 'mobx-react-lite';
+import { EventsTopic, EventsType } from '../js/enums/Events';
 
 import settingsStore from './store/SettingsStore';
 
-interface IncomingMsg { type: string; payload: any; from?: string }
+interface IncomingMsg { type: string; topic: string; payload: any; from?: string }
 
 declare const __ASSISTANT_NAME__: string;
 
 const App = observer(() => {
   const [messages, setMessages] = useState<IncomingMsg[]>([]);
-  const [mode, setMode] = useState<'waiting' | 'wake' | 'listening' | "initializing">('initializing');
+  const [mode, setMode] = useState<'waiting' | 'listening' | "initializing">('initializing');
   const [transcript, setTranscript] = useState({});
   const [apps, setApps] = useState<Record<string, any>>({});
   const [toasts, setToasts] = useState<{id:string; message:string;}[]>([]);
@@ -27,6 +28,9 @@ const App = observer(() => {
 
   const handleTranscript = (m: any) => {
     setTranscript(m || '');
+  };
+
+  const rawDataTextRecognized = (m: any) => {
     setMode('waiting');
   };
 
@@ -71,17 +75,18 @@ const App = observer(() => {
   };
 
   const bindings = {
-    wake: handleWake,
-    transcript: handleTranscript,
-    set_yaml_configs: handleyaml,
-    ui_show_set_volume: handleUiShowSetVolume,
-    ui_show_set_brightness: handleUiShowSetBrightness,
-    set_json_data: (m: any) => {
+    [EventsTopic.ACTION_WAKE]: handleWake,
+    [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,
+    [EventsTopic.RAW_TEXT_DATA_RECOGNIZED]: rawDataTextRecognized,
+    [EventsTopic.YAML_DATA_SET]: handleyaml,
+    [EventsTopic.UI_SHOW_SET_VOLUME]: handleUiShowSetVolume,
+    [EventsTopic.UI_SHOW_SET_BRIGHTNESS]: handleUiShowSetBrightness,
+    [EventsTopic.JSON_DATA_SET]: (m: any) => {
       settingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themesList;
       settingsStore.data.settings = m?.payload?.data?.settings || null;
       setTheme(m?.payload?.data?.theme || null);
     },
-    python_ready: () => {
+    [EventsTopic.READY_VOICE_RECOGNIZER]: () => {
       setSystemReady(true);
       setMode('waiting');
     }
@@ -90,7 +95,7 @@ const App = observer(() => {
   useEffect(() => {
     const unsubscribe = socketClient.subscribe(m => {
       setMessages(prev => [...prev, m].slice(-500));
-      const handler = bindings[m.type as keyof typeof bindings];
+      const handler = bindings[m.topic as keyof typeof bindings];
       if (handler) {
         handler(m);
       }

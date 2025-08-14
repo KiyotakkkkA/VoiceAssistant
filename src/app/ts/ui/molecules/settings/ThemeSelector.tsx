@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
-import { GContext } from '../../../providers';
+import React from 'react';
 import { CategoryItem, Dropdown } from '../../atoms';
 import { socketClient } from '../../../utils';
+import { EventsTopic, EventsType } from '../../../../js/enums/Events';
 
 interface Props {
   themeNames: string[];
@@ -9,12 +9,11 @@ interface Props {
 }
 
 const ThemeSelector: React.FC<Props> = ({ themeNames, currentTheme }) => {
-  const ctx = useContext(GContext);
-
   const handleThemeChange = (newTheme: string) => {
     if (socketClient) {
       socketClient.send({
-        type: 'action_set_theme',
+        type: EventsType.SERVICE_ACTION,
+        topic: EventsTopic.ACTION_THEME_SET,
         payload: { theme: newTheme }
       });
     }

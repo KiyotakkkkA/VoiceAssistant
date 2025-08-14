@@ -1,5 +1,6 @@
 from interfaces import ISingleton
 from utils import AudioService
+from enums.Events import EventsType, EventsTopic
 try:
     from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
     from comtypes import CLSCTX_ALL
@@ -61,19 +62,13 @@ class SystemManageService(ISingleton):
         if not Pycaw_IMPORTED:
             return {
                 "status": False,
-                "result": {
-                    "message": "Модуль 'pycaw' не установлен. Управление громкостью недоступно.",
-                    "level": level
-                }
+                "message": "Модуль 'pycaw' не установлен. Управление громкостью недоступно.",
             }
 
         if not self._volume_controller:
             return {
                 "status": False,
-                "result": {
-                    "message": "Контроллер громкости не инициализирован.",
-                    "level": level
-                }
+                "message": "Контроллер громкости не инициализирован.",
             }
 
         try:
@@ -89,19 +84,16 @@ class SystemManageService(ISingleton):
             
             return {
                 "status": True,
-                "event": "ui_show_set_volume",
-                "result": {
-                    "message": f"Громкость системы установлена на {level}%",
+                "event": EventsTopic.UI_SHOW_SET_VOLUME.value,
+                "message": f"Громкость системы установлена на {level}%",
+                "additional": {
                     "level": level
                 }
             }
         except Exception as e:
             return {
                 "status": False,
-                "result": {
-                    "message": f"Ошибка при установке громкости: {e}",
-                    "level": level
-                }
+                "message": f"Ошибка при установке громкости: {e}",
             }
 
     def set_system_brightness(self, level: int) -> dict:
@@ -115,10 +107,7 @@ class SystemManageService(ISingleton):
         if not BRIGHTNESS_IMPORTED:
             return {
                 "status": False,
-                "result": {
-                    "message": "Модуль 'screen_brightness_control' не установлен. Управление яркостью недоступно.",
-                    "level": level
-                }
+                "message": "Модуль 'screen_brightness_control' не установлен. Управление яркостью недоступно.",
             }
         try:
             level = max(0, min(100, int(level)))
@@ -128,19 +117,16 @@ class SystemManageService(ISingleton):
 
             return {
                 "status": True,
-                "event": "ui_show_set_brightness",
-                "result": {
-                    "message": f"Яркость системы установлена на {level}%",
+                "event": EventsTopic.UI_SHOW_SET_BRIGHTNESS.value,
+                "message": f"Яркость системы установлена на {level}%",
+                "additional": {
                     "level": level
                 }
             }
         except Exception as e:
             return {
                 "status": False,
-                "result": {
-                    "message": f"Ошибка при установке яркости: {e}",
-                    "level": level
-                }
+                "message": f"Ошибка при установке яркости: {e}"
             }
 
     def execute(self, msg_data: dict):
@@ -168,20 +154,10 @@ class SystemManageService(ISingleton):
         if level is None:
             return {
                 "status": False,
-                "result": {
-                    "intent": msg_data.get("intent"),
-                    "confidence": msg_data.get("confidence"),
-                    "message": "Не удалось определить уровень громкости из команды."
-                }
+                "message": "Не удалось определить уровень громкости из команды."
             }
-        
-        result = self.set_system_volume(level)
-        
-        if "result" in result:
-            result["result"]["intent"] = msg_data.get("intent")
-            result["result"]["confidence"] = msg_data.get("confidence")
             
-        return result
+        return self.set_system_volume(level)
 
     def set_brightness_handler(self, msg_data: dict) -> dict:
         """Обработчик интента установки яркости (SET_BRIGHTNESS)."""
@@ -195,7 +171,6 @@ class SystemManageService(ISingleton):
                 level = num
                 break
 
-        # fallback: прямое указание уровня в msg_data
         if level is None:
             lvl_field = msg_data.get("level")
             if isinstance(lvl_field, (int, float)) and 0 <= lvl_field <= 100:
@@ -204,15 +179,7 @@ class SystemManageService(ISingleton):
         if level is None:
             return {
                 "status": False,
-                "result": {
-                    "intent": msg_data.get("intent"),
-                    "confidence": msg_data.get("confidence"),
-                    "message": "Не удалось определить уровень яркости из команды."
-                }
+                "message": "Не удалось определить уровень яркости из команды."
             }
 
-        result = self.set_system_brightness(level)
-        if "result" in result:
-            result["result"]["intent"] = msg_data.get("intent")
-            result["result"]["confidence"] = msg_data.get("confidence")
-        return result
+        return self.set_system_brightness(level)

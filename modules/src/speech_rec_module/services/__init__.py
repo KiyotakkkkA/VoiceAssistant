@@ -1,9 +1,9 @@
 from .SpeechRecognitionService import SpeechRecognitionService
 from .TextNormalizationService import TextNormalizationService
-from .CommandBusService import CommandBusService
+from .Recognizer import Recognizer
 
 __all__ = [
     "SpeechRecognitionService",
     "TextNormalizationService",
-    "CommandBusService"
+    "Recognizer"
 ]

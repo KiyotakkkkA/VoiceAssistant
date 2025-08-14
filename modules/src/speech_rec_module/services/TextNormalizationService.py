@@ -1,4 +1,4 @@
-from services.preprocessing import SequenceCleanerService, TextToNumberService, LemmatizationService
+from src.speech_rec_module.services.preprocessing import SequenceCleanerService, TextToNumberService, LemmatizationService
 from interfaces import ISingleton
 from colorama import Fore, Style
 

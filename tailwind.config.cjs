@@ -69,6 +69,10 @@ module.exports = {
         'button-bg-hover': withOpacity('--button-bg-hover'),
         'button-border': withOpacity('--button-border'),
 
+        'input-bg': withOpacity('--input-bg'),
+        'input-border': withOpacity('--input-border'),
+        'input-focus': withOpacity('--input-focus'),
+
         'draghandle-bg-active': withOpacity('--draghandle-bg-active'),
         'draghandle-bg-hover': withOpacity('--draghandle-bg-hover'),
 

@@ -1,4 +1,4 @@
-from services.tools import AppManageService, SystemManageService
+from src.processing_module.services.tools import AppManageService, SystemManageService
 from interfaces import ISingleton
 
 class CommandBusService(ISingleton):
@@ -21,11 +21,11 @@ class CommandBusService(ISingleton):
     def execute(self, msg_data: dict):
         if not msg_data.get("intent"):
             return {
-                "status": False,
                 "original_text": msg_data.get("original_text"),
-                "result": {
-                    "intent": None,
-                    "confidence": msg_data.get("confidence"),
+                "intent": None,
+                "confidence": msg_data.get("confidence"),
+                "data": {
+                    "status": False,
                     "message": "Команда не распознана"
                 }
             }
@@ -35,21 +35,29 @@ class CommandBusService(ISingleton):
         
         if not manager:
             return {
-                "status": False,
                 "original_text": msg_data.get("original_text"),
-                "result": {
-                    "intent": intent,
-                    "confidence": msg_data.get("confidence"),
+                "intent": intent,
+                "confidence": msg_data.get("confidence"),
+                "data": {
+                    "status": False,
                     "message": "Обработчик команды не найден"
                 }
             }
         
         result = self.tools[manager].execute(msg_data)
-        
+
+        status = result.get("status")
+        event = result.get("event", None)
+
         return {
-            "status": result.get("status"),
-            "event": result.get("event", None),
             "original_text": msg_data.get("original_text"),
-            "result": result.get("result")
+            'intent': intent,
+            "confidence": msg_data.get("confidence"),
+            'event': event,
+            "data": {
+                "status": status,
+                "message": result.get("message"),
+                "additional": result.get("additional", None)
+            }
         }
         

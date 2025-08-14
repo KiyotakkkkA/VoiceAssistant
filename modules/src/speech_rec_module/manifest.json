@@ -1,0 +1,6 @@
+{
+    "module.name": "Speech Recognition",
+    "module.main.path": "speech_rec_module/main.py",
+
+    "service.on_start.event": "ready_voice_recognizer"
+}

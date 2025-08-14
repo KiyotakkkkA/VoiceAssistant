@@ -1,0 +1,6 @@
+{
+    "module.name": "VA Processing",
+    "module.main.path": "processing_module/main.py",
+
+    "service.on_start.event": "processor_ready"
+}

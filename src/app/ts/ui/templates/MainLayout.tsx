@@ -14,7 +14,7 @@ interface Props {
   assistantName: string;
   mode: string;
   transcript: string | Object;
-  messages: {type:string;payload:any;from?:string}[];
+  messages: {type:string;topic:string;payload:any;from?:string}[];
   onSend: (text:string)=>void;
   apps: Record<string, any>;
   toasts?: { id:string; message:string }[];
@@ -74,7 +74,6 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
   >('home');
   const modeClass: Record<string,string> = {
     'waiting': 'bg-badge-waiting text-white',
-    'wake': 'bg-badge-wake text-white',
     'listening': 'bg-badge-listening text-white',
     'initializing': 'bg-badge-initializing text-white'
   };

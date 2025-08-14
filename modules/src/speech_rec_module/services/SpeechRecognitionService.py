@@ -2,6 +2,7 @@ from vosk import Model, KaldiRecognizer
 from colorama import Fore, Style
 from interfaces import ISingleton
 from utils import AudioService
+from enums.Events import EventsType, EventsTopic
 import pyaudio
 import os
 import time, colorama, json
@@ -66,25 +67,21 @@ class SpeechRecognitionService(ISingleton):
                 return False
                 
             data = self.stream.read(self.name_detection_buffer, exception_on_overflow=False)
-            
-            partial = json.loads(self.name_recognizer.PartialResult())
-            
-            if partial.get('partial'):
-                if self._name_lower in partial['partial'].lower():
-                    self.name_in_partial = True
+            if not data:
+                time.sleep(0.01)
+                continue
+
+            if self.name_recognizer.AcceptWaveform(data):
+                result = json.loads(self.name_recognizer.Result())
+                if result.get('text') and self._name_lower in result['text'].lower():
                     return True
-                
-            if self.name_in_partial:
-                if data and self.name_recognizer.AcceptWaveform(data):
-                    result = json.loads(self.name_recognizer.Result())
-                    if result.get('text'):
-                        return True
-                    
-                    self.name_in_partial = False
+                self.name_in_partial = False
             else:
-                if data and self.name_recognizer.AcceptWaveform(data):
-                    result = json.loads(self.name_recognizer.Result())
-                    if result.get('text') and self._name_lower in result['text'].lower():
+                partial = json.loads(self.name_recognizer.PartialResult())
+                part_text = (partial.get('partial') or '').lower()
+                if part_text:
+                    if self._name_lower in part_text:
+                        self.name_in_partial = True
                         return True
             
             time.sleep(0.01)
@@ -98,8 +95,8 @@ class SpeechRecognitionService(ISingleton):
             
             if name_detected:
                 self.services["audio"].play_sound("listening")
-                yield { 'event': 'wake', 'name': self.name }
-                
+                yield { 'type': EventsType.SERVICE_ACTION.value, 'topic': EventsTopic.ACTION_WAKE.value, 'result': { 'name': self.name } }
+
                 self.is_name_listening_state = False
                 self.full_recognizer.Reset()
                 
@@ -109,5 +106,5 @@ class SpeechRecognitionService(ISingleton):
                     if data and self.full_recognizer.AcceptWaveform(data):
                         result = json.loads(self.full_recognizer.Result())
                         if result.get('text'):
-                            self.is_name_listening_state = True    
-                            yield { 'event': 'transcript', 'text': result['text'] }
+                            self.is_name_listening_state = True
+                            yield { 'type': EventsType.EVENT.value, 'topic': EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value, 'result': { 'text': result['text'] } }

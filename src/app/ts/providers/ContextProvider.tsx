@@ -19,7 +19,6 @@ export const GlobalContext: React.FC<GlobalContextType> = ({ children, themes })
 
     const states = {
         'initializing': 'Инициализация',
-        'wake': 'Пробуждение',
         'waiting': 'Ожидание',
         'listening': 'Слушание'
     }

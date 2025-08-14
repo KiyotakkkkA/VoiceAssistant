@@ -1,10 +1,10 @@
 import os
-import psutil
 import shutil
 import subprocess
 from interfaces import ISingleton
 from utils import YamlParsingService, AudioService
 from paths import path_resolver
+from enums.Events import EventsType, EventsTopic
 
 class AppManageService(ISingleton):
     SERVICE_NAME = "AppManageService"
@@ -107,11 +107,7 @@ class AppManageService(ISingleton):
         if not _project:
             return {
                 "status": False,
-                "result": {
-                    "intent": msg_data["intent"],
-                    "confidence": msg_data["confidence"],
-                    "message": "Шаблон проекта не найден"
-                }
+                "message": "Шаблон проекта не найден"
             }
         
         if _project and _additional:
@@ -122,11 +118,7 @@ class AppManageService(ISingleton):
             
             return {
                 "status": True,
-                "result": {
-                    "intent": msg_data["intent"],
-                    "confidence": msg_data["confidence"],
-                    "message": f"Вывод информации о шаблоне {_project['display_name']}"
-                }
+                "message": f"Вывод информации о шаблоне {_project['display_name']}"
             }
             
         try:
@@ -135,20 +127,12 @@ class AppManageService(ISingleton):
                 
             return {
                 "status": True,
-                "result": {
-                    "intent": msg_data["intent"],
-                    "confidence": msg_data["confidence"],
-                    "message": f"Проект {_project['display_name']} создан"
-                }
+                "message": f"Проект {_project['display_name']} создан"
             }
         except WindowsError as e:
             return {
                 "status": False,
-                "result": {
-                    "intent": msg_data["intent"],
-                    "confidence": msg_data["confidence"],
-                    "message": f"Ошибка при создании проекта: {e}"
-                }
+                "message": f"Ошибка при создании проекта: {e}"
             }
             
     def open_project_handler(self, msg_data: dict):
@@ -179,29 +163,17 @@ class AppManageService(ISingleton):
                 
                 return {
                     "status": True,
-                    "result": {
-                        "intent": msg_data["intent"],
-                        "confidence": msg_data["confidence"],
-                        "message": f"Открытие проекта {_project['display_name']} запущено (PID: {pid})"
-                    }
+                    "message": f"Открытие проекта {_project['display_name']} запущено (PID: {pid})"
                 }
             except Exception as e:
                 return {
                     "status": False,
-                    "result": {
-                        "intent": msg_data["intent"],
-                        "confidence": msg_data["confidence"],
-                        "message": f"Ошибка при запуске {_project['display_name']}: {e}"
-                    }
+                    "message": f"Ошибка при запуске {_project['display_name']}: {e}"
                 }
         
         return {
             "status": False,
-            "result": {
-                "intent": msg_data["intent"],
-                "confidence": msg_data["confidence"],
-                "message": "Проект не найден"
-            }
+            "message": "Проект не найден"
         }
     def open_app_handler(self, msg_data: dict):
         _app = None
@@ -227,27 +199,15 @@ class AppManageService(ISingleton):
                 
                 return {
                     "status": True,
-                    "result": {
-                        "intent": msg_data["intent"],
-                        "confidence": msg_data["confidence"],
-                        "message": f"Открытие приложения {_app['display_name']} запущено (PID: {pid})"
-                    }
+                    "message": f"Открытие приложения {_app['display_name']} запущено (PID: {pid})"
                 }
             except Exception as e:
                 return {
                     "status": False,
-                    "result": {
-                        "intent": msg_data["intent"],
-                        "confidence": msg_data["confidence"],
-                        "message": f"Ошибка при запуске {_app['display_name']}: {e}"
-                    }
+                    "message": f"Ошибка при запуске {_app['display_name']}: {e}"
                 }
         
         return {
             "status": False,
-            "result": {
-                "intent": msg_data["intent"],
-                "confidence": msg_data["confidence"],
-                "message": "Приложение не найдено"
-            }
+            "message": "Приложение не найдено"
         }
