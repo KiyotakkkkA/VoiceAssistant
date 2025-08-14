@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface Props {
-  label: string;
-  description?: string;
+  label: string | React.ReactNode;
+  description?: string | React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -15,9 +15,9 @@ const CategoryItem: React.FC<Props> = ({ label, description, children }) => {
             {label}
           </label>
           {description && (
-            <p className="text-xs text-ui-text-secondary leading-relaxed">
+            <div className="text-xs text-ui-text-secondary leading-relaxed">
               {description}
-            </p>
+            </div>
           )}
         </div>
         <div className="flex-shrink-0 min-w-0 max-w-xs">

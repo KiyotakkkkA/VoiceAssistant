@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { socketClient } from './utils';
 import { MainLayout } from './ui/templates/MainLayout';
 import { GlobalContext } from './providers';
+import { ToastProvider, useToast } from './providers/ToastProvider';
 import { observer } from 'mobx-react-lite';
 import { EventsTopic, EventsType } from '../js/enums/Events';
 
@@ -13,14 +14,15 @@ interface IncomingMsg { type: string; topic: string; payload: any; from?: string
 
 declare const __ASSISTANT_NAME__: string;
 
-const App = observer(() => {
+const AppContent = observer(() => {
   const [messages, setMessages] = useState<IncomingMsg[]>([]);
   const [mode, setMode] = useState<'waiting' | 'listening' | "initializing">('initializing');
   const [transcript, setTranscript] = useState({});
   const [apps, setApps] = useState<Record<string, any>>({});
-  const [toasts, setToasts] = useState<{id:string; message:string;}[]>([]);
   const [systemReady, setSystemReady] = useState(false);
   const [theme, setTheme] = useState<Record<string, string> | null>(null);
+  
+  const { addToast } = useToast();
 
   const handleWake = () => {
     setMode('listening');
@@ -50,12 +52,8 @@ const App = observer(() => {
       const parsed = parseFloat(lvlRaw.replace(/[^0-9.,]/g,'').replace(',','.'));
       if (!isNaN(parsed)) level = parsed <= 1 ? Math.round(parsed*100) : Math.round(parsed);
     }
-    const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const message = `Громкость: ${level !== undefined ? level+'%' : '?'}`;
-    setToasts(prev => [...prev, { id, message }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, 3500);
+    addToast(message, 'info', 3500);
     setMode('waiting');
   };
 
@@ -67,10 +65,8 @@ const App = observer(() => {
       const parsed = parseFloat(lvlRaw.replace(/[^0-9.,]/g,'').replace(',','.'));
       if (!isNaN(parsed)) level = Math.round(parsed);
     }
-    const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const message = `Яркость: ${level !== undefined ? level+'%' : '?'}`;
-    setToasts(prev => [...prev, { id, message }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+    addToast(message, 'info', 3500);
     setMode('waiting');
   };
 
@@ -81,10 +77,18 @@ const App = observer(() => {
     [EventsTopic.YAML_DATA_SET]: handleyaml,
     [EventsTopic.UI_SHOW_SET_VOLUME]: handleUiShowSetVolume,
     [EventsTopic.UI_SHOW_SET_BRIGHTNESS]: handleUiShowSetBrightness,
-    [EventsTopic.JSON_DATA_SET]: (m: any) => {
+    [EventsTopic.JSON_THEMES_DATA_SET]: (m: any) => {
       settingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themesList;
       settingsStore.data.settings = m?.payload?.data?.settings || null;
       setTheme(m?.payload?.data?.theme || null);
+    },
+    [EventsTopic.JSON_APIKEYS_DATA_SET]: (m: any) => {
+      if (m?.payload?.data?.settings) {
+        settingsStore.data.settings = { 
+          ...settingsStore.data.settings, 
+          ...m.payload.data.settings 
+        };
+      }
     },
     [EventsTopic.READY_VOICE_RECOGNIZER]: () => {
       setSystemReady(true);
@@ -117,13 +121,18 @@ const App = observer(() => {
         messages={messages}
         onSend={handleSend}
         apps={apps}
-        toasts={toasts}
         systemReady={systemReady}
       />
     </GlobalContext>
   
   );
 });
+
+const App = () => (
+  <ToastProvider>
+    <AppContent />
+  </ToastProvider>
+);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(<App />);
   

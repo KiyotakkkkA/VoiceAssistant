@@ -54,7 +54,8 @@ const services = {
 function createBaseFiles() {
   const settingsPath = `${paths.global_path}/settings.json`;
   const content = {
-    "ui.current.theme.id": "github-dark"
+    "ui.current.theme.id": "github-dark",
+    "ui.current.apikeys": []
   }
 
   if (!fs.existsSync(settingsPath)) {
@@ -186,7 +187,7 @@ function startWebSocketServer() {
                 if (client.readyState === 1) {
                   client.send(JSON.stringify({
                     type: EventsType.EVENT,
-                    topic: EventsTopic.JSON_DATA_SET,
+                    topic: EventsTopic.JSON_THEMES_DATA_SET,
                     from: 'server',
                     payload: { data: updatedData }
                   }));
@@ -195,6 +196,40 @@ function startWebSocketServer() {
 
               console.log(`[Theme] Switched to ${themeName}`);
             }
+          } catch (e) {
+            console.error('[WS] theme setting error', e);
+          }
+          break;
+        case EventsTopic.ACTION_APIKEYS_SET:
+          if (!msg.payload?.apikeys) {
+            console.warn('[WS] ACTION_APIKEYS_SET missing keys');
+            return;
+          }
+          try {
+            const apiKeys = msg.payload.apikeys;
+
+            const settings = services.json.get('settings') || {};
+            settings['ui.current.apikeys'] = apiKeys;
+
+            const settingsPath = `${paths.global_path}/settings.json`;
+            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+            services.json.load('settings', settingsPath);
+
+            const updatedData = {
+              settings: services.json.get('settings')
+            };
+
+            for (const client of connectedClients) {
+                if (client.readyState === 1) {
+                  client.send(JSON.stringify({
+                    type: EventsType.EVENT,
+                    topic: EventsTopic.JSON_APIKEYS_DATA_SET,
+                    from: 'server',
+                    payload: { data: updatedData }
+                  }));
+                }
+              }
+
           } catch (e) {
             console.error('[WS] theme setting error', e);
           }
@@ -241,7 +276,7 @@ function startWebSocketServer() {
       ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.YAML_DATA_SET, from: 'server', payload: { data: yamlCfgsData } }));
     }
     if (jsonCfgsData) {
-      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
+      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_THEMES_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
     }
     if (voiceRecognizerIsReady && ws.readyState === 1) {
       ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.READY_VOICE_RECOGNIZER, from: 'server', payload: 'replay' }));

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Toast } from '../../atoms/feedback';
+import { useToast } from '../../../providers/ToastProvider';
 import { EventsTopic } from '../../../../js/enums/Events';
 
 interface Msg { type: string; topic: string; payload: any; from?: string; _ts?: number }
@@ -20,13 +20,13 @@ function highlightJson(obj: any) {
 
 const typeColors: Record<string,string> = {
   [EventsTopic.ACTION_TRANSCRIPT]: 'bg-eventlog-bg-transcript',
-  voice_recognizer_ready: 'bg-eventlog-bg-pyready text-black',
+  [EventsTopic.READY_VOICE_RECOGNIZER]: 'bg-eventlog-bg-pyready text-black',
   [EventsTopic.YAML_DATA_SET]: 'bg-eventlog-bg-yaml',
 };
 
 const EventLog: React.FC<Props> = ({ messages }) => {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
-  const [toasts, setToasts] = useState<{ id: number; message: string }[]>([]);
+  const { addToast } = useToast();
 
   const toggle = (i: number, defaultOpen: boolean) => setExpanded(e => {
     const current = e[i];
@@ -59,10 +59,8 @@ const EventLog: React.FC<Props> = ({ messages }) => {
                 >{isOpen?'Свернуть':'Развернуть'}</button>
                 <button
                   onClick={()=>{
-                    let id = Date.now(); 
-                    navigator.clipboard.writeText(typeof payload==='string'?payload:JSON.stringify(payload,null,2))
-                    setToasts(prev => [...prev, { id, message: 'Скопировано в буфер обмена' }]);
-                    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+                    navigator.clipboard.writeText(typeof payload==='string'?payload:JSON.stringify(payload,null,2));
+                    addToast('Скопировано в буфер обмена', 'info', 3500);
                   }}
                   className='px-2 py-0.5 rounded-md border border-eventlog-button-border bg-eventlog-button-bg hover:border-eventlog-button-border-hover hover:bg-eventlog-button-bg-hover text-eventlog-button-accent hover:text-eventlog-button-accent-hover text-[10px] font-semibold tracking-wide'
                 >КОПИЯ</button>
@@ -77,11 +75,6 @@ const EventLog: React.FC<Props> = ({ messages }) => {
         );
       })}
       {messages.length===0 && <div className='opacity-50'>Нет событий</div>}
-      <div className='pointer-events-none fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm'>
-        {toasts.map(t => (
-          <Toast key={t.id} title={t.message} />
-        ))}
-      </div>
     </div>
   );
 };

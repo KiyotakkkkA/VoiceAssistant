@@ -8,6 +8,7 @@ type Settings = {
     },
     settings: {
         'ui.current.theme.id': string;
+        'ui.current.apikeys'?: { id?: string; name: string; value: string }[];
     } | null;
 }
 

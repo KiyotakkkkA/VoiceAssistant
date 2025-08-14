@@ -16,7 +16,8 @@ const SettingsPanel: React.FC = observer(() => {
       case 'models-apikeys':
         return (
           <SettingsSection title="Модели AI / Ключи API">
-            <ApiKeysField 
+            <ApiKeysField
+              apikeys={settingsStore.data.settings?.['ui.current.apikeys'] || []}
             />
           </SettingsSection>
         );

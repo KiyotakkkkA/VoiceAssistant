@@ -173,7 +173,7 @@ npm run start:prod
 ```jsonc
 {
   "type": "init" | "action" | "ping" | "event" | ...,
-  "topic": "json_data_set" | "yaml_data_set" | "action_theme_set" | "ui_show_set_brightness" | ...,
+  "topic": "json_themes_data_set" | "yaml_data_set" | "action_theme_set" | "ui_show_set_brightness" | ...,
   "from": "python" | "ui" | "server",
   "payload": any
 }
@@ -182,7 +182,7 @@ npm run start:prod
 - `SERVICE_WAS_REGISTERED` - Новый сервис зарегистрирован,
 - `SERVICE_HEARTBEAT` - Периодический пинг,
 
-- `JSON_DATA_SET` - Получение JSON данных,
+- `JSON_THEMES_DATA_SET` - Получение JSON данных о темах,
 - `YAML_DATA_SET` - Получение YAML данных,
     
 - `RAW_TEXT_DATA_RECOGNIZED` - Перевод речи в текст и первичная её отчистка,
