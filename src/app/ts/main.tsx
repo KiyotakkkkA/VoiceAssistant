@@ -70,6 +70,24 @@ const AppContent = observer(() => {
     setMode('waiting');
   };
 
+  const setApikeysData = (m: any) => {
+    if (m?.payload?.data?.settings) {
+      settingsStore.data.settings = { 
+        ...settingsStore.data.settings, 
+        ...m.payload.data.settings 
+      };
+    }
+  }
+
+  const setThemesData = (m: any) => {
+    settingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themes?.themesList;
+    settingsStore.data.settings = { 
+          ...settingsStore.data.settings, 
+          ...m.payload.data.settings 
+    };
+    setTheme(m?.payload?.data?.themes?.currentThemeData || null);
+  }
+
   const bindings = {
     [EventsTopic.ACTION_WAKE]: handleWake,
     [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,
@@ -77,18 +95,15 @@ const AppContent = observer(() => {
     [EventsTopic.YAML_DATA_SET]: handleyaml,
     [EventsTopic.UI_SHOW_SET_VOLUME]: handleUiShowSetVolume,
     [EventsTopic.UI_SHOW_SET_BRIGHTNESS]: handleUiShowSetBrightness,
+    [EventsTopic.JSON_INITAL_DATA_SET]: (m: any) => {
+      setThemesData(m);
+      setApikeysData(m);
+    },
     [EventsTopic.JSON_THEMES_DATA_SET]: (m: any) => {
-      settingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themesList;
-      settingsStore.data.settings = m?.payload?.data?.settings || null;
-      setTheme(m?.payload?.data?.theme || null);
+      setThemesData(m);
     },
     [EventsTopic.JSON_APIKEYS_DATA_SET]: (m: any) => {
-      if (m?.payload?.data?.settings) {
-        settingsStore.data.settings = { 
-          ...settingsStore.data.settings, 
-          ...m.payload.data.settings 
-        };
-      }
+      setApikeysData(m);
     },
     [EventsTopic.READY_VOICE_RECOGNIZER]: () => {
       setSystemReady(true);

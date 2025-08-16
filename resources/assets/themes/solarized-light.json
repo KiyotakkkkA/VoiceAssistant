@@ -59,6 +59,10 @@
     "button.bg.hover": "#e3dcc9",
     "button.border": "#d3cbb7",
 
+    "input.bg": "#fdf6e3",
+    "input.border": "#e3dcc9",
+    "input.focus": "#eee8d5",
+
     "draghandle.bg.active": "#268bd2",
     "draghandle.bg.hover": "#657b83",
 

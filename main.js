@@ -178,9 +178,13 @@ function startWebSocketServer() {
               services.json.load('settings', settingsPath);
 
               const updatedData = {
-                themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
-                theme: services.json.get('theme'),
-                settings: services.json.get('settings')
+                themes: {
+                  themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
+                  currentThemeData: services.json.get('theme'),
+                },
+                settings: {
+                  'ui.current.theme.id': themeName
+                }
               };
 
               for (const client of connectedClients) {
@@ -216,7 +220,9 @@ function startWebSocketServer() {
             services.json.load('settings', settingsPath);
 
             const updatedData = {
-              settings: services.json.get('settings')
+              settings: {
+                "ui.current.apikeys": apiKeys
+              }
             };
 
             for (const client of connectedClients) {
@@ -268,15 +274,17 @@ function startWebSocketServer() {
       apps: services.yaml.get('apps')
     }
     const jsonCfgsData = {
-      themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
-      theme: services.json.get('theme'),
+      themes: {
+        themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
+        currentThemeData: services.json.get('theme'),
+      },
       settings: services.json.get('settings')
     };
     if (yamlCfgsData) {
       ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.YAML_DATA_SET, from: 'server', payload: { data: yamlCfgsData } }));
     }
     if (jsonCfgsData) {
-      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_THEMES_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
+      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_INITAL_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
     }
     if (voiceRecognizerIsReady && ws.readyState === 1) {
       ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.READY_VOICE_RECOGNIZER, from: 'server', payload: 'replay' }));

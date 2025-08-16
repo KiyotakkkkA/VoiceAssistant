@@ -38,7 +38,3 @@ body {
 .dragging-border-animate { background:linear-gradient(90deg,#007acc,#0dbc79,#007acc); background-size:200% 100%; animation: borderRun 1.4s linear infinite; }
 @keyframes borderRun { 0% { background-position:0 0;} 100% {background-position:200% 0;} }
 
-.time-gradient { background:linear-gradient(120deg,#e6f6ff,#b9f6e4 60%,#c0f0ff); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 0 4px rgba(0,0,0,.35)); }
-.clock-card:before { content:""; position:absolute; inset:0; background:linear-gradient(140deg,rgba(0,122,204,0.18),rgba(13,188,121,0.1)); opacity:.35; mix-blend-mode:overlay; pointer-events:none; }
-.clock-card:hover:before { opacity:.55; }
-

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { TextInput } from '../../atoms/input';
 import { CategoryItem } from '../../atoms';
 import { CanOkModal } from '../../atoms/modals';
@@ -14,12 +14,14 @@ interface Props {
 type ApiKey = { id: string; name: string; value: string };
 
 const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
+    const isFirstRender = useRef(true);
     const [keys, setKeys] = useState<ApiKey[]>([]);
     const [newName, setNewName] = useState('');
     const [newValue, setNewValue] = useState('');
     const [editId, setEditId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
     const [editValue, setEditValue] = useState('');
+    const [needRefetch, setNeedRefetch] = useState(false);
     const [deleteModal, setDeleteModal] = useState<{isOpen: boolean; keyId: string | null; keyName: string}>({
         isOpen: false,
         keyId: null,
@@ -40,22 +42,28 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
     }, [apikeys]);
 
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+        
         try {
             socketClient.send({
-            type: EventsType.SERVICE_ACTION,
-            topic: EventsTopic.ACTION_APIKEYS_SET,
-            payload: { 
-                apikeys: keys.map(k => ({ id: k.id, name: k.name, value: k.value }))
-            }
-        });
+                type: EventsType.SERVICE_ACTION,
+                topic: EventsTopic.ACTION_APIKEYS_SET,
+                payload: { 
+                    apikeys: keys.map(k => ({ id: k.id, name: k.name, value: k.value }))
+                }
+            });
         } catch {}
-    }, [keys]);
+    }, [needRefetch]);
 
     const handleAdd = () => {
         if (!newName.trim() || !newValue.trim()) return;
         setKeys(prev => [...prev, { id: Date.now().toString(), name: newName.trim(), value: newValue.trim() }]);
         setNewName('');
         setNewValue('');
+        setNeedRefetch(!needRefetch);
     };
     
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -75,6 +83,7 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
         setEditId(null);
         setEditName('');
         setEditValue('');
+        setNeedRefetch(!needRefetch);
     };
 
     const handleDelete = (id: string) => {
@@ -94,6 +103,7 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
             if (editId === deleteModal.keyId) setEditId(null);
         }
         setDeleteModal({ isOpen: false, keyId: null, keyName: '' });
+        setNeedRefetch(!needRefetch);
     };
 
     return (

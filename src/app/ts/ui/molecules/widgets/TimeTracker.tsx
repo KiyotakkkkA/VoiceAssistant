@@ -20,7 +20,7 @@ const TimeTracker = () => {
                         <div className='h-[3px] w-8 rounded-full bg-gradient-to-r from-widget-accent-a to-widget-accent-b opacity-70' />
                         </div>
                         <div className='flex items-end gap-1 leading-none'>
-                            <span className='time-gradient text-[40px] font-light -tracking-[1px] tabular-nums'>{hh}:{mm}</span>
+                            <span className='text-[40px] font-light -tracking-[1px] tabular-nums'>{hh}:{mm}</span>
                         <span className='text-sm font-medium text-widget-muted pb-1'>:{ss}</span>
                         </div>
                     <div className='text-[11px] mt-1 text-widget-muted capitalize leading-snug'>

@@ -9,6 +9,7 @@ export const EventsTopic = {
 	SERVICE_WAS_REGISTERED: 'registered',
 	SERVICE_HEARTBEAT: 'heartbeat',
 
+    JSON_INITAL_DATA_SET: 'json_initial_data_set',
     JSON_THEMES_DATA_SET: 'json_themes_data_set',
     JSON_APIKEYS_DATA_SET: 'json_apikeys_data_set',
     YAML_DATA_SET: 'yaml_data_set',
