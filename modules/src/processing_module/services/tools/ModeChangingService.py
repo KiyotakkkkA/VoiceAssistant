@@ -25,6 +25,7 @@ class ModeChangingService(ISingleton):
 
         return {
             "status": True,
+            "event": EventsTopic.ACTION_MODE_SET.value,
             "message": "Режим успешно изменён на 'ОБЫЧНЫЙ'",
             "additional": {
                 "mode_to": "NORMAL"
@@ -36,6 +37,7 @@ class ModeChangingService(ISingleton):
 
         return {
             "status": True,
+            "event": EventsTopic.ACTION_MODE_SET.value,
             "message": "Режим успешно изменён на 'ИНТЕРАКТИВНЫЙ'",
             "additional": {
                 "mode_to": "INTERACTIVE"

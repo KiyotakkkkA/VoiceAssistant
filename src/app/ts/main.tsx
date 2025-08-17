@@ -98,8 +98,6 @@ const AppContent = observer(() => {
         enabled: false,
       }
     };
-
-    console.log('TEST', settingsStore.data.modules);
   };
 
   const setModulesInitedData = (m: any) => {
@@ -112,9 +110,37 @@ const AppContent = observer(() => {
     };
   };
 
+  const setGlobalMode = (m: any) => {
+    settingsStore.data.runtime['runtime.current.mode'] = m?.payload?.data?.additional?.mode_to;
+  };
+
+  const setNewMsg = (m: any) => {
+    if (m?.payload?.original_text) {
+      settingsStore.data.aiMsgHistory.push({
+        model_name: 'user',
+        text: m.payload.original_text,
+        timestamp: new Date()
+      });
+    }
+    
+    if (m?.payload?.data?.external_ai_answer) {
+      settingsStore.data.aiMsgHistory.push({
+        model_name: m.payload.data.model_name || 'unknown',
+        text: m.payload.data.external_ai_answer,
+        timestamp: new Date()
+      });
+    }
+  };
+
   const bindings = {
     [EventsTopic.SERVICE_WAS_REGISTERED]: (m: any) => {
       setModulesRegisteredData(m);
+    },
+    [EventsTopic.ACTION_MODE_SET]: (m: any) => {
+      setGlobalMode(m);
+    },
+    [EventsTopic.ACTION_ANSWERING_AI]: (m: any) => {
+      setNewMsg(m);
     },
     [EventsTopic.ACTION_WAKE]: handleWake,
     [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,

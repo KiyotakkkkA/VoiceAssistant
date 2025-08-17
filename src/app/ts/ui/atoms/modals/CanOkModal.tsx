@@ -96,15 +96,12 @@ const CanOkModal: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
       />
       
-      {/* Modal */}
       <div className="relative bg-main-bg border border-ui-border-primary/20 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
-        {/* Header */}
         <div className="flex items-center gap-3 p-6 pb-4">
           <div className={`w-12 h-12 bg-gradient-to-r ${currentStyle.gradient} ${currentStyle.shadow} rounded-xl flex items-center justify-center text-white shadow-lg`}>
             {currentStyle.icon}
@@ -126,14 +123,12 @@ const CanOkModal: React.FC<Props> = ({
           </button>
         </div>
         
-        {/* Content */}
         {children && (
           <div className="px-6 pb-4">
             {children}
           </div>
         )}
         
-        {/* Actions */}
         <div className="flex gap-3 p-6 pt-4 border-t border-ui-border-primary/10">
           <button
             onClick={onClose}

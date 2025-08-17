@@ -7,6 +7,8 @@ import { Visualizer } from '../organisms/home';
 import { AppsGrid } from '../organisms/applications';
 import { SettingsPanel } from '../organisms/settings';
 import { EventLog, RightNav } from '../organisms/layout';
+import { observer } from 'mobx-react-lite';
+import settingsStore from '../../store/SettingsStore';
 
 declare const __SOCKET_PORT__: number;
 
@@ -21,11 +23,29 @@ interface Props {
   systemReady?: boolean;
 }
 
-export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false }) => {
+export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false }) => {
 
   const ctx = React.useContext(GContext);
 
   if (!ctx?.states) return null;
+
+  const modes = {
+    'NORMAL': { 
+      label: 'ОБЫЧНЫЙ', 
+      color: 'text-blue-400',
+      bg: 'bg-blue-500/10',
+      border: 'border-blue-500/30'
+    },
+    'INTERACTIVE': { 
+      label: 'ИНТЕРАКТИВНЫЙ',  
+      color: 'text-purple-400',
+      bg: 'bg-purple-500/10',
+      border: 'border-purple-500/30'
+    }
+  }
+
+  const currentMode = settingsStore.data.runtime['runtime.current.mode'] as keyof typeof modes;
+  const modeInfo = modes[currentMode] || modes.NORMAL;
 
   const pages: Record<string, Record<string, React.ReactNode>> = {
     home: {
@@ -84,13 +104,17 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
           <Badge label={ctx.states[mode]} className={modeClass[mode]||'bg-badge-default text-white'} />
           <span className='tracking-wider uppercase text-ui-text-secondary text-[14px]'>Голосовой ассистент</span>
           <span className='text-sm text-ui-text-accent'>{assistantName||'—'}</span>
+          <span className='text-sm text-gray-400'> | </span>
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${modeInfo.bg} ${modeInfo.color} ${modeInfo.border} border backdrop-blur-sm`}>
+            <span className="font-semibold tracking-wide">{modeInfo.label}</span>
+          </div>
         </div>
         <div className='flex items-center gap-4 text-ui-text-secondary'>
           <span className='opacity-70'>ws:{__SOCKET_PORT__}</span>
           <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-button-bg hover:bg-button-bg-hover text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
         </div>
       </div>
-  <div className='flex-1 relative overflow-hidden flex'>
+      <div className='flex-1 relative overflow-hidden flex'>
         <div className='w-60 bg-sidebars-bg border-r border-ui-border-primary flex flex-col text-xs'>
           <div className='px-4 py-3 font-semibold text-ui-text-accent tracking-wide'>Состояния</div>
           <div className='px-4 pb-4 overflow-y-auto custom-scrollbar'>
@@ -142,4 +166,4 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
       </div>
     </div>
   );
-};
+});

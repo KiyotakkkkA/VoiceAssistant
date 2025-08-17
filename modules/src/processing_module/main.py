@@ -30,7 +30,11 @@ def run(stop_event):
                 'from': 'processing_module'
             })
 
+    def handle_model_change(msg):
+        executor.get_current_model_data_from_json(msg.get('payload', {}).get('modelId'))
+
     client.on(EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value, handle_raw_text)
+    client.on(EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA.value, handle_model_change)
 
     client.start(stop_event, block=True)
 

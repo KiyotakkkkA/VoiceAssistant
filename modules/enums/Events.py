@@ -20,6 +20,9 @@ class EventsTopic(enum.Enum):
     ACTION_THEME_SET = 'action_theme_set'
     ACTION_WAKE = 'action_wake'
     ACTION_TRANSCRIPT = 'action_transcript'
+    ACTION_ANSWERING_AI = 'action_answering_ai'
+    ACTION_MODE_SET = 'action_mode_set'
+    ACTION_AIMODEL_SET = 'action_aimodel_set'
 
     UI_SHOW_SET_BRIGHTNESS = 'ui_show_set_brightness'
     UI_SHOW_SET_VOLUME = 'ui_show_set_volume'
@@ -27,3 +30,5 @@ class EventsTopic(enum.Enum):
     READY_ORCHESTRATOR = 'ready_orchestrator'
     READY_VOICE_RECOGNIZER = 'ready_voice_recognizer'
     READY_PROCESSOR = "ready_processor"
+
+    HAVE_TO_BE_REFETCHED_SETTINGS_DATA = "have_to_be_refetched_settings_data"

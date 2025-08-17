@@ -1,13 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-interface Option {
-  value: string;
-  label: string;
-  description?: string;
-}
 
 interface Props {
-  options: Option[];
+  options: { value: string; label: string; description?: string }[];
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;

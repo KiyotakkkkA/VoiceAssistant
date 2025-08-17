@@ -35,5 +35,6 @@ path_resolver = {
     'yaml_configs_path': _as_str(resolve_path(os.getenv('PATH_TO_YAML_CONFIGS_DIR'), _as_str(resources / 'configs'))),
     'templates_path': _as_str(resolve_path(os.getenv('PATH_TO_TEMPLATES_DIR_PATH'), _as_str(resources / 'assets' / 'templates'))),
     'audio_path': _as_str(resolve_path(os.getenv('PATH_TO_AUDIO_DIR'), _as_str(resources / 'assets' / 'audio'))),
+    'global_path': _as_str(resolve_path(os.getenv('PATH_TO_GLOBALS_DIR'), _as_str(resources / 'global'))),
     'new_projects_path': _as_str(resolve_path(os.getenv('PATH_TO_NEW_PROJECTS_DIR'), 'DESKTOP')),
 }

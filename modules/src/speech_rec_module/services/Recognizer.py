@@ -16,6 +16,9 @@ class Recognizer:
             name (str): Имя ассистента
             VOICE_RECOGNITION_MODEL_DIR_PATH (str): Путь к директории с моделью распознавания речи
         """
+
+        self.current_state = 'NORMAL'
+
         self.name = name
         self.VOICE_RECOGNITION_MODEL_DIR_PATH = VOICE_RECOGNITION_MODEL_DIR_PATH
         
@@ -39,5 +42,7 @@ class Recognizer:
         """
         for item in self.services["speech_recognition"].execute():
             if item['result'].get('text'):
-                item['result']['text'] = self.services["text_normalization"].execute(item['result']['text'])
+                if self.current_state == "NORMAL":
+                    item['result']['original_text'] = item['result'].get('text')
+                    item['result']['text'] = self.services["text_normalization"].execute(item['result']['text'])
             yield item

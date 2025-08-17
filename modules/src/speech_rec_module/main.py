@@ -2,6 +2,7 @@ import os
 from clients import ModuleClient
 from src.speech_rec_module.services import Recognizer
 from paths import path_resolver
+from enums.Events import EventsTopic
 
 recognizer = Recognizer(
     name=os.getenv('ASSISTANT_NAME', 'Ассистент').strip('"'),
@@ -17,6 +18,12 @@ def run(stop_event):
         max_reconnect_attempts=10,
         log_prefix='speech'
     )
+
+    def handle_state_change(msg):
+        new_state = msg.get('payload', {}).get('data', {}).get('additional', {}).get('mode_to')
+        recognizer.current_state = new_state
+
+    client.on(EventsTopic.ACTION_MODE_SET.value, handle_state_change)
 
     client.start(stop_event, block=False)
 

@@ -54,6 +54,7 @@ function createBaseFiles() {
   const settingsPath = `${paths.global_path}/settings.json`;
   const content = {
     "ui.current.theme.id": "github-dark",
+    'ui.current.aimodel.id': '',
     "ui.current.apikeys": []
   }
 
@@ -241,6 +242,36 @@ function startWebSocketServer() {
                   }));
                 }
               }
+
+          } catch (e) {
+            console.error('[WS] theme setting error', e);
+          }
+          break;
+        case EventsTopic.ACTION_AIMODEL_SET:
+          if (!msg.payload?.modelId) {
+            console.warn('[WS] ACTION_AIMODEL_SET missing model');
+            return;
+          }
+          try {
+            const model = msg.payload.modelId;
+
+            const settings = services.json.get('settings') || {};
+            settings['ui.current.aimodel.id'] = model;
+
+            const settingsPath = `${paths.global_path}/settings.json`;
+            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+            services.json.load('settings', settingsPath);
+
+            for (const client of connectedClients) {
+              if (client.readyState === 1) {
+                client.send(JSON.stringify({
+                  type: EventsType.EVENT,
+                  topic: EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA,
+                  from: 'server',
+                  payload: {}
+                }));
+              }
+            }
 
           } catch (e) {
             console.error('[WS] theme setting error', e);

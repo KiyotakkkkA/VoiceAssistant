@@ -1,16 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GContext } from '../../../providers';
-import { TimeTracker, BatteryStatus } from '../../molecules/widgets';
-import { EventsTopic } from '../../../../js/enums/Events';
+import { TimeTracker, BatteryStatus, AiHistoryPanel } from '../../molecules/widgets';
+import { observer } from 'mobx-react-lite';
+import { Dropdown } from '../../atoms';
+import { socketClient } from '../../../utils';
+import { EventsTopic, EventsType } from '../../../../js/enums/Events';
+import settingsStore from '../../../store/SettingsStore';
 
 interface Props {
   mode: string;
   systemReady?: boolean;
 }
 
-const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
+const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
 
   const gctx = React.useContext(GContext);
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
+  const [lastMessageCount, setLastMessageCount] = useState(0);
+
+  useEffect(() => {
+    if (settingsStore.data.aiMsgHistory.length > lastMessageCount) {
+      setLastMessageCount(settingsStore.data.aiMsgHistory.length);
+      if (!isHistoryVisible && settingsStore.data.aiMsgHistory.length > 0) {
+        setTimeout(() => {
+        }, 500);
+      }
+    }
+  }, [settingsStore.data.aiMsgHistory.length, isHistoryVisible, lastMessageCount]);
 
   if (!gctx?.states) return null;
 
@@ -40,8 +56,8 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
     };
     window.addEventListener('resize', onResize);
 
-  const rings = !readyRef.current ? 7 : 9;
-  const pointsPerRing = !readyRef.current ? 70 : 90;
+    const rings = !readyRef.current ? 7 : 9;
+    const pointsPerRing = !readyRef.current ? 70 : 90;
     const particles: {r:number; a:number; spd:number; baseR:number;}[] = [];
     for (let i=0;i<rings;i++) {
       for (let j=0;j<pointsPerRing;j++) {
@@ -60,14 +76,18 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
       ctx.save();
       ctx.translate(width/2,height/2);
 
-  const m = modeRef.current;
-  const mal = !readyRef.current;
+      const m = modeRef.current;
+      const mal = !readyRef.current;
       if (m !== lastMode) {
         lastMode = m;
       }
 
       const time = performance.now()/1000;
-  const globalRot = mal ? time * 0.01 + Math.sin(time*3)*0.002 : time * (m === 'listening' ? 0.25 : 0.08);
+      const currentMode = settingsStore.data.runtime['runtime.current.mode'];
+      const globalRot = mal ? time * 0.01 + Math.sin(time*3)*0.002 : time * (m === 'listening' ? 0.25 : 0.08);
+      
+      const interactiveBoost = currentMode === 'INTERACTIVE' ? 1.3 : 1;
+      const modeSpeedMultiplier = currentMode === 'INTERACTIVE' ? 1.2 : 1;
 
       if (flash>0) flash *= 0.92;
 
@@ -77,33 +97,82 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
           pulse = Math.sin(time*10 + p.baseR*1.7) * 0.6 + Math.sin(time*25 + p.a*13)*0.3;
           p.a += p.spd * 0.0005 * (Math.sin(time*2)+1.2);
         } else {
-          if (m === 'listening') pulse = Math.sin(time*4 + p.baseR)*2.2;
-          p.a += p.spd * 0.002 + (m==='listening'?0.0005:0);
+          if (m === 'listening') pulse = Math.sin(time*4 + p.baseR)*2.2 * interactiveBoost;
+          p.a += p.spd * 0.002 * modeSpeedMultiplier + (m==='listening'?0.0005*interactiveBoost:0);
         }
         const rr = p.r + pulse;
         const x = Math.cos(p.a + globalRot)*rr;
         const y = Math.sin(p.a + globalRot)*rr;
 
-  const baseColor = mal ? [160+Math.sin(time*6 + p.a*9)*60, 20+Math.sin(time*4 + p.a*3)*10, 25+Math.sin(time*5 + p.a*2)*20] : (m === 'listening' ? [0,173,133] : [0,122,204]);
-  const alpha = mal ? (0.15 + 0.6*((Math.sin(time*6 + p.a*7)+1)/2)) : 0.25 + 0.55*( (Math.sin(time*3 + p.a*5)+1)/2 );
+        let basePalette: [number, number, number] = [0, 0, 0];
+        let particleMultiplier = 1;
+        
+        if (m === 'waiting' && currentMode === 'NORMAL') {
+          basePalette = [30, 180, 220];
+          particleMultiplier = 1;
+        }
+        else if (m === 'listening' && currentMode === 'NORMAL') {
+          basePalette = [20, 220, 160];
+          particleMultiplier = 1.3;
+        }
+        else if (m === 'waiting' && currentMode === 'INTERACTIVE') {
+          basePalette = [180, 50, 220];
+          particleMultiplier = 1.1;
+        }
+        else if (m === 'listening' && currentMode === 'INTERACTIVE') {
+          basePalette = [255, 140, 30];
+          particleMultiplier = 1.5;
+        }
+
+
+        const baseColor = mal ? [160+Math.sin(time*6 + p.a*9)*60, 20+Math.sin(time*4 + p.a*3)*10, 25+Math.sin(time*5 + p.a*2)*20] : basePalette;
+        const alpha = mal ? (0.15 + 0.6*((Math.sin(time*6 + p.a*7)+1)/2)) : 0.3 + 0.7*( (Math.sin(time*3 + p.a*5)+1)/2 );
         const f = flash>0 ? flash : 0;
         const r = Math.min(255, baseColor[0] + f*120);
         const g = Math.min(255, baseColor[1] + f*120);
         const b = Math.min(255, baseColor[2] + f*120);
 
+        const sparkle = currentMode === 'INTERACTIVE' ? Math.sin(time*8 + p.a*3)*0.4 + 0.6 : 1;
+        const particleSize = (1.2 + (pulse>0?0.6:0)) * particleMultiplier * sparkle;
+
         ctx.beginPath();
-        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-        ctx.arc(x,y, 1.2 + (pulse>0?0.6:0), 0, Math.PI*2);
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha * sparkle})`;
+        ctx.arc(x,y, particleSize, 0, Math.PI*2);
         ctx.fill();
+        
+        if (currentMode === 'INTERACTIVE' && sparkle > 0.8) {
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.3})`;
+          ctx.arc(x,y, particleSize * 1.5, 0, Math.PI*2);
+          ctx.fill();
+        }
       }
 
+  
+  let rgbacolor: string  = '';
+  if (mal) {
+    rgbacolor = 'rgba(200,30,40,0.25)';
+  }
+  else if (m === 'waiting' && currentMode === 'NORMAL') {
+    rgbacolor = 'rgba(30,180,220,0.15)';
+  }
+  else if (m === 'listening' && currentMode === 'NORMAL') {
+    rgbacolor = 'rgba(20,220,160,0.25)';
+  }
+  else if (m === 'waiting' && currentMode === 'INTERACTIVE') {
+    rgbacolor = 'rgba(180,50,220,0.15)';
+  }
+  else if (m === 'listening' && currentMode === 'INTERACTIVE') {
+    rgbacolor = 'rgba(255,140,30,0.2)';
+  }
+  
   const gradient = ctx.createRadialGradient(0,0,12,0,0, Math.min(width,height)/3);
-  gradient.addColorStop(0, mal ? 'rgba(200,30,40,0.25)' : m==='listening' ? 'rgba(0,173,133,0.22)' : 'rgba(0,150,180,0.12)');
-      gradient.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.beginPath();
-      ctx.fillStyle = gradient;
-      ctx.arc(0,0, Math.min(width,height)/3, 0, Math.PI*2);
-      ctx.fill();
+  gradient.addColorStop(0, rgbacolor);
+  gradient.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.fillStyle = gradient;
+  ctx.arc(0,0, Math.min(width,height)/3, 0, Math.PI*2);
+  ctx.fill();
 
       ctx.restore();
       requestAnimationFrame(draw);
@@ -113,9 +182,33 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
     return () => { window.removeEventListener('resize', onResize); };
   }, []);
 
+  const handleCurrentModelChange = (newModel: string) => {
+      if (socketClient) {
+
+        socketClient.send({
+          type: EventsType.SERVICE_ACTION,
+          topic: EventsTopic.ACTION_AIMODEL_SET,
+          payload: { 
+            modelId: newModel,
+           }
+        });
+      }
+      settingsStore.data.settings['ui.current.aimodel.id'] = newModel;
+    };
+
   return (
     <div className='w-full h-full relative select-none'>
       <canvas ref={canvasRef} className='w-full h-full block' />
+      { settingsStore.data.runtime['runtime.current.mode'] === 'INTERACTIVE' &&
+        <div className='absolute top-4 left-4'>
+          <Dropdown
+            options={settingsStore.data.settings['ui.current.apikeys']?.map((item) => ({ value: item.id || '', label: item.name })) || []}
+            value={settingsStore.data.settings['ui.current.aimodel.id']}
+            onChange={handleCurrentModelChange}
+            placeholder="Выберите модель"
+          />
+        </div>
+      }
       <div className="absolute top-4 right-6 flex flex-row gap-4 pointer-events-none z-20">
         <BatteryStatus />
         <TimeTracker />
@@ -123,14 +216,24 @@ const Visualizer: React.FC<Props> = ({ mode, systemReady = true }) => {
       <div className='absolute inset-0 pointer-events-none flex items-center justify-center'>
         <div className='text-center'>
           <div className='text-xs tracking-widest uppercase text-ui-text-secondary mb-2'>СТАТУС</div>
-          <div className={`text-4xl font-light ${!systemReady ? 'text-red-400 drop-shadow-[0_0_6px_rgba(255,0,0,0.4)] animate-pulse' : ''}`}>{!systemReady ? 'ИНИЦИАЛИЗАЦИЯ' : gctx.states[mode]}</div>
+          <div className={`text-4xl font-light ${!systemReady ? 'text-red-400 drop-shadow-[0_0_6px_rgba(255,0,0,0.4)] animate-pulse' : ''}`}>
+            {!systemReady ? 'ИНИЦИАЛИЗАЦИЯ' : gctx.states[mode]}
+          </div>
+          
           {!systemReady && (
             <div className='mt-4 text-[10px] tracking-widest text-red-500/70 animate-[blink_1.2s_steps(2,start)_infinite]'>СИСТЕМА НЕ ГОТОВА</div>
           )}
         </div>
       </div>
+
+      <AiHistoryPanel
+        messages={settingsStore.data.aiMsgHistory}
+        isVisible={isHistoryVisible}
+        onToggle={() => setIsHistoryVisible(!isHistoryVisible)}
+        isDropdownVisible={settingsStore.data.runtime['runtime.current.mode'] === 'INTERACTIVE'}
+      />
     </div>
   );
-};
+});
 
 export { Visualizer };

@@ -31,7 +31,6 @@ function clean(v) {
 
 function resolvePath(val, defaultRel) {
   const raw = clean(val);
-  // Prefer absolute env override; otherwise join relative to BASE_ROOT
   let p = raw ? raw : defaultRel;
   if (!path.isAbsolute(p)) p = path.join(BASE_ROOT, p);
   return path.normalize(p);
