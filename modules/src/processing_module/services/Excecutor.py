@@ -19,6 +19,9 @@ class Excecutor:
             TEXT_CLASSIFICATION_MODEL_DIR_PATH (str): Путь к директории с моделью классификации интентов
             prediction_threshold (float): Порог уверенности для классификации
         """
+
+        self.current_state = 'NORMAL'
+
         self.TEXT_CLASSIFICATION_DATASETS_DIR_PATH = TEXT_CLASSIFICATION_DATASETS_DIR_PATH
         self.TEXT_CLASSIFICATION_MODEL_DIR_PATH = TEXT_CLASSIFICATION_MODEL_DIR_PATH
         
@@ -48,10 +51,13 @@ class Excecutor:
         intent = self.services.get("intent_classifier")
         if intent and intent.is_loaded:
             predicted_intent = intent.predict(msg['payload']['text'].split(), self.prediction_threshold)
-            command_result = self.services["command_bus"].execute(predicted_intent)
+            command_result = self.services["command_bus"].execute(self.current_state, predicted_intent)
             
             if not command_result.get('data', {}).get('status'):
                 self.services["audio"].play_sound("not_understood")
+
+            if command_result and command_result.get('data', {}).get('additional', {}).get('mode_to'):
+                self.current_state = command_result['data']['additional']['mode_to']
 
             yield command_result
 

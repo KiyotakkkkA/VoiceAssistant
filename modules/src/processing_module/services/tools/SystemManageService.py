@@ -28,6 +28,8 @@ class SystemManageService(ISingleton):
         else:
             print(f"[ПРЕДУПРЕЖДЕНИЕ] {self.SERVICE_NAME}: Модуль 'pycaw' не найден. Управление громкостью недоступно.")
         
+        self.required_mode = 'NORMAL'
+        
         self.services = {
             "audio": AudioService().getInstance(),
         }
@@ -129,7 +131,7 @@ class SystemManageService(ISingleton):
                 "message": f"Ошибка при установке яркости: {e}"
             }
 
-    def execute(self, msg_data: dict):
+    def execute(self, current_excecutor_state: str, msg_data: dict):
         intent = msg_data.get('intent')
         result = self.tokens[intent](msg_data) 
         

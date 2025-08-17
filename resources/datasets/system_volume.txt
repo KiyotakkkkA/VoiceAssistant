@@ -62,12 +62,3 @@
 поставь звук 60 пожалуйста	SET_VOLUME
 увеличь громкость до 70 пожалуйста	SET_VOLUME
 уменьши звук до 30 пожалуйста	SET_VOLUME
-
-увеличь громкость	SET_VOLUME
-уменьши звук	SET_VOLUME
-сделай погромче	SET_VOLUME
-сделай потише	SET_VOLUME
-звук погромче	SET_VOLUME
-звук потише	SET_VOLUME
-повысь громкость	SET_VOLUME
-понизь звук	SET_VOLUME

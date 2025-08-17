@@ -23,6 +23,8 @@ class AppManageService(ISingleton):
         }
         
         self.opened_processes = {}
+
+        self.required_mode = 'NORMAL'
         
         self.additional = {
             'инфо': 'INFO',
@@ -82,9 +84,9 @@ class AppManageService(ISingleton):
                     "info": template_data["info"],
                 }
         
-    def execute(self, msg_data: dict):
+    def execute(self, current_excecutor_state: str, msg_data: dict):
         intent = msg_data.get('intent')
-        result = self.tokens[intent](msg_data) 
+        result = self.tokens[intent](msg_data)
         
         return result
     
