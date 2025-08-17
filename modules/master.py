@@ -13,6 +13,7 @@ class Orchestrator:
 
 	BINDINGS = {
 		'ready_voice_recognizer': EventsTopic.READY_VOICE_RECOGNIZER.value,
+		'ready_processor': EventsTopic.READY_PROCESSOR.value
 	}
 
 	def __init__(self):
@@ -27,6 +28,18 @@ class Orchestrator:
 			self.client.send({
 				'type': EventsType.EVENT.value,
 				'topic': EventsTopic.SERVICE_WAS_REGISTERED.value,
+				'payload': {
+					'service': 'orchestrator',
+					'service_name': "Orchestrator",
+					'service_desc': "Оркестрирование подключёнными модулями",
+					'subscribes': ['*']
+				},
+				'from': 'orchestrator'
+			})
+
+			self.client.send({
+				'type': EventsType.SERVICE_INIT.value,
+				'topic': EventsTopic.READY_ORCHESTRATOR.value,
 				'payload': {
 					'service': 'orchestrator',
 					'subscribes': ['*']

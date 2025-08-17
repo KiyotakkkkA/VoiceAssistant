@@ -35,7 +35,7 @@ const BatteryStatus = () => {
     let label = charging===true ? 'Заряжается' : charging===false ? 'Не заряжается' : 'Батарея';
     return (
         <div className='pointer-events-none z-10'>
-            <div className='clock-card border border-widget-border bg-widget-bg/95 relative px-5 py-3 rounded-lg shadow-[0_4px_18px_-6px_rgba(0,0,0,0.45)] backdrop-blur-md min-w-[172px] overflow-hidden'>
+            <div className='clock-card border border-ui-border-primary bg-widget-bg/95 relative px-5 py-3 rounded-lg shadow-[0_4px_18px_-6px_rgba(0,0,0,0.45)] backdrop-blur-md min-w-[172px] overflow-hidden'>
                 <div className='absolute inset-0 opacity-[0.13] bg-[radial-gradient(circle_at_80%_15%,rgba(0,122,204,0.3),transparent_60%)]' />
                 <div className='relative'>
                     <div className='flex items-center justify-between mb-1'>

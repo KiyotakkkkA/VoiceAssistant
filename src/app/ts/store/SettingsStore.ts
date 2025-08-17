@@ -1,14 +1,23 @@
 import { makeAutoObservable } from 'mobx';
 
 type Settings = {
-  appearance: {
+    appearance: {
         themes: {
             themeNames: string[];
+        }
+    },
+    modules: {
+        [key: string]: {
+            service_id: string;
+            service_name?: string;
+            service_desc?: string;
+            enabled: boolean;
         }
     },
     settings: {
         'ui.current.theme.id': string;
         'ui.current.apikeys'?: { id?: string; name: string; value: string }[];
+
     } | null;
 }
 
@@ -19,6 +28,7 @@ class SettingsStore {
                 themeNames: [],
             }
         },
+        modules: {},
         settings: null
     };
     

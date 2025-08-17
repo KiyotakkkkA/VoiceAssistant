@@ -4,23 +4,17 @@
     "main.bg": "#ffffff",
 
     "topbar.bg": "#f0f0f0",
-    "topbar.border": "#000000",
 
     "sidebars.bg": "#f8f8f8",
-    "sidebars.border": "#000000",
 
     "log.bg": "#ffffff",
     "log.panel.bg": "#f8f8f8",
-    "log.item.border": "#000000",
 
     "appcard.bg": "#ffffff",
-    "appcard.border": "#000000",
     "appcard.border.hover": "#0066cc",
-    "appcard.divider": "#cccccc",
     "appcard.accent": "#0066cc",
 
     "widget.bg": "#ffffff",
-    "widget.border": "#000000",
     "widget.muted": "#666666",
     "widget.accent.a": "#0066cc",
     "widget.accent.b": "#008000",
@@ -36,10 +30,8 @@
     "eventlog.bg.pyready": "#ff6600",
     "eventlog.bg.yaml": "#666666",
     "eventlog.bg.default": "#f0f0f0",
-    "eventlog.divider": "#000000",
     "eventlog.button.bg": "#f0f0f0",
     "eventlog.button.bg.hover": "#e0e0e0",
-    "eventlog.button.border": "#000000",
     "eventlog.button.border.hover": "#0066cc",
     "eventlog.button.accent": "#0066cc",
     "eventlog.button.accent.hover": "#0052a3",
@@ -57,10 +49,8 @@
 
     "button.bg": "#f0f0f0",
     "button.bg.hover": "#e0e0e0",
-    "button.border": "#000000",
 
     "input.bg": "#ffffff",
-    "input.border": "#000000",
     "input.focus": "#f0f0f0",
 
     "draghandle.bg.active": "#0066cc",
@@ -70,6 +60,7 @@
     "ui.text.secondary": "#333333",
     "ui.text.muted": "#666666",
     "ui.text.accent": "#000000",
+    "ui.border.primary": "#000000",
 
     "state.listening.bg": "#008000",
     "state.listening.gradient": "rgba(0,128,0,0.15)",
@@ -84,16 +75,13 @@
     "nav.bg.hover": "#f0f0f0",
     "nav.bg.active": "#e0e0e0",
     "nav.tooltip.bg": "#000000",
-    "nav.tooltip.border": "#333333",
     "nav.tooltip.text": "#ffffff",
 
-    "toast.border": "#000000",
     "toast.bg.from": "#ffffff",
     "toast.bg.to": "#f0f0f0",
     "toast.accent": "#0066cc",
     "toast.bar": "#0066cc",
 
-    "card.border": "#000000",
     "card.bg": "#f8f8f8",
     "card.title": "#333333",
     

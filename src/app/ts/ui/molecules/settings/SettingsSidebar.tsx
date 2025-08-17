@@ -15,18 +15,22 @@ interface Props {
 
 const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(['appearance'])
+    new Set(['general'])
   );
 
   const settingsTabs: SettingsTab[] = [
     {
-      id: 'appearance',
-      title: 'Внешний вид',
+      id: 'general',
+      title: 'Общее',
       children: [
         {
-          id: 'appearance-themes',
-          title: 'Темы',
+          id: 'general-themes',
+          title: 'Интерфейс',
         },
+        {
+          id: 'general-modules',
+          title: 'Модули'
+        }
       ]
     },
     {
@@ -91,7 +95,7 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
   };
 
   return (
-    <div className="w-64 h-full border-r border-sidebars-border p-4 overflow-y-auto">
+    <div className="w-64 h-full border-r border-ui-border-primary p-4 overflow-y-auto">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-ui-text-primary mb-2">Настройки</h2>
       </div>

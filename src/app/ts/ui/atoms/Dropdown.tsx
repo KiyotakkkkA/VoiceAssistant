@@ -39,7 +39,7 @@ const Dropdown: React.FC<Props> = ({ options, value, onChange, placeholder = "В
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full min-w-32 px-3 py-2 text-left bg-ui-text-secondary/5 hover:bg-ui-text-secondary/10 border border-ui-text-secondary/20 rounded-md transition-colors text-sm text-ui-text-primary focus:outline-none focus:ring-2 focus:ring-widget-accent-a/30"
+        className="w-full min-w-32 px-3 py-2 text-left bg-ui-text-secondary/5 hover:bg-ui-text-secondary/10 border border-ui-border-primary/70 rounded-md transition-colors text-sm text-ui-text-primary focus:outline-none focus:ring-2 focus:ring-widget-accent-a/30"
       >
         <div className="flex items-center justify-between">
           <span className="truncate">
@@ -58,7 +58,7 @@ const Dropdown: React.FC<Props> = ({ options, value, onChange, placeholder = "В
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-sidebars-bg border border-ui-text-secondary/20 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-sidebars-bg border border-ui-border-primary/20 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
           {options.map((option) => (
             <button
               key={option.value}

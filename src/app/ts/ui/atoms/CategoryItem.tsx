@@ -8,7 +8,7 @@ interface Props {
 
 const CategoryItem: React.FC<Props> = ({ label, description, children }) => {
   return (
-    <div className="py-3 border-b border-ui-text-secondary/10 last:border-b-0">
+    <div className="py-3 border-b border-ui-border-primary/10 last:border-b-0">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <label className="block text-sm font-medium text-ui-text-primary mb-1">

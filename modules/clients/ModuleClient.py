@@ -15,6 +15,7 @@ class ModuleClient:
     def __init__(
         self,
         service_name: str,
+        manifest_file: str,
         subscribes: Optional[List[str]] = None,
         socket_host: str = os.getenv('SOCKET_HOST', 'localhost'),
         socket_port: str = os.getenv('SOCKET_PORT', '8765'),
@@ -34,8 +35,20 @@ class ModuleClient:
         self._attempts = 0
         self._hb_stop = threading.Event()
 
+        self._manifest_file = manifest_file
+        self._manifest_path = f"{os.getcwd()}/modules/src/{service_name}/{manifest_file}"
+        self._manifest_data = self._read_manifest()
+
         self._on_message = None
         self._on_command: Dict[str, Callable[[Dict[str, Any]], None]] = {}
+
+    def _read_manifest(self):
+        try:
+            with open(self._manifest_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            self._log('error reading manifest', e)
+            return {}
 
     def _log(self, *args):
         print(f"[{self.log_prefix}]", *args)
@@ -71,7 +84,12 @@ class ModuleClient:
                 try:
                     ws.send(json.dumps({
                         'type': EventsType.EVENT.value, 'topic': EventsTopic.SERVICE_WAS_REGISTERED.value,
-                        'payload': {'service': self.service_name, 'subscribes': self.subscribes},
+                        'payload': {
+                            'service': self.service_name,
+                            'service_name': self._manifest_data.get('module.name'),
+                            'service_desc': self._manifest_data.get('module.desc'),
+                            'subscribes': self.subscribes
+                        },
                         'from': self.service_name
                     }))
                 except Exception:

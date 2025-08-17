@@ -45,8 +45,8 @@ const EventLog: React.FC<Props> = ({ messages }) => {
         const payload = typeof m.payload==='string'? m.payload : m.payload;
         const highlighted = typeof payload === 'string' ? payload : highlightJson(payload);
         return (
-          <div key={i} className='group relative rounded-md border border-log-item-border bg-gradient-to-br from-eventlog-item-bg-from to-eventlog-item-bg-to shadow-sm hover:shadow-md transition-colors'>
-            <div className='flex items-center gap-2 px-2 py-1 border-b border-eventlog-divider text-[11px]'>
+          <div key={i} className='group relative rounded-md border border-ui-border-primary bg-gradient-to-br from-eventlog-item-bg-from to-eventlog-item-bg-to shadow-sm hover:shadow-md transition-colors'>
+            <div className='flex items-center gap-2 px-2 py-1 border-b border-ui-border-primary text-[11px]'>
               <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold ${color}`}>{m.type}</span>
               <span className='text-eventlog-from-text'> - </span>
               <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold ${color}`}>{m.topic}</span>
@@ -55,14 +55,14 @@ const EventLog: React.FC<Props> = ({ messages }) => {
               <div className='ml-auto flex items-center gap-1'>
                 <button
                   onClick={()=>toggle(i, defaultOpen)}
-                  className='relative px-2 py-0.5 rounded-md border border-eventlog-button-border bg-eventlog-button-bg hover:border-eventlog-button-border-hover hover:bg-eventlog-button-bg-hover text-eventlog-button-text hover:text-eventlog-button-text-hover transition-colors text-[10px]'
+                  className='relative px-2 py-0.5 rounded-md border border-ui-border-primary bg-ui-bg hover:border-ui-border-primary-hover hover:bg-ui-bg-hover text-ui-text-primary hover:text-ui-text-primary-hover transition-colors text-[10px]'
                 >{isOpen?'Свернуть':'Развернуть'}</button>
                 <button
                   onClick={()=>{
                     navigator.clipboard.writeText(typeof payload==='string'?payload:JSON.stringify(payload,null,2));
                     addToast('Скопировано в буфер обмена', 'info', 3500);
                   }}
-                  className='px-2 py-0.5 rounded-md border border-eventlog-button-border bg-eventlog-button-bg hover:border-eventlog-button-border-hover hover:bg-eventlog-button-bg-hover text-eventlog-button-accent hover:text-eventlog-button-accent-hover text-[10px] font-semibold tracking-wide'
+                  className='px-2 py-0.5 rounded-md border border-ui-border-primary bg-eventlog-button-bg hover:border-ui-border-primary-hover hover:bg-eventlog-button-bg-hover text-eventlog-button-accent hover:text-eventlog-button-accent-hover text-[10px] font-semibold tracking-wide'
                 >КОПИЯ</button>
               </div>
             </div>

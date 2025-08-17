@@ -1,50 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, createElement } from 'react';
 import {
   SettingsSidebar,
-  SettingsSection,
-  ThemeSelector,
-  ApiKeysField } from '../../molecules/settings';
+  SettingsSection } from '../../molecules/settings';
+import { ThemeSelector, ApiKeysField, ModulesView } from './sections';
 import { observer } from 'mobx-react-lite';
 
 import settingsStore from '../../../store/SettingsStore';
 
-const SettingsPanel: React.FC = observer(() => {
-  const [activeTab, setActiveTab] = useState('appearance-themes');
+interface SectionConfig {
+  title: string;
+  component: React.ComponentType<any>;
+  props: Record<string, any>;
+}
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'models-apikeys':
-        return (
-          <SettingsSection title="Модели AI / Ключи API">
-            <ApiKeysField
-              apikeys={settingsStore.data.settings?.['ui.current.apikeys'] || []}
-            />
-          </SettingsSection>
-        );
-      case 'appearance-themes':
-        return (
-          <SettingsSection title="Внешний вид / Темы">
-            <ThemeSelector 
-              themeNames={settingsStore.data.appearance.themes.themeNames} 
-              currentTheme={settingsStore.data.settings?.['ui.current.theme.id'] || 'dark'}
-            />
-          </SettingsSection>
-        );
-      default:
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-ui-text-secondary/10 flex items-center justify-center mb-4 mx-auto">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-ui-text-secondary">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-ui-text-primary mb-2">Раздел в разработке</h3>
-              <p className="text-ui-text-muted">Этот раздел настроек будет добавлен в будущих версиях</p>
+const SettingsPanel: React.FC = observer(() => {
+  const [activeTab, setActiveTab] = useState('general-themes');
+
+  const sections: Record<string, SectionConfig> = {
+      "models-apikeys": {
+        title: "Модели AI / Ключи API",
+        component: ApiKeysField,
+        props: {
+          apikeys: settingsStore.data.settings?.['ui.current.apikeys'] || []
+        }
+      },
+      "general-themes": {
+        title: "Общее / Интерфейс",
+        component: ThemeSelector,
+        props: {
+          themeNames: settingsStore.data.appearance.themes.themeNames,
+          currentTheme: settingsStore.data.settings?.['ui.current.theme.id'] || 'dark'
+        }
+      },
+      "general-modules": {
+        title: "Общее / Модули",
+        component: ModulesView,
+        props: {
+          modules: settingsStore.data.modules || {},
+        }
+      }
+    };
+
+  const renderContent = (activeTab: string) => {
+
+    if (!sections[activeTab as keyof typeof sections]) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-ui-text-secondary/10 flex items-center justify-center mb-4 mx-auto">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-ui-text-secondary">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
             </div>
+            <h3 className="text-lg font-semibold text-ui-text-primary mb-2">Раздел в разработке</h3>
+            <p className="text-ui-text-muted">Этот раздел настроек будет добавлен в будущих версиях</p>
           </div>
-        );
+        </div>
+      );
     }
+
+    return (
+      <SettingsSection title={sections[activeTab as keyof typeof sections].title}>
+        {createElement(sections[activeTab as keyof typeof sections].component, sections[activeTab as keyof typeof sections].props)}
+      </SettingsSection>
+    )
   };
 
   return (
@@ -55,7 +74,7 @@ const SettingsPanel: React.FC = observer(() => {
       />
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-6">
-          {renderContent()}
+          {renderContent(activeTab)}
         </div>
       </div>
     </div>

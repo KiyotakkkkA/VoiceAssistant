@@ -43,7 +43,6 @@ const createWindow = () => {
 };
 
 let wss = null;
-let voiceRecognizerIsReady = false;
 const connectedClients = new Set();
 
 const services = {
@@ -111,6 +110,7 @@ function loadInitialConfigs() {
 function startWebSocketServer() {
   if (wss) return;
   wss = new WebSocketServer({ port: WS_PORT });
+  const wssMessageHistory = [];
   console.log(`[WS] Server listening on ws://localhost:${WS_PORT}`);
 
   const wsresolver = {
@@ -119,15 +119,21 @@ function startWebSocketServer() {
         case EventsTopic.SERVICE_HEARTBEAT:
           break;
         case EventsTopic.SERVICE_WAS_REGISTERED:
-          break;
+          wssMessageHistory.push(msg);
         default:
           break;
       }
     },
     [EventsType.SERVICE_INIT]: (ws, msg) => {
       switch (msg.topic) {
+        case EventsTopic.READY_ORCHESTRATOR:
+          wssMessageHistory.push(msg);
+          break;
         case EventsTopic.READY_VOICE_RECOGNIZER:
-          voiceRecognizerIsReady = true;
+          wssMessageHistory.push(msg);
+          break;
+        case EventsTopic.READY_PROCESSOR:
+          wssMessageHistory.push(msg);
           break;
       }
     },
@@ -246,6 +252,11 @@ function startWebSocketServer() {
 
   wss.on('connection', (ws) => {
     connectedClients.add(ws);
+    for (const msg of wssMessageHistory) {
+      if (ws.readyState === 1) {
+        ws.send(JSON.stringify(msg));
+      }
+    }
     ws.on('close', () => connectedClients.delete(ws));
     ws.on('message', (data) => {
       let msg = null;
@@ -285,9 +296,6 @@ function startWebSocketServer() {
     }
     if (jsonCfgsData) {
       ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_INITAL_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
-    }
-    if (voiceRecognizerIsReady && ws.readyState === 1) {
-      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.READY_VOICE_RECOGNIZER, from: 'server', payload: 'replay' }));
     }
   });
   wss.on('error', (err) => console.error('[WS] Error', err));

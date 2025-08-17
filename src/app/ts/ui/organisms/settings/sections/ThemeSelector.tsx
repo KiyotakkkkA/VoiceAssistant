@@ -1,7 +1,7 @@
 import React from 'react';
-import { CategoryItem, Dropdown } from '../../atoms';
-import { socketClient } from '../../../utils';
-import { EventsTopic, EventsType } from '../../../../js/enums/Events';
+import { CategoryItem, Dropdown } from '../../../atoms';
+import { socketClient } from '../../../../utils';
+import { EventsTopic, EventsType } from '../../../../../js/enums/Events';
 
 interface Props {
   themeNames: string[];
@@ -27,7 +27,7 @@ const ThemeSelector: React.FC<Props> = ({ themeNames, currentTheme }) => {
   return (
     <CategoryItem 
       label="Цветовая тема"
-      description="Выберите цветовую схему интерфейса приложения"
+      description="Смена цветовой схемы интерфейса приложения"
     >
       <Dropdown
         options={themeOptions}

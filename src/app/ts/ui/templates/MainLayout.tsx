@@ -79,7 +79,7 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
   };
   return (
     <div className='h-screen flex flex-col bg-main-bg text-ui-text-primary font-sans overflow-hidden relative'>
-      <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-topbar-bg border-b border-topbar-border select-none shadow-inner'>
+      <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-topbar-bg border-b border-ui-border-primary select-none shadow-inner'>
         <div className='flex items-center gap-3'>
           <Badge label={ctx.states[mode]} className={modeClass[mode]||'bg-badge-default text-white'} />
           <span className='tracking-wider uppercase text-ui-text-secondary text-[14px]'>Голосовой ассистент</span>
@@ -87,11 +87,11 @@ export const MainLayout: React.FC<Props> = ({ assistantName, mode, transcript, m
         </div>
         <div className='flex items-center gap-4 text-ui-text-secondary'>
           <span className='opacity-70'>ws:{__SOCKET_PORT__}</span>
-          <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-button-bg hover:bg-button-bg-hover text-xs border border-button-border transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
+          <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-button-bg hover:bg-button-bg-hover text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
         </div>
       </div>
   <div className='flex-1 relative overflow-hidden flex'>
-        <div className='w-60 bg-sidebars-bg border-r border-sidebars-border flex flex-col text-xs'>
+        <div className='w-60 bg-sidebars-bg border-r border-ui-border-primary flex flex-col text-xs'>
           <div className='px-4 py-3 font-semibold text-ui-text-accent tracking-wide'>Состояния</div>
           <div className='px-4 pb-4 overflow-y-auto custom-scrollbar'>
             <StatePanel assistantName={assistantName} mode={mode} transcript={transcript} />

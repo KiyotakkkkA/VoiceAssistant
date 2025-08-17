@@ -14,6 +14,7 @@ def run(stop_event):
 
     client = ModuleClient(
         service_name='processing_module',
+        manifest_file='manifest.json',
         subscribes=[EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value],
         heartbeat_interval=5.0,
         max_reconnect_attempts=10,

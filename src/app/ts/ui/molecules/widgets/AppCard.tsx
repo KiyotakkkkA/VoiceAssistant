@@ -31,7 +31,7 @@ const AppCard: React.FC<{ appKey: string; cfg: AppConfig }> = ({ appKey, cfg }) 
             role='button'
             tabIndex={0}
             onKeyDown={(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); handleOpen(); } }}
-            className='group relative rounded-lg border border-appcard-border bg-appcard-bg overflow-hidden cursor-pointer hover:border-appcard-border-hover active:scale-[0.98] transition-all duration-200 hover:shadow-lg'
+            className='group relative rounded-lg border border-ui-border-primary bg-appcard-bg overflow-hidden cursor-pointer hover:border-appcard-border-hover active:scale-[0.98] transition-all duration-200 hover:shadow-lg'
             onClick={handleOpen}
         >
             <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-br from-appcard-accent/10 via-transparent to-widget-accent-b/10' />
@@ -55,7 +55,7 @@ const AppCard: React.FC<{ appKey: string; cfg: AppConfig }> = ({ appKey, cfg }) 
                     </div>
                 </div>
                 
-                <div className='mt-3 pt-2 border-t border-appcard-divider/50 flex items-center justify-between'>
+                <div className='mt-3 pt-2 border-t border-ui-border-primary/50 flex items-center justify-between'>
                     <span className='text-xs text-ui-text-muted truncate max-w-[140px] font-mono' title={cfg.path}>{fileName}</span>
                     <div className='flex items-center gap-1 text-xs text-appcard-accent opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0'>
                         <svg width='12' height='12' viewBox='0 0 24 24' fill='currentColor'>

@@ -11,6 +11,7 @@ recognizer = Recognizer(
 def run(stop_event):
     client = ModuleClient(
         service_name='speech_rec_module',
+        manifest_file='manifest.json',
         subscribes=[],
         heartbeat_interval=5.0,
         max_reconnect_attempts=10,

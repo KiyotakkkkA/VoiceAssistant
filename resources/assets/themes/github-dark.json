@@ -2,23 +2,17 @@
     "main.bg": "#0d1117",
 
     "topbar.bg": "#161b22",
-    "topbar.border": "#30363d",
 
     "sidebars.bg": "#161b22",
-    "sidebars.border": "#30363d",
 
     "log.bg": "#0d1117",
     "log.panel.bg": "#161b22",
-    "log.item.border": "#30363d",
 
     "appcard.bg": "#161b22",
-    "appcard.border": "#30363d",
     "appcard.border.hover": "#58a6ff",
-    "appcard.divider": "#30363d",
     "appcard.accent": "#58a6ff",
 
     "widget.bg": "#161b22",
-    "widget.border": "#30363d",
     "widget.muted": "#8b949e",
     "widget.accent.a": "#58a6ff",
     "widget.accent.b": "#3fb950",
@@ -34,10 +28,8 @@
     "eventlog.bg.pyready": "#f0883e",
     "eventlog.bg.yaml": "#8b949e",
     "eventlog.bg.default": "#21262d",
-    "eventlog.divider": "#30363d",
     "eventlog.button.bg": "#21262d",
     "eventlog.button.bg.hover": "#30363d",
-    "eventlog.button.border": "#30363d",
     "eventlog.button.border.hover": "#58a6ff",
     "eventlog.button.accent": "#58a6ff",
     "eventlog.button.accent.hover": "#4493f8",
@@ -55,10 +47,8 @@
 
     "button.bg": "#21262d",
     "button.bg.hover": "#30363d",
-    "button.border": "#30363d",
 
     "input.bg": "#161b22",
-    "input.border": "#30363d",
     "input.focus": "#21262d",
 
     "draghandle.bg.active": "#58a6ff",
@@ -68,6 +58,7 @@
     "ui.text.secondary": "#b1bac4",
     "ui.text.muted": "#8b949e",
     "ui.text.accent": "#c9d1d9",
+    "ui.border.primary": "#30363d",
 
     "state.listening.bg": "#3fb950",
     "state.listening.gradient": "rgba(63,185,80,0.15)",
@@ -82,16 +73,13 @@
     "nav.bg.hover": "#21262d",
     "nav.bg.active": "#30363d",
     "nav.tooltip.bg": "#0d1117",
-    "nav.tooltip.border": "#30363d",
     "nav.tooltip.text": "#c9d1d9",
 
-    "toast.border": "#30363d",
     "toast.bg.from": "#161b22",
     "toast.bg.to": "#21262d",
     "toast.accent": "#58a6ff",
     "toast.bar": "#58a6ff",
 
-    "card.border": "#30363d",
     "card.bg": "#21262d",
     "card.title": "#b1bac4",
     

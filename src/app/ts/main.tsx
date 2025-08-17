@@ -88,7 +88,34 @@ const AppContent = observer(() => {
     setTheme(m?.payload?.data?.themes?.currentThemeData || null);
   }
 
+  const setModulesRegisteredData = (m: any) => {
+    settingsStore.data.modules = {
+      ...settingsStore.data.modules,
+      [m?.payload?.service]: {
+        service_id: m?.payload?.service || 'Неизвестный модуль',
+        service_name: m?.payload?.service_name || '[Нет имени]',
+        service_desc: m?.payload?.service_desc || '[Нет описания]',
+        enabled: false,
+      }
+    };
+
+    console.log('TEST', settingsStore.data.modules);
+  };
+
+  const setModulesInitedData = (m: any) => {
+    settingsStore.data.modules = {
+      ...settingsStore.data.modules,
+      [m?.payload?.service]: {
+        ...settingsStore.data.modules[m?.payload?.service],
+        enabled: true,
+      }
+    };
+  };
+
   const bindings = {
+    [EventsTopic.SERVICE_WAS_REGISTERED]: (m: any) => {
+      setModulesRegisteredData(m);
+    },
     [EventsTopic.ACTION_WAKE]: handleWake,
     [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,
     [EventsTopic.RAW_TEXT_DATA_RECOGNIZED]: rawDataTextRecognized,
@@ -105,9 +132,16 @@ const AppContent = observer(() => {
     [EventsTopic.JSON_APIKEYS_DATA_SET]: (m: any) => {
       setApikeysData(m);
     },
-    [EventsTopic.READY_VOICE_RECOGNIZER]: () => {
+    [EventsTopic.READY_VOICE_RECOGNIZER]: (m: any) => {
+      setModulesInitedData(m);
       setSystemReady(true);
       setMode('waiting');
+    },
+    [EventsTopic.READY_PROCESSOR]: (m: any) => {
+      setModulesInitedData(m);
+    },
+    [EventsTopic.READY_ORCHESTRATOR]: (m: any) => {
+      setModulesInitedData(m);
     }
   };
 

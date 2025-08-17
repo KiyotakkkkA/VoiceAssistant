@@ -5,3 +5,7 @@ export { IconPlus } from "./IconPlus";
 export { IconPen } from "./IconPen";
 export { IconTrash } from "./IconTrash";
 export { IconCopy } from "./IconCopy";
+export { IconShield } from "./IconShield";
+export { IconFile } from "./IconFile";
+export { IconMicrophone } from "./IconMicrophone";
+export { IconTerminal } from "./IconTerminal";

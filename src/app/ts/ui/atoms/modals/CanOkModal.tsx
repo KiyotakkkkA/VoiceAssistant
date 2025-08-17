@@ -103,7 +103,7 @@ const CanOkModal: React.FC<Props> = ({
       />
       
       {/* Modal */}
-      <div className="relative bg-main-bg border border-ui-text-secondary/20 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+      <div className="relative bg-main-bg border border-ui-border-primary/20 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
         {/* Header */}
         <div className="flex items-center gap-3 p-6 pb-4">
           <div className={`w-12 h-12 bg-gradient-to-r ${currentStyle.gradient} ${currentStyle.shadow} rounded-xl flex items-center justify-center text-white shadow-lg`}>
@@ -134,7 +134,7 @@ const CanOkModal: React.FC<Props> = ({
         )}
         
         {/* Actions */}
-        <div className="flex gap-3 p-6 pt-4 border-t border-ui-text-secondary/10">
+        <div className="flex gap-3 p-6 pt-4 border-t border-ui-border-primary/10">
           <button
             onClick={onClose}
             className="flex-1 px-4 py-2.5 bg-ui-text-secondary/10 hover:bg-ui-text-secondary/20 text-ui-text-primary font-medium rounded-xl transition-all duration-200"

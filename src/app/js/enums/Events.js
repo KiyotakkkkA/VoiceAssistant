@@ -25,5 +25,7 @@ export const EventsTopic = {
     UI_SHOW_SET_VOLUME: 'ui_show_set_volume',
     UI_SHOW_SET_BRIGHTNESS: 'ui_show_set_brightness',
 
-    READY_VOICE_RECOGNIZER: 'ready_voice_recognizer'
+    READY_ORCHESTRATOR: 'ready_orchestrator',
+    READY_VOICE_RECOGNIZER: 'ready_voice_recognizer',
+    READY_PROCESSOR: 'ready_processor'
 };
