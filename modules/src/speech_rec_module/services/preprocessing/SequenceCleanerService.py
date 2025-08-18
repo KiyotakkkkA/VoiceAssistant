@@ -1,8 +1,8 @@
-from interfaces import ISingleton
+from interfaces import IService
 import re
 
 
-class SequenceCleanerService(ISingleton):
+class SequenceCleanerService(IService):
     
     SERVICE_NAME = "SequenceCleanerService"
     

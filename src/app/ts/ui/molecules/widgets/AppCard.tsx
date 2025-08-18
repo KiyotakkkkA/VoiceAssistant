@@ -1,4 +1,4 @@
-import { socketClient } from '../../../utils';
+import { socketClient } from '../../../clients';
 import { EventsTopic, EventsType } from '../../../../js/enums/Events';
 import React from 'react';
 

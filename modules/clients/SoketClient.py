@@ -94,8 +94,6 @@ class SocketClient:
 				data = json.loads(message)
 			except Exception:
 				data = message
-			if isinstance(data, dict) and self._echo_ui and data.get('from') == 'ui' and data.get('type') == 'ui_message':
-				self.send({'type': 'python_echo', 'from': 'python', 'payload': f"Получено от UI: {data.get('payload')}"})
 			self._dispatch(data)
 
 		def _on_error(_ws, err):

@@ -17,13 +17,12 @@ interface Props {
   mode: string;
   transcript: string | Object;
   messages: {type:string;topic:string;payload:any;from?:string}[];
-  onSend: (text:string)=>void;
   apps: Record<string, any>;
   toasts?: { id:string; message:string }[];
   systemReady?: boolean;
 }
 
-export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, transcript, messages, onSend, apps, toasts=[], systemReady=false }) => {
+export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, transcript, messages, apps, toasts=[], systemReady=false }) => {
 
   const ctx = React.useContext(GContext);
 

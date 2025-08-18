@@ -1,8 +1,8 @@
 from src.speech_rec_module.services.preprocessing import SequenceCleanerService, TextToNumberService, LemmatizationService
-from interfaces import ISingleton
+from interfaces import IService
 from colorama import Fore, Style
 
-class TextNormalizationService(ISingleton):
+class TextNormalizationService(IService):
     SERVICE_NAME = "TextNormalizationService"
     
     def __init__(self):
@@ -38,6 +38,6 @@ class TextNormalizationService(ISingleton):
         """
         cleaned_text = self.services["sequence_cleaner"].execute(text)
         lemmatized_text = self.services["lemmatization"].execute(cleaned_text)
-        number_extracted_text = self.services["text_to_number"].extract_numbers_from(lemmatized_text)
-        
+        number_extracted_text = self.services["text_to_number"].execute(lemmatized_text)
+
         return number_extracted_text

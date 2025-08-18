@@ -1,6 +1,6 @@
 from vosk import Model, KaldiRecognizer
 from colorama import Fore, Style
-from interfaces import ISingleton
+from interfaces import IService
 from utils import AudioService
 from enums.Events import EventsType, EventsTopic
 import pyaudio
@@ -9,7 +9,7 @@ import time, colorama, json
 
 colorama.init()
 
-class SpeechRecognitionService(ISingleton):
+class SpeechRecognitionService(IService):
     SERVICE_NAME = "SpeechRecognitionService"
     
     def __init__(self, name, model_path):

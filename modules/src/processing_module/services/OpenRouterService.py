@@ -1,6 +1,9 @@
 from openai import OpenAI
+from interfaces import IService
 
-class OpenRouterService:
+class OpenRouterService(IService):
+    SERVICE_NAME = "OpenRouterService"
+
     def __init__(self):
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",

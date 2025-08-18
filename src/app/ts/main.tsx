@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import '../css/index.css';
 import { useEffect, useState } from 'react';
-import { socketClient } from './utils';
+import { socketClient } from './clients';
 import { MainLayout } from './ui/templates/MainLayout';
 import { GlobalContext } from './providers';
 import { ToastProvider, useToast } from './providers/ToastProvider';
@@ -123,10 +123,10 @@ const AppContent = observer(() => {
       });
     }
     
-    if (m?.payload?.data?.external_ai_answer) {
+    if (m?.payload?.data?.additional?.external_ai_answer) {
       settingsStore.data.aiMsgHistory.push({
-        model_name: m.payload.data.model_name || 'unknown',
-        text: m.payload.data.external_ai_answer,
+        model_name: m.payload.data.additional.model_name || 'unknown',
+        text: m.payload.data.additional.external_ai_answer,
         timestamp: new Date()
       });
     }
@@ -182,11 +182,6 @@ const AppContent = observer(() => {
   return () => { unsubscribe(); };
   }, []);
 
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
-    socketClient.send({ type: 'ui_message', from: 'ui', payload: text.trim() });
-  };
-
   return (
     <GlobalContext themes={theme || {}}>
       <MainLayout
@@ -194,7 +189,6 @@ const AppContent = observer(() => {
         mode={mode}
         transcript={transcript as any}
         messages={messages}
-        onSend={handleSend}
         apps={apps}
         systemReady={systemReady}
       />

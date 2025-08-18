@@ -1,8 +1,8 @@
 from pymorphy3 import MorphAnalyzer
-from interfaces import ISingleton
+from interfaces import IService
 
 
-class LemmatizationService(ISingleton):
+class LemmatizationService(IService):
     SERVICE_NAME = "LemmatizationService"
     
     def __init__(self):

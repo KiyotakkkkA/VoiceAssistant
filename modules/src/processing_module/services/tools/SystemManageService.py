@@ -1,6 +1,8 @@
-from interfaces import ISingleton
+from interfaces import IToolService
 from utils import AudioService
-from enums.Events import EventsType, EventsTopic
+from enums.Events import EventsTopic
+from mtypes.Global import ToolServiceResponse
+
 try:
     from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
     from comtypes import CLSCTX_ALL
@@ -14,7 +16,7 @@ try:
 except ImportError:
     BRIGHTNESS_IMPORTED = False
 
-class SystemManageService(ISingleton):
+class SystemManageService(IToolService):
     """
     Сервис для управления системными настройками, такими как громкость.
     """
@@ -49,7 +51,7 @@ class SystemManageService(ISingleton):
             print(f"[ОШИБКА] {self.SERVICE_NAME}: Не удалось инициализировать контроллер громкости: {e}")
             self._volume_controller = None
 
-    def set_system_volume(self, level: int) -> dict:
+    def set_system_volume(self, level: int) -> ToolServiceResponse:
         """
         Устанавливает уровень системной громкости.
         
@@ -98,7 +100,7 @@ class SystemManageService(ISingleton):
                 "message": f"Ошибка при установке громкости: {e}",
             }
 
-    def set_system_brightness(self, level: int) -> dict:
+    def set_system_brightness(self, level: int) -> ToolServiceResponse:
         """Устанавливает системную яркость (если поддерживается).
 
         Args:
@@ -137,7 +139,7 @@ class SystemManageService(ISingleton):
         
         return result
 
-    def set_volume_handler(self, msg_data: dict) -> dict:
+    def set_volume_handler(self, msg_data: dict) -> ToolServiceResponse:
         """
         Обработчик для интента установки громкости.
         Извлекает уровень громкости из текста команды.
@@ -161,7 +163,7 @@ class SystemManageService(ISingleton):
             
         return self.set_system_volume(level)
 
-    def set_brightness_handler(self, msg_data: dict) -> dict:
+    def set_brightness_handler(self, msg_data: dict) -> ToolServiceResponse:
         """Обработчик интента установки яркости (SET_BRIGHTNESS)."""
         original_text = msg_data.get("original_text", "").lower()
         import re

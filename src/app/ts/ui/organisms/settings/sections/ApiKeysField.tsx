@@ -4,7 +4,7 @@ import { CategoryItem } from '../../../atoms';
 import { CanOkModal } from '../../../atoms/modals';
 import { IconPen, IconCopy, IconTrash } from '../../../atoms/icons';
 import { useToast } from '../../../../providers/ToastProvider';
-import { socketClient } from '../../../../utils';
+import { socketClient } from '../../../../clients';
 import { EventsTopic, EventsType } from '../../../../../js/enums/Events';
 
 interface Props {

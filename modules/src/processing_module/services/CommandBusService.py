@@ -1,8 +1,8 @@
 from utils.AudioService import AudioService
 from src.processing_module.services.tools import AppManageService, SystemManageService, ModeChangingService
-from interfaces import ISingleton
+from interfaces import IService
 
-class CommandBusService(ISingleton):
+class CommandBusService(IService):
     def __init__(self):
 
         self.services = {

@@ -1,10 +1,10 @@
 from typing import Optional, List, Tuple, Set
 from functools import lru_cache
-from interfaces import ISingleton
+from interfaces import IService
 import re
 
 
-class TextToNumberService(ISingleton):
+class TextToNumberService(IService):
     SERVICE_NAME = "TextToNumberService"
 
     DIGITS = {
@@ -205,7 +205,7 @@ class TextToNumberService(ISingleton):
         raise ValueError(f"Неизвестное числовое слово: {word}")
 
     @classmethod
-    def extract_numbers_from(cls, text: str) -> str:
+    def execute(cls, text: str) -> str:
         if not text or not text.strip():
             return text
 
@@ -291,7 +291,7 @@ class TextToNumberService(ISingleton):
             print("=" * 60)
 
         for idx, case in enumerate(test_cases):
-            result = cls.extract_numbers_from(case['input'])
+            result = cls.execute(case['input'])
             assert result == case['output'], f"Тест {idx} не пройден: {result} != {case['output']}"
             if console_output:
                 print(f"✅ Тест {idx + 1} пройден: '{case['input']}' → '{result}'")

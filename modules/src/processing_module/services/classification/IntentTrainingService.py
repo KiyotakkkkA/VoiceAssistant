@@ -5,12 +5,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from src.processing_module.services.classification.IntentFilesMerger import IntentFilesMerger
 from colorama import Fore, Style
-from interfaces import ISingleton
+from interfaces import IService
 import os
 import pickle
 
 
-class IntentTrainingService(ISingleton):
+class IntentTrainingService(IService):
     SERVICE_NAME = "IntentTrainingService"
 
     def __init__(self,
@@ -51,7 +51,7 @@ class IntentTrainingService(ISingleton):
         """
         Слияние датасетов
         """
-        self.services["intent_files_merger"].merge()
+        self.services["intent_files_merger"].execute()
 
     def load_data(self):
         """
@@ -78,7 +78,7 @@ class IntentTrainingService(ISingleton):
                     print(f"{Fore.YELLOW}[ПРЕДУПРЕЖДЕНИЕ]{Style.RESET_ALL} Пропуск некорректной строки: {line}")
         return texts, intents
 
-    def train(self, test_size=0.2, random_state=42):
+    def execute(self, test_size=0.2, random_state=42):
         """
         Обучение модели
         

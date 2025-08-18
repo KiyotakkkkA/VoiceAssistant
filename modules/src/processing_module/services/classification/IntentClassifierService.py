@@ -1,10 +1,10 @@
-from interfaces import ISingleton
+from interfaces import IService
 from typing import List, Optional
 from colorama import Fore, Style
 import pickle
 
 
-class IntentClassifierService(ISingleton):
+class IntentClassifierService(IService):
     SERVICE_NAME = "IntentClassifierService"
     
     STANDART_THRESHOLD = 0.85
@@ -40,7 +40,7 @@ class IntentClassifierService(ISingleton):
             traceback.print_exc()
             self.is_loaded = False
 
-    def predict(self, normalized_text_list: List[str], threshold: float = STANDART_THRESHOLD) -> Optional[dict]:
+    def execute(self, normalized_text_list: List[str], threshold: float = STANDART_THRESHOLD) -> Optional[dict]:
         """
         Предсказывает класс на основе нормализованного текста.
 

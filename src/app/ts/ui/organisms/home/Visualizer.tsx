@@ -3,7 +3,7 @@ import { GContext } from '../../../providers';
 import { TimeTracker, BatteryStatus, AiHistoryPanel } from '../../molecules/widgets';
 import { observer } from 'mobx-react-lite';
 import { Dropdown } from '../../atoms';
-import { socketClient } from '../../../utils';
+import { socketClient } from '../../../clients';
 import { EventsTopic, EventsType } from '../../../../js/enums/Events';
 import settingsStore from '../../../store/SettingsStore';
 

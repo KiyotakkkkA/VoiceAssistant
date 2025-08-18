@@ -1,9 +1,9 @@
-from interfaces import ISingleton
+from interfaces import IToolService
 from utils import AudioService
-from paths import path_resolver
-from enums.Events import EventsType, EventsTopic
+from enums.Events import EventsTopic
+from mtypes.Global import ToolServiceResponse
 
-class ModeChangingService(ISingleton):
+class ModeChangingService(IToolService):
     SERVICE_NAME = "ModeChangingService"
     
     def __init__(self):
@@ -20,7 +20,7 @@ class ModeChangingService(ISingleton):
             "SET_INTERACTIVE_MODE": self.set_interactive_mode_handler,
         }
 
-    def set_normal_mode_handler(self, msg_data: dict):
+    def set_normal_mode_handler(self, msg_data: dict) -> ToolServiceResponse:
         self.services["audio"].play_sound("set_mode")
 
         return {
@@ -32,7 +32,7 @@ class ModeChangingService(ISingleton):
             }
         }
 
-    def set_interactive_mode_handler(self, msg_data: dict):
+    def set_interactive_mode_handler(self, msg_data: dict) -> ToolServiceResponse:
         self.services["audio"].play_sound("set_mode")
 
         return {

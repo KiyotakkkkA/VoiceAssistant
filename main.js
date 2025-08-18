@@ -1,12 +1,13 @@
-import { app, BrowserWindow } from 'electron';
 import path from 'path';
+import fs from 'fs';
+import { app, BrowserWindow } from 'electron';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
-import fs from 'fs';
 import { YamlParsingService } from './src/app/js/services/YamlParsingService.js';
 import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
 import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
+import { MsgBroker } from "./src/app/js/clients/SocketMsgBrokerClient.js";
 import { paths } from './src/app/js/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,7 +44,6 @@ const createWindow = () => {
 };
 
 let wss = null;
-const connectedClients = new Set();
 
 const services = {
   yaml: YamlParsingService.getInstance(),
@@ -111,207 +111,9 @@ function loadInitialConfigs() {
 function startWebSocketServer() {
   if (wss) return;
   wss = new WebSocketServer({ port: WS_PORT });
-  const wssMessageHistory = [];
-  console.log(`[WS] Server listening on ws://localhost:${WS_PORT}`);
 
-  const wsresolver = {
-    [EventsType.EVENT]: (ws, msg) => {
-      switch (msg.topic) {
-        case EventsTopic.SERVICE_HEARTBEAT:
-          break;
-        case EventsTopic.SERVICE_WAS_REGISTERED:
-          wssMessageHistory.push(msg);
-        default:
-          break;
-      }
-    },
-    [EventsType.SERVICE_INIT]: (ws, msg) => {
-      switch (msg.topic) {
-        case EventsTopic.READY_ORCHESTRATOR:
-          wssMessageHistory.push(msg);
-          break;
-        case EventsTopic.READY_VOICE_RECOGNIZER:
-          wssMessageHistory.push(msg);
-          break;
-        case EventsTopic.READY_PROCESSOR:
-          wssMessageHistory.push(msg);
-          break;
-      }
-    },
-    [EventsType.SERVICE_PING]: (ws, msg) => {
-      console.log('[WS] Service ping:', msg);
-    },
-    [EventsType.SERVICE_ACTION]: (ws, msg) => {
-      switch (msg.topic) {
-        case EventsTopic.ACTION_APP_OPEN:
-
-          if (!msg.payload?.path) {
-            console.warn('[WS] ACTION_APP_OPEN missing path');
-            return;
-          }
-
-          try {
-            const appPath = msg.payload.path;
-            const folder = path.dirname(appPath);
-            if (process.platform === 'win32') {
-              exec(`explorer.exe /select,"${appPath}"`);
-            } else if (process.platform === 'darwin') {
-              exec(`open "${folder}"`);
-            } else {
-              exec(`xdg-open "${folder}"`);
-            }
-          } catch (e) {
-            console.error('[WS] opening app error', e);
-          }
-
-          break;
-        case EventsTopic.ACTION_THEME_SET:
-          if (!msg.payload?.theme) {
-            console.warn('[WS] ACTION_THEME_SET missing theme');
-            return;
-          }
-          try {
-            const themeName = msg.payload.theme;
-            const themePath = `${paths.themes_path}/${themeName}.json`;
-
-            if (fs.existsSync(themePath)) {
-              services.json.load('theme', themePath);
-
-              const settings = services.json.get('settings') || {};
-              settings['ui.current.theme.id'] = themeName;
-
-              const settingsPath = `${paths.global_path}/settings.json`;
-              fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-              services.json.load('settings', settingsPath);
-
-              const updatedData = {
-                themes: {
-                  themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
-                  currentThemeData: services.json.get('theme'),
-                },
-                settings: {
-                  'ui.current.theme.id': themeName
-                }
-              };
-
-              for (const client of connectedClients) {
-                if (client.readyState === 1) {
-                  client.send(JSON.stringify({
-                    type: EventsType.EVENT,
-                    topic: EventsTopic.JSON_THEMES_DATA_SET,
-                    from: 'server',
-                    payload: { data: updatedData }
-                  }));
-                }
-              }
-
-              console.log(`[Theme] Switched to ${themeName}`);
-            }
-          } catch (e) {
-            console.error('[WS] theme setting error', e);
-          }
-          break;
-        case EventsTopic.ACTION_APIKEYS_SET:
-          if (!msg.payload?.apikeys) {
-            console.warn('[WS] ACTION_APIKEYS_SET missing keys');
-            return;
-          }
-          try {
-            const apiKeys = msg.payload.apikeys;
-
-            const settings = services.json.get('settings') || {};
-            settings['ui.current.apikeys'] = apiKeys;
-
-            const settingsPath = `${paths.global_path}/settings.json`;
-            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-            services.json.load('settings', settingsPath);
-
-            const updatedData = {
-              settings: {
-                "ui.current.apikeys": apiKeys
-              }
-            };
-
-            for (const client of connectedClients) {
-                if (client.readyState === 1) {
-                  client.send(JSON.stringify({
-                    type: EventsType.EVENT,
-                    topic: EventsTopic.JSON_APIKEYS_DATA_SET,
-                    from: 'server',
-                    payload: { data: updatedData }
-                  }));
-                }
-              }
-
-          } catch (e) {
-            console.error('[WS] theme setting error', e);
-          }
-          break;
-        case EventsTopic.ACTION_AIMODEL_SET:
-          if (!msg.payload?.modelId) {
-            console.warn('[WS] ACTION_AIMODEL_SET missing model');
-            return;
-          }
-          try {
-            const model = msg.payload.modelId;
-
-            const settings = services.json.get('settings') || {};
-            settings['ui.current.aimodel.id'] = model;
-
-            const settingsPath = `${paths.global_path}/settings.json`;
-            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-            services.json.load('settings', settingsPath);
-
-            for (const client of connectedClients) {
-              if (client.readyState === 1) {
-                client.send(JSON.stringify({
-                  type: EventsType.EVENT,
-                  topic: EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA,
-                  from: 'server',
-                  payload: {}
-                }));
-              }
-            }
-
-          } catch (e) {
-            console.error('[WS] theme setting error', e);
-          }
-          break;
-      }
-    }
-  }
-
-  wss.on('connection', (ws) => {
-    connectedClients.add(ws);
-    for (const msg of wssMessageHistory) {
-      if (ws.readyState === 1) {
-        ws.send(JSON.stringify(msg));
-      }
-    }
-    ws.on('close', () => connectedClients.delete(ws));
-    ws.on('message', (data) => {
-      let msg = null;
-      try { msg = JSON.parse(data.toString()); } catch (e) {
-        console.warn('[WS] Non-JSON message ignored', data.toString());
-        return;
-      }
-      if (!msg.type) msg.type = 'unknown';
-      if (!msg.from) msg.from = 'unknown';
-
-      if (wsresolver[msg.type]) {
-        wsresolver[msg.type](ws, msg);
-      }
-      
-      for (const client of connectedClients) {
-        if (client !== ws && client.readyState === 1) {
-          client.send(JSON.stringify(msg));
-        }
-      }
-      if (msg.type !== 'ping' && msg.topic !== 'heartbeat') {
-        console.log('[WS] Message', msg);
-      }
-    });
-
+  MsgBroker.init(wss, true);
+  MsgBroker.onConnection((ws) => {
     const yamlCfgsData = {
       apps: services.yaml.get('apps')
     }
@@ -328,8 +130,155 @@ function startWebSocketServer() {
     if (jsonCfgsData) {
       ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_INITAL_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
     }
-  });
-  wss.on('error', (err) => console.error('[WS] Error', err));
+  })
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APP_OPEN],
+    handler: (ws, msg) => {
+      if (!msg.payload?.path) {
+        console.warn('[WS] ACTION_APP_OPEN missing path');
+        return;
+      }
+
+      try {
+        const appPath = msg.payload.path;
+        const folder = path.dirname(appPath);
+        if (process.platform === 'win32') {
+          exec(`explorer.exe /select,"${appPath}"`);
+        } else if (process.platform === 'darwin') {
+          exec(`open "${folder}"`);
+        } else {
+          exec(`xdg-open "${folder}"`);
+        }
+      } catch (e) {
+        console.error('[WS] opening app error', e);
+      }
+    }
+  })
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_THEME_SET],
+    handler: (ws, msg) => {
+      if (!msg.payload?.theme) {
+        console.warn('[WS] ACTION_THEME_SET missing theme');
+        return;
+      }
+      try {
+        const themeName = msg.payload.theme;
+        const themePath = `${paths.themes_path}/${themeName}.json`;
+
+        if (fs.existsSync(themePath)) {
+          services.json.load('theme', themePath);
+
+          const settings = services.json.get('settings') || {};
+          settings['ui.current.theme.id'] = themeName;
+
+          const settingsPath = `${paths.global_path}/settings.json`;
+          fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+          services.json.load('settings', settingsPath);
+
+          const updatedData = {
+            themes: {
+              themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
+              currentThemeData: services.json.get('theme'),
+            },
+            settings: {
+              'ui.current.theme.id': themeName
+            }
+          };
+
+          for (const client of MsgBroker.getClients()) {
+            if (client.readyState === 1) {
+              client.send(JSON.stringify({
+                type: EventsType.EVENT,
+                topic: EventsTopic.JSON_THEMES_DATA_SET,
+                from: 'server',
+                payload: { data: updatedData }
+              }));
+            }
+          }
+
+          console.log(`[Theme] Switched to ${themeName}`);
+        }
+      } catch (e) {
+        console.error('[WS] theme setting error', e);
+      }
+    }
+  })
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APIKEYS_SET],
+    handler: (ws, msg) => {
+      if (!msg.payload?.apikeys) {
+        console.warn('[WS] ACTION_APIKEYS_SET missing keys');
+        return;
+      }
+      try {
+        const apiKeys = msg.payload.apikeys;
+
+        const settings = services.json.get('settings') || {};
+        settings['ui.current.apikeys'] = apiKeys;
+
+        const settingsPath = `${paths.global_path}/settings.json`;
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+        services.json.load('settings', settingsPath);
+
+        const updatedData = {
+          settings: {
+            "ui.current.apikeys": apiKeys
+          }
+        };
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.JSON_APIKEYS_DATA_SET,
+              from: 'server',
+              payload: { data: updatedData }
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] theme setting error', e);
+      }
+    }
+  })
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_AIMODEL_SET],
+    handler: (ws, msg) => {
+      if (!msg.payload?.modelId) {
+        console.warn('[WS] ACTION_AIMODEL_SET missing model');
+        return;
+      }
+      try {
+        const model = msg.payload.modelId;
+
+        const settings = services.json.get('settings') || {};
+        settings['ui.current.aimodel.id'] = model;
+
+        const settingsPath = `${paths.global_path}/settings.json`;
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+        services.json.load('settings', settingsPath);
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA,
+              from: 'server',
+              payload: {}
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] theme setting error', e);
+      }
+    }
+  })
+
+  MsgBroker.startListening();
 }
 
 function resolvePythonExecutable() {

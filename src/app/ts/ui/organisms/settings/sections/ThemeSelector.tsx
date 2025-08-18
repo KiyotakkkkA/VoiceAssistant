@@ -1,6 +1,6 @@
 import React from 'react';
 import { CategoryItem, Dropdown } from '../../../atoms';
-import { socketClient } from '../../../../utils';
+import { socketClient } from '../../../../clients';
 import { EventsTopic, EventsType } from '../../../../../js/enums/Events';
 
 interface Props {

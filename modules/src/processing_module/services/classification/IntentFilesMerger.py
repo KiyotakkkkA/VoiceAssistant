@@ -1,8 +1,10 @@
-from interfaces import ISingleton
+from interfaces import IService
 import os
 
 
-class IntentFilesMerger(ISingleton):
+class IntentFilesMerger(IService):
+    SERVICE_NAME = "IntentFilesMerger"
+
     def __init__(self,
                  input_files_dir: str,
                  output_file_path: str):
@@ -18,7 +20,7 @@ class IntentFilesMerger(ISingleton):
 
         self.input_files = [os.path.join(self.input_files_dir, f) for f in os.listdir(self.input_files_dir) if f.endswith('.txt')]
 
-    def merge(self):
+    def execute(self):
         """
         Слияние датасетов
         """

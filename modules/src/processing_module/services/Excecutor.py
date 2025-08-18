@@ -5,6 +5,7 @@ from src.processing_module.services.OpenRouterService import OpenRouterService
 from src.processing_module.services.CommandBusService import CommandBusService
 from src.processing_module.services.classification import IntentTrainingService, IntentClassifierService
 from utils import AudioService
+from interfaces import IService
 from colorama import Fore, Style
 from paths import path_resolver
 
@@ -35,11 +36,11 @@ class Excecutor:
         
         self.prediction_threshold = prediction_threshold
 
-        self.services = {
+        self.services: dict[str, IService] = {
             'audio': AudioService().getInstance(),
             "intent_classifier": IntentClassifierService(TEXT_CLASSIFICATION_MODEL_DIR_PATH),
-            "command_bus": CommandBusService(),
-            "open_router": OpenRouterService(),
+            "command_bus": CommandBusService().getInstance(),
+            "open_router": OpenRouterService().getInstance(),
             "dataset_model": IntentTrainingService(
                 input_dataset_files_dir=TEXT_CLASSIFICATION_DATASETS_DIR_PATH,
                 output_merged_dataset_file_path=TEXT_CLASSIFICATION_MODEL_DIR_PATH,
@@ -69,6 +70,12 @@ class Excecutor:
                     self.current_model_key = key.get("value")
                     self.services["open_router"].set_client_data(self.current_model_key, self.current_model_name)
                     break
+    
+    def train(self):
+        """
+        Обучение модели
+        """
+        self.services["dataset_model"].execute()
 
     def run(self, msg):
         """
@@ -76,7 +83,7 @@ class Excecutor:
         """
         intent = self.services.get("intent_classifier")
         if intent and intent.is_loaded:
-            predicted_intent = intent.predict(msg['payload']['text'].split(), self.prediction_threshold)
+            predicted_intent = intent.execute(msg['payload']['text'].split(), self.prediction_threshold)
             command_result = self.services["command_bus"].execute(self.current_state, predicted_intent)
             
             if command_result.get('data', {}).get('additional', {}).get('mode_to'):
@@ -93,9 +100,14 @@ class Excecutor:
                     'original_text': msg['payload']['text'],
                     'data': {
                         'status': True,
-                        'model_name': self.current_model_name,
-                        'external_ai_answer': answer
+                        'message': f'Ответ модели: {self.current_model_name}',
+                        'additional': {
+                            'model_name': self.current_model_name,
+                            'external_ai_answer': answer
+                        }
                     }
                 }
+            else:
+                yield command_result
         else:
             print(f"{Fore.RED}Сервис классификации интентов не настроен или модель не загружена.{Style.RESET_ALL}")

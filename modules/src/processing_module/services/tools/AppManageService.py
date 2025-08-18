@@ -1,12 +1,12 @@
 import os
 import shutil
 import subprocess
-from interfaces import ISingleton
+from interfaces import IToolService
 from utils import YamlParsingService, AudioService
 from paths import path_resolver
-from enums.Events import EventsType, EventsTopic
+from mtypes.Global import ToolServiceResponse
 
-class AppManageService(ISingleton):
+class AppManageService(IToolService):
     SERVICE_NAME = "AppManageService"
     
     def __init__(self):
@@ -90,7 +90,7 @@ class AppManageService(ISingleton):
         
         return result
     
-    def create_project_handler(self, msg_data: dict):
+    def create_project_handler(self, msg_data: dict) -> ToolServiceResponse:
         _project = None
         _additional = None
         
@@ -136,8 +136,8 @@ class AppManageService(ISingleton):
                 "status": False,
                 "message": f"Ошибка при создании проекта: {e}"
             }
-            
-    def open_project_handler(self, msg_data: dict):
+
+    def open_project_handler(self, msg_data: dict) -> ToolServiceResponse:
         _project = None
         
         for word in msg_data["original_text"].split():
@@ -177,7 +177,8 @@ class AppManageService(ISingleton):
             "status": False,
             "message": "Проект не найден"
         }
-    def open_app_handler(self, msg_data: dict):
+    
+    def open_app_handler(self, msg_data: dict) -> ToolServiceResponse:
         _app = None
         _app_alias = None
         
