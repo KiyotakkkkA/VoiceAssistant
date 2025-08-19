@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const TimeTracker = () => {
     const [, forceTick] = useState(0);
-    useEffect(()=>{ const id = setInterval(()=>forceTick(x=>x+1),1000); return ()=>clearInterval(id); },[]);
+    useEffect(()=>{ const id = window.safeTimers.setInterval(() => forceTick(x=>x+1),1000); return () => window.safeTimers.clearInterval(id); },[]);
     const now = new Date();
     const hh = now.getHours().toString().padStart(2,'0');
     const mm = now.getMinutes().toString().padStart(2,'0');

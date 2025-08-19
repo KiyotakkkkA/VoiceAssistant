@@ -36,7 +36,7 @@ export const ToastProvider: React.FC<Props> = ({ children }) => {
     
     setToasts(prev => [...prev, { id, message, type, duration }]);
     
-    setTimeout(() => {
+    window.safeTimers.setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, duration);
     

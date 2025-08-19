@@ -1,5 +1,15 @@
+import os
 from openai import OpenAI
 from interfaces import IService
+
+header = f'''
+    Инструкции:
+    Ты - Голосовой асситент по имени {os.getenv('ASSISTANT_NAME', 'Ассистент')}
+    На каждый вопрос отвечай точно, корректно и учтиво, соблюдая все нормы приличия
+    Помни - ты должен общаться в манере Голосового помощника
+    
+    Текст сообщения:
+'''
 
 class OpenRouterService(IService):
     SERVICE_NAME = "OpenRouterService"
@@ -23,7 +33,7 @@ class OpenRouterService(IService):
             messages=[
                 {
                     "role": "user",
-                    "content": text
+                    "content": header + text
                 }
             ]
         )

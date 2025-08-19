@@ -49,7 +49,7 @@ class SocketClient {
 			if (SocketClient.log) console.warn('[SocketClient] closed');
 			SocketClient.ws = null;
 			if (!SocketClient.manualClose) {
-				setTimeout(() => this.connect(), SocketClient.reconnectDelay);
+				window.safeTimers.setTimeout(() => this.connect(), SocketClient.reconnectDelay);
 			}
 		};
 	}

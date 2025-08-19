@@ -22,7 +22,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
     if (settingsStore.data.aiMsgHistory.length > lastMessageCount) {
       setLastMessageCount(settingsStore.data.aiMsgHistory.length);
       if (!isHistoryVisible && settingsStore.data.aiMsgHistory.length > 0) {
-        setTimeout(() => {
+        window.safeTimers.setTimeout(() => {
         }, 500);
       }
     }
