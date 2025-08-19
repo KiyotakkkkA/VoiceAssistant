@@ -1,6 +1,8 @@
 from utils.AudioService import AudioService
 from src.processing_module.services.tools import AppManageService, SystemManageService, ModeChangingService
-from interfaces import IService
+from interfaces import IService, IToolService
+from typing import Dict
+from mtypes.Global import ProcessingServiceResponseType
 
 class CommandBusService(IService):
     def __init__(self):
@@ -8,8 +10,8 @@ class CommandBusService(IService):
         self.services = {
             'audio': AudioService().getInstance(),
         }
-        
-        self.tools = {
+
+        self.tools: Dict[str, IToolService] = {
             "app_manager": AppManageService.getInstance(),
             'system_manager': SystemManageService.getInstance(),
             "mode_changing": ModeChangingService.getInstance()
@@ -24,7 +26,7 @@ class CommandBusService(IService):
             for token in self.tools[tool].tokens.items():
                 self.intent_to_manager_map[token[0]] = tool
 
-    def execute(self, current_excecutor_state: str, msg_data: dict):
+    def execute(self, current_excecutor_state: str, msg_data: dict) -> ProcessingServiceResponseType:
         if not msg_data.get("intent"):
             return {
                 "original_text": msg_data.get("original_text"),

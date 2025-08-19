@@ -29,7 +29,7 @@ def run(stop_event):
 
     for item in recognizer.run():
         if isinstance(item, dict):
-            client.emit({'type': item.get('type'), 'topic': item.get('topic'), 'from': 'speech_rec_module', 'payload': item.get('result')})
+            client.emit({'type': item.get('type'), 'topic': item.get('topic'), 'from': 'speech_rec_module', 'payload': item.get('payload')})
 
 
 ORC_STOP = globals().get('ORC_STOP')

@@ -1,7 +1,7 @@
 from interfaces import IToolService
 from utils import AudioService
 from enums.Events import EventsTopic
-from mtypes.Global import ToolServiceResponse
+from mtypes.Global import ToolServiceResponseType
 
 try:
     from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
@@ -51,7 +51,7 @@ class SystemManageService(IToolService):
             print(f"[ОШИБКА] {self.SERVICE_NAME}: Не удалось инициализировать контроллер громкости: {e}")
             self._volume_controller = None
 
-    def set_system_volume(self, level: int) -> ToolServiceResponse:
+    def set_system_volume(self, level: int) -> ToolServiceResponseType:
         """
         Устанавливает уровень системной громкости.
         
@@ -100,7 +100,7 @@ class SystemManageService(IToolService):
                 "message": f"Ошибка при установке громкости: {e}",
             }
 
-    def set_system_brightness(self, level: int) -> ToolServiceResponse:
+    def set_system_brightness(self, level: int) -> ToolServiceResponseType:
         """Устанавливает системную яркость (если поддерживается).
 
         Args:
@@ -139,7 +139,7 @@ class SystemManageService(IToolService):
         
         return result
 
-    def set_volume_handler(self, msg_data: dict) -> ToolServiceResponse:
+    def set_volume_handler(self, msg_data: dict) -> ToolServiceResponseType:
         """
         Обработчик для интента установки громкости.
         Извлекает уровень громкости из текста команды.
@@ -163,7 +163,7 @@ class SystemManageService(IToolService):
             
         return self.set_system_volume(level)
 
-    def set_brightness_handler(self, msg_data: dict) -> ToolServiceResponse:
+    def set_brightness_handler(self, msg_data: dict) -> ToolServiceResponseType:
         """Обработчик интента установки яркости (SET_BRIGHTNESS)."""
         original_text = msg_data.get("original_text", "").lower()
         import re

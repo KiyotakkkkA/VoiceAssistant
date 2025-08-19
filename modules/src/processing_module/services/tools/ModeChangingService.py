@@ -1,7 +1,7 @@
 from interfaces import IToolService
 from utils import AudioService
 from enums.Events import EventsTopic
-from mtypes.Global import ToolServiceResponse
+from mtypes.Global import ToolServiceResponseType
 
 class ModeChangingService(IToolService):
     SERVICE_NAME = "ModeChangingService"
@@ -20,7 +20,7 @@ class ModeChangingService(IToolService):
             "SET_INTERACTIVE_MODE": self.set_interactive_mode_handler,
         }
 
-    def set_normal_mode_handler(self, msg_data: dict) -> ToolServiceResponse:
+    def set_normal_mode_handler(self, msg_data: dict) -> ToolServiceResponseType:
         self.services["audio"].play_sound("set_mode")
 
         return {
@@ -32,7 +32,7 @@ class ModeChangingService(IToolService):
             }
         }
 
-    def set_interactive_mode_handler(self, msg_data: dict) -> ToolServiceResponse:
+    def set_interactive_mode_handler(self, msg_data: dict) -> ToolServiceResponseType:
         self.services["audio"].play_sound("set_mode")
 
         return {

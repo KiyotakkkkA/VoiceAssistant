@@ -4,7 +4,7 @@ import subprocess
 from interfaces import IToolService
 from utils import YamlParsingService, AudioService
 from paths import path_resolver
-from mtypes.Global import ToolServiceResponse
+from mtypes.Global import ToolServiceResponseType
 
 class AppManageService(IToolService):
     SERVICE_NAME = "AppManageService"
@@ -90,7 +90,7 @@ class AppManageService(IToolService):
         
         return result
     
-    def create_project_handler(self, msg_data: dict) -> ToolServiceResponse:
+    def create_project_handler(self, msg_data: dict) -> ToolServiceResponseType:
         _project = None
         _additional = None
         
@@ -137,7 +137,7 @@ class AppManageService(IToolService):
                 "message": f"Ошибка при создании проекта: {e}"
             }
 
-    def open_project_handler(self, msg_data: dict) -> ToolServiceResponse:
+    def open_project_handler(self, msg_data: dict) -> ToolServiceResponseType:
         _project = None
         
         for word in msg_data["original_text"].split():
@@ -178,7 +178,7 @@ class AppManageService(IToolService):
             "message": "Проект не найден"
         }
     
-    def open_app_handler(self, msg_data: dict) -> ToolServiceResponse:
+    def open_app_handler(self, msg_data: dict) -> ToolServiceResponseType:
         _app = None
         _app_alias = None
         

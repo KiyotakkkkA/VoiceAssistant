@@ -1,6 +1,8 @@
 from src.speech_rec_module.services import SpeechRecognitionService, TextNormalizationService
 from utils import AudioService
+from mtypes.Global import Message
 from colorama import Fore, Style
+from typing import Generator
 import colorama
 
 colorama.init()
@@ -35,14 +37,14 @@ class Recognizer:
         for service in self.services.values():
             if hasattr(service, "test"):
                 service.test()
-                
-    def run(self):
+
+    def run(self) -> Generator[Message, None, None]:
         """
         Запуск ассистента
         """
         for item in self.services["speech_recognition"].execute():
-            if item['result'].get('text'):
+            if item['payload'].get('text'):
                 if self.current_state == "NORMAL":
-                    item['result']['original_text'] = item['result'].get('text')
-                    item['result']['text'] = self.services["text_normalization"].execute(item['result']['text'])
+                    item['payload']['original_text'] = item['payload'].get('text')
+                    item['payload']['text'] = self.services["text_normalization"].execute(item['payload']['text'])
             yield item

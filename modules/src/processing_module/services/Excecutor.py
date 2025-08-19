@@ -4,9 +4,11 @@ from enums.Events import EventsTopic
 from src.processing_module.services.OpenRouterService import OpenRouterService
 from src.processing_module.services.CommandBusService import CommandBusService
 from src.processing_module.services.classification import IntentTrainingService, IntentClassifierService
+from mtypes.Global import ProcessingServiceResponseType
 from utils import AudioService
 from interfaces import IService
 from colorama import Fore, Style
+from typing import Generator
 from paths import path_resolver
 
 colorama.init()
@@ -77,15 +79,15 @@ class Excecutor:
         """
         self.services["dataset_model"].execute()
 
-    def run(self, msg):
+    def run(self, msg) -> Generator[ProcessingServiceResponseType, None, None]:
         """
         Запуск ассистента
         """
         intent = self.services.get("intent_classifier")
         if intent and intent.is_loaded:
             predicted_intent = intent.execute(msg['payload']['text'].split(), self.prediction_threshold)
-            command_result = self.services["command_bus"].execute(self.current_state, predicted_intent)
-            
+            command_result: ProcessingServiceResponseType = self.services["command_bus"].execute(self.current_state, predicted_intent)
+
             if command_result.get('data', {}).get('additional', {}).get('mode_to'):
                 self.current_state = command_result['data']['additional']['mode_to']
                 yield command_result

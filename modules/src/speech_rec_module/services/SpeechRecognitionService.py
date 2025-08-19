@@ -3,6 +3,8 @@ from colorama import Fore, Style
 from interfaces import IService
 from utils import AudioService
 from enums.Events import EventsType, EventsTopic
+from mtypes.Global import Message
+from typing import Generator
 import pyaudio
 import os
 import time, colorama, json
@@ -86,7 +88,7 @@ class SpeechRecognitionService(IService):
             
             time.sleep(0.01)
 
-    def execute(self):
+    def execute(self) -> Generator[Message, None, None]:
         """
         Запуск потока распознавания речи
         """
@@ -95,7 +97,7 @@ class SpeechRecognitionService(IService):
             
             if name_detected:
                 self.services["audio"].play_sound("listening")
-                yield { 'type': EventsType.SERVICE_ACTION.value, 'topic': EventsTopic.ACTION_WAKE.value, 'result': { 'name': self.name } }
+                yield { 'type': EventsType.SERVICE_ACTION.value, 'topic': EventsTopic.ACTION_WAKE.value, 'payload': { 'name': self.name } }
 
                 self.is_name_listening_state = False
                 self.full_recognizer.Reset()
@@ -107,4 +109,4 @@ class SpeechRecognitionService(IService):
                         result = json.loads(self.full_recognizer.Result())
                         if result.get('text'):
                             self.is_name_listening_state = True
-                            yield { 'type': EventsType.EVENT.value, 'topic': EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value, 'result': { 'text': result['text'] } }
+                            yield { 'type': EventsType.EVENT.value, 'topic': EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value, 'payload': { 'text': result['text'] } }
