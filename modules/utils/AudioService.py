@@ -3,10 +3,11 @@ import pygame
 import os
 from pathlib import Path
 from colorama import Fore, Style
-from interfaces import ISingleton
+from interfaces import IService
 from paths import path_resolver
+from typing import Any
 
-class AudioService(ISingleton):
+class AudioService(IService):
     SERVICE_NAME = "AudioService"
 
     audio_dir = Path(path_resolver['audio_path'])
@@ -97,6 +98,9 @@ class AudioService(ISingleton):
             print(f"{Fore.GREEN}[УСПЕХ]{Style.RESET_ALL} Все звуки остановлены")
         except Exception as e:
             print(f"{Fore.RED}[ОШИБКА]{Style.RESET_ALL} Ошибка при остановке звуков: {e}")
+    
+    def execute(self, **kwargs) -> Any:
+        pass
 
     def __del__(self):
         """Деструктор для освобождения ресурсов pygame при удалении объекта."""

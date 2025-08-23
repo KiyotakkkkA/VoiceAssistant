@@ -86,8 +86,8 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
       const currentMode = settingsStore.data.runtime['runtime.current.mode'];
       const globalRot = mal ? time * 0.01 + Math.sin(time*3)*0.002 : time * (m === 'listening' ? 0.25 : 0.08);
       
-      const interactiveBoost = currentMode === 'INTERACTIVE' ? 1.3 : 1;
-      const modeSpeedMultiplier = currentMode === 'INTERACTIVE' ? 1.2 : 1;
+      const interactiveBoost = 1;
+      const modeSpeedMultiplier = 1;
 
       if (flash>0) flash *= 0.92;
 
@@ -115,14 +115,6 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
           basePalette = [20, 220, 160];
           particleMultiplier = 1.3;
         }
-        else if (m === 'waiting' && currentMode === 'INTERACTIVE') {
-          basePalette = [180, 50, 220];
-          particleMultiplier = 1.1;
-        }
-        else if (m === 'listening' && currentMode === 'INTERACTIVE') {
-          basePalette = [255, 140, 30];
-          particleMultiplier = 1.5;
-        }
 
 
         const baseColor = mal ? [160+Math.sin(time*6 + p.a*9)*60, 20+Math.sin(time*4 + p.a*3)*10, 25+Math.sin(time*5 + p.a*2)*20] : basePalette;
@@ -132,20 +124,13 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
         const g = Math.min(255, baseColor[1] + f*120);
         const b = Math.min(255, baseColor[2] + f*120);
 
-        const sparkle = currentMode === 'INTERACTIVE' ? Math.sin(time*8 + p.a*3)*0.4 + 0.6 : 1;
+        const sparkle = 1;
         const particleSize = (1.2 + (pulse>0?0.6:0)) * particleMultiplier * sparkle;
 
         ctx.beginPath();
         ctx.fillStyle = `rgba(${r},${g},${b},${alpha * sparkle})`;
         ctx.arc(x,y, particleSize, 0, Math.PI*2);
         ctx.fill();
-        
-        if (currentMode === 'INTERACTIVE' && sparkle > 0.8) {
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.3})`;
-          ctx.arc(x,y, particleSize * 1.5, 0, Math.PI*2);
-          ctx.fill();
-        }
       }
 
   
@@ -158,12 +143,6 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
   }
   else if (m === 'listening' && currentMode === 'NORMAL') {
     rgbacolor = 'rgba(20,220,160,0.25)';
-  }
-  else if (m === 'waiting' && currentMode === 'INTERACTIVE') {
-    rgbacolor = 'rgba(180,50,220,0.15)';
-  }
-  else if (m === 'listening' && currentMode === 'INTERACTIVE') {
-    rgbacolor = 'rgba(255,140,30,0.2)';
   }
   
   const gradient = ctx.createRadialGradient(0,0,12,0,0, Math.min(width,height)/3);
@@ -199,7 +178,6 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
   return (
     <div className='w-full h-full relative select-none'>
       <canvas ref={canvasRef} className='w-full h-full block' />
-      { settingsStore.data.runtime['runtime.current.mode'] === 'INTERACTIVE' &&
         <div className='absolute top-4 left-4'>
           <Dropdown
             options={settingsStore.data.settings['ui.current.apikeys']?.map((item) => ({ value: item.id || '', label: item.name })) || []}
@@ -208,7 +186,6 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
             placeholder="Выберите модель"
           />
         </div>
-      }
       <div className="absolute top-4 right-6 flex flex-row gap-4 pointer-events-none z-20">
         <BatteryStatus />
         <TimeTracker />
@@ -230,7 +207,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
         messages={settingsStore.data.aiMsgHistory}
         isVisible={isHistoryVisible}
         onToggle={() => setIsHistoryVisible(!isHistoryVisible)}
-        isDropdownVisible={settingsStore.data.runtime['runtime.current.mode'] === 'INTERACTIVE'}
+        isDropdownVisible={true}
       />
     </div>
   );

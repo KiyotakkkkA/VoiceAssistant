@@ -57,7 +57,7 @@ class Orchestrator:
 			'subscribes': p.get('subscribes') or [],
 			'ts': time.time()
 		}
-		on_start_event = self.BINDINGS.get(self.modules_manifests.get(name, {}).get('service.on_start.event'))
+		on_start_event = self.BINDINGS.get(self.modules_manifests.get(name, {}).get('service.on_start.event'))  # type: ignore
 		if on_start_event:
 			self.client.send({
 				'type': EventsType.SERVICE_INIT.value,

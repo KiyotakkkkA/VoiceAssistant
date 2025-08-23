@@ -4,9 +4,27 @@ import { observer } from 'mobx-react-lite';
 import { IconFile } from '../../atoms/icons';
 import settingsStore from '../../../store/SettingsStore';
 
+interface ToolCall {
+  name: string;
+  args: any;
+  response: any;
+}
+
+interface AIResponse {
+  initial_stage?: {
+    thinking?: string;
+    content?: string;
+  };
+  tools_calling_stage?: ToolCall[];
+  final_stage?: {
+    thinking?: string;
+    content?: string;
+  };
+}
+
 interface AiHistoryMsg {
   model_name: string;
-  text: string;
+  text: string | AIResponse;
   timestamp?: Date;
 }
 
@@ -24,6 +42,11 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
   isDropdownVisible = false
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  const [panelWidth, setPanelWidth] = useState(960);
+  const [dragging, setDragging] = useState(false);
+  const startRef = useRef<{x: number; w: number}>();
+  const didDragRef = useRef(false);
 
   useEffect(() => {
     if (isVisible && messages.length > 0 && scrollContainerRef.current) {
@@ -32,25 +55,75 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
     }
   }, [messages.length, isVisible]);
 
+  const onDragStart = (e: React.MouseEvent) => {
+    if (!isVisible) return;
+    setDragging(true);
+    didDragRef.current = false;
+    startRef.current = { x: e.clientX, w: panelWidth };
+    window.addEventListener('mousemove', onDragMove);
+    window.addEventListener('mouseup', onDragEnd);
+    e.preventDefault();
+  };
+
+  const onDragMove = (e: MouseEvent) => {
+    if (!startRef.current) return;
+    const dx = startRef.current.x - e.clientX;
+    if (Math.abs(dx) > 2) didDragRef.current = true;
+    let newW = startRef.current.w + dx;
+    newW = Math.max(400, Math.min(window.innerWidth * 0.9, newW));
+    setPanelWidth(newW);
+  };
+
+  const onDragEnd = () => {
+    setDragging(false);
+    window.removeEventListener('mousemove', onDragMove);
+    window.removeEventListener('mouseup', onDragEnd);
+  };
+
   const clearHistory = () => {
     settingsStore.clearAiHistory();
   };
 
-  const messageHistory = messages.reduce((acc: Array<{userText: string, aiResponse: string, modelName: string, timestamp: Date}>, msg, index) => {
+  const getToolsCount = (response: string | AIResponse): number => {
+    if (typeof response === 'string') {
+      return 0;
+    }
+    return response.tools_calling_stage?.length || 0;
+  };
+
+  const hasThinking = (response: string | AIResponse): boolean => {
+    if (typeof response === 'string') {
+      return false;
+    }
+    return !!(response.initial_stage?.thinking || response.final_stage?.thinking);
+  };
+
+  const messageHistory = messages.reduce((acc: Array<{
+    userText: string, 
+    aiResponse: string | AIResponse, 
+    modelName: string, 
+    timestamp: Date,
+    toolsUsed: number,
+    hasThinking: boolean
+  }>, msg, index) => {
     if (index % 2 === 0) {
-      const userText = msg.text;
+      const userText = msg.text as string;
       const nextMsg = messages[index + 1];
       if (nextMsg) {
         acc.push({
           userText,
           aiResponse: nextMsg.text,
           modelName: nextMsg.model_name,
-          timestamp: msg.timestamp || new Date()
+          timestamp: msg.timestamp || new Date(),
+          toolsUsed: getToolsCount(nextMsg.text),
+          hasThinking: hasThinking(nextMsg.text)
         });
       }
     }
     return acc;
   }, []);
+
+  const totalDialogs = messageHistory.length;
 
   return (
     <>
@@ -68,7 +141,7 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
           messages.length > 0 ? 'bg-green-400 animate-pulse' : 'bg-gray-100'
         }`} />
         <span className="text-sm font-medium">Беседы</span>
-        <span className="text-xs opacity-70">({messages.length > 0 ? Math.ceil(messages.length / 2) : 0})</span>
+        <span className="text-xs opacity-70">({totalDialogs})</span>
         <svg 
           className={`w-4 h-4 transition-transform duration-200 ${isVisible ? 'rotate-180' : ''}`} 
           fill="currentColor" 
@@ -81,14 +154,38 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
       <div className={`fixed top-0 right-0 h-full z-20 transition-all duration-300 ease-in-out ${
         isVisible ? 'translate-x-0' : 'translate-x-full'
       }`}>
-        <div className="w-96 h-full bg-ui-bg-primary/95 backdrop-blur-lg border-l border-ui-border-primary shadow-2xl flex flex-col">
+        <div 
+          className="h-full bg-ui-bg-primary/95 backdrop-blur-lg border-l border-ui-border-primary shadow-2xl flex flex-col relative"
+          style={{ 
+            width: panelWidth,
+            transition: dragging ? 'none' : 'width 0.2s ease'
+          }}
+        >
+          {isVisible && (
+            <div
+              onMouseDown={onDragStart}
+              className={`absolute top-0 left-0 bottom-0 w-2 -translate-x-full cursor-col-resize z-30 ${
+                dragging ? 'bg-draghandle-bg-active/20' : 'bg-transparent hover:bg-draghandle-bg-hover/10'
+              }`}
+            >
+              <div className={`h-full w-px bg-gradient-to-b from-widget-accent-a/30 via-widget-accent-b/30 to-widget-accent-a/30 translate-x-[7px] pointer-events-none ${
+                dragging ? 'animate-pulse' : ''
+              }`} />
+            </div>
+          )}
+
           <div className="p-4 border-b border-ui-border-primary">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-ui-text-primary">Беседы</h3>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-ui-text-muted">
-                  {messageHistory.length} диалог{messageHistory.length !== 1 ? 'ов' : ''}
+                  {totalDialogs} диалог{totalDialogs !== 1 ? 'ов' : ''}
                 </span>
+                {dragging && (
+                  <span className="text-xs text-ui-accent font-mono">
+                    {Math.round(panelWidth)}px
+                  </span>
+                )}
                 <button
                   onClick={clearHistory}
                   className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
@@ -130,30 +227,17 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
               ))
             )}
           </div>
-
-          {messageHistory.length > 0 && (
-            <div className="p-4 border-t border-ui-border-primary bg-ui-bg-secondary/30">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <div className="text-lg font-semibold text-ui-text-primary">{messageHistory.length}</div>
-                  <div className="text-xs text-ui-text-muted">Диалогов</div>
-                </div>
-                <div>
-                  <div className="text-lg font-semibold text-ui-text-primary">
-                    {new Set(messageHistory.map(m => m.modelName)).size}
-                  </div>
-                  <div className="text-xs text-ui-text-muted">Моделей</div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
       {isVisible && (
         <div 
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-10 transition-opacity duration-300"
-          onClick={onToggle}
+          onClick={(e) => {
+            if (!didDragRef.current) {
+              onToggle();
+            }
+          }}
         />
       )}
     </>

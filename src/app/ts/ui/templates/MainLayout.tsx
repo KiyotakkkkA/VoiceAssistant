@@ -35,12 +35,6 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
       bg: 'bg-blue-500/10',
       border: 'border-blue-500/30'
     },
-    'INTERACTIVE': { 
-      label: 'ИНТЕРАКТИВНЫЙ',  
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/30'
-    }
   }
 
   const currentMode = settingsStore.data.runtime['runtime.current.mode'] as keyof typeof modes;

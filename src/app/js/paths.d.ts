@@ -1,6 +1,4 @@
-export interface PathsConfig {
-  yaml_configs_path: string;
-  
+export interface PathsConfig {  
   themes_path: string;
   
   global_path: string;

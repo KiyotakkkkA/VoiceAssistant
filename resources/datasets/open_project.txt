@@ -1,9 +1,0 @@
-# === OPEN_PROJECT ===
-проект аттестации	OPEN_PROJECT
-проект исследования	OPEN_PROJECT
-проект журнала	OPEN_PROJECT
-мой проект	OPEN_PROJECT
-проект аттестации	OPEN_PROJECT
-проект исследования	OPEN_PROJECT
-проект журнала	OPEN_PROJECT
-проект	OPEN_PROJECT

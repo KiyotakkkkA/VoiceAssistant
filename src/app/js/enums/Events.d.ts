@@ -13,7 +13,6 @@ export const EventsTopic: {
     readonly JSON_THEMES_DATA_SET: 'json_themes_data_set';
     readonly JSON_APIKEYS_DATA_SET: 'json_apikeys_data_set';
 
-    readonly YAML_DATA_SET: 'yaml_data_set';
     readonly RAW_TEXT_DATA_RECOGNIZED: 'raw_text_data_recognized';
 
     readonly ACTION_APP_OPEN: 'action_app_open';

@@ -4,7 +4,6 @@ import { app, BrowserWindow } from 'electron';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
-import { YamlParsingService } from './src/app/js/services/YamlParsingService.js';
 import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
 import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
 import { MsgBroker } from "./src/app/js/clients/SocketMsgBrokerClient.js";
@@ -47,7 +46,6 @@ const createWindow = () => {
 let wss = null;
 
 const services = {
-  yaml: YamlParsingService.getInstance(),
   json: JsonParsingService.getInstance()
 };
 
@@ -67,16 +65,6 @@ function createBaseFiles() {
 function loadInitialConfigs() {
 
   const cfgs = {
-    yaml: {
-      loader: services.yaml,
-      objs: [
-        {
-          dir: paths.yaml_configs_path,
-          filename: 'apps',
-          ext: "yml"
-        }
-      ]
-    },
     json: {
       loader: services.json,
       objs: [
@@ -115,9 +103,6 @@ function startWebSocketServer() {
 
   MsgBroker.init(wss, true);
   MsgBroker.onConnection((ws) => {
-    const yamlCfgsData = {
-      apps: services.yaml.get('apps')
-    }
     const jsonCfgsData = {
       themes: {
         themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
@@ -125,9 +110,6 @@ function startWebSocketServer() {
       },
       settings: services.json.get('settings')
     };
-    if (yamlCfgsData) {
-      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.YAML_DATA_SET, from: 'server', payload: { data: yamlCfgsData } }));
-    }
     if (jsonCfgsData) {
       ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_INITAL_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
     }

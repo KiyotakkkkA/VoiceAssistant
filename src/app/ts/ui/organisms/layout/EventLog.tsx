@@ -21,7 +21,6 @@ function highlightJson(obj: any) {
 const typeColors: Record<string,string> = {
   [EventsTopic.ACTION_TRANSCRIPT]: 'bg-eventlog-bg-transcript',
   [EventsTopic.READY_VOICE_RECOGNIZER]: 'bg-eventlog-bg-pyready text-black',
-  [EventsTopic.YAML_DATA_SET]: 'bg-eventlog-bg-yaml',
 };
 
 const EventLog: React.FC<Props> = ({ messages }) => {

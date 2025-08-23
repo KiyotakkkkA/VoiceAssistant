@@ -1,4 +1,4 @@
-from src.speech_rec_module.services import SpeechRecognitionService, TextNormalizationService
+from src.speech_rec_module.services import SpeechRecognitionService
 from utils import AudioService
 from mtypes.Global import Message
 from colorama import Fore, Style
@@ -27,24 +27,11 @@ class Recognizer:
         self.services = {
             'audio': AudioService().getInstance(),
             "speech_recognition": SpeechRecognitionService(name, VOICE_RECOGNITION_MODEL_DIR_PATH),
-            "text_normalization": TextNormalizationService(),
         }
-        
-    def test(self):
-        """
-        Тестирование всех сервисов
-        """
-        for service in self.services.values():
-            if hasattr(service, "test"):
-                service.test()
 
     def run(self) -> Generator[Message, None, None]:
         """
         Запуск ассистента
         """
         for item in self.services["speech_recognition"].execute():
-            if item['payload'].get('text'):
-                if self.current_state == "NORMAL":
-                    item['payload']['original_text'] = item['payload'].get('text')
-                    item['payload']['text'] = self.services["text_normalization"].execute(item['payload']['text'])
             yield item

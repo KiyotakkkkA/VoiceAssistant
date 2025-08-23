@@ -27,7 +27,7 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 							</svg>
 						</div>
 						<h3 className='text-lg font-semibold text-ui-text-primary mb-2'>Нет приложений</h3>
-						<p className='text-ui-text-muted max-w-md'>Приложения будут отображены здесь после загрузки конфигурации YAML</p>
+						<p className='text-ui-text-muted max-w-md'>Приложения будут отображены здесь после загрузки конфигурации</p>
 					</div>
 				) : (
 					<div className='grid gap-3 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]'>

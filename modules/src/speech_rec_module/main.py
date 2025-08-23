@@ -19,12 +19,6 @@ def run(stop_event):
         log_prefix='speech'
     )
 
-    def handle_state_change(msg):
-        new_state = msg.get('payload', {}).get('data', {}).get('additional', {}).get('mode_to')
-        recognizer.current_state = new_state
-
-    client.on(EventsTopic.ACTION_MODE_SET.value, handle_state_change)
-
     client.start(stop_event, block=False)
 
     for item in recognizer.run():

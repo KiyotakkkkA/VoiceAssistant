@@ -10,5 +10,5 @@ class IService(ISingleton):
         self.services: Dict[str, 'IService'] | None = {} # Список сервисов, привязанных к инструменту
 
     @abstractmethod
-    def execute(self, **kwargs) -> Any:
+    def execute(self, **args) -> Any:
         pass

@@ -4,7 +4,7 @@ from interfaces import IService
 from utils import AudioService
 from enums.Events import EventsType, EventsTopic
 from mtypes.Global import Message
-from typing import Generator
+from typing import Generator, override
 import pyaudio
 import os
 import time, colorama, json
@@ -88,7 +88,8 @@ class SpeechRecognitionService(IService):
             
             time.sleep(0.01)
 
-    def execute(self) -> Generator[Message, None, None]:
+    @override
+    def execute(self, **args) -> Generator[Message, None, None]:
         """
         Запуск потока распознавания речи
         """
@@ -96,8 +97,8 @@ class SpeechRecognitionService(IService):
             name_detected = self._wait_for_name()
             
             if name_detected:
-                self.services["audio"].play_sound("listening")
-                yield { 'type': EventsType.SERVICE_ACTION.value, 'topic': EventsTopic.ACTION_WAKE.value, 'payload': { 'name': self.name } }
+                self.services['audio'].play_sound_async("listening") # type: ignore
+                yield { 'type': EventsType.SERVICE_ACTION.value, 'topic': EventsTopic.ACTION_WAKE.value, 'payload': { 'name': self.name } } # type: ignore
 
                 self.is_name_listening_state = False
                 self.full_recognizer.Reset()

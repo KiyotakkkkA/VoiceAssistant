@@ -1,9 +1,7 @@
 from .Excecutor import Excecutor
-from .CommandBusService import CommandBusService
-from .OpenRouterService import OpenRouterService
+from .AIService import AIService
 
 __all__ = [
     "Excecutor",
-    "CommandBusService",
-    "OpenRouterService"
+    "AIService"
 ]

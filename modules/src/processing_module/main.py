@@ -5,8 +5,6 @@ from paths import path_resolver
 from enums.Events import EventsType, EventsTopic
 
 executor = Excecutor(
-    TEXT_CLASSIFICATION_DATASETS_DIR_PATH=path_resolver['cl_datasets_path'],
-    TEXT_CLASSIFICATION_MODEL_DIR_PATH=path_resolver['cl_model_path'],
     prediction_threshold=float(os.getenv('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', '0.85'))
 )
 

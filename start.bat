@@ -10,7 +10,6 @@ set "PY_BASE_DIR=%BASE_DIR%\modules"
 
 set "PY_VENV_PATH=%PY_BASE_DIR%\.venv"
 set "PY_ACTIVATE_PATH=%PY_VENV_PATH%\Scripts\activate"
-set "PY_TRAINER_PATH=%PY_BASE_DIR%\training.py"
 set "NODE_MODULES_PATH=%BASE_DIR%\node_modules"
 
 set "BLACK=%ESC%[30m"
@@ -57,16 +56,13 @@ if "%~1"=="" (
     echo   Node.js модули:%RESET%        %IS_NODE_MODULES_INSTALLED%
     echo.
     echo %BRIGHT_YELLOW% Список команд: %RESET%
-    echo %BLUE%  --tr       %RESET%- Запуск режима обучения
     echo %BLUE%  --dev      %RESET%- Запуск режима разработки
     echo %BLUE%  --install  %RESET%- Установка зависимостей Python и Node.js
     echo.
     exit /b
 )
 
-if "%1"=="--tr" (
-    python "%PY_TRAINER_PATH%"
-) else if "%1"=="--dev" (
+if "%1"=="--dev" (
     npm run dev
 ) else if "%1"=="--install" (
     echo %BRIGHT_YELLOW%[ШАГ 1]%RESET% Создание виртуального окружения...%RESET%

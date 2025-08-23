@@ -145,7 +145,6 @@ const AppContent = observer(() => {
     [EventsTopic.ACTION_WAKE]: handleWake,
     [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,
     [EventsTopic.RAW_TEXT_DATA_RECOGNIZED]: rawDataTextRecognized,
-    [EventsTopic.YAML_DATA_SET]: handleyaml,
     [EventsTopic.UI_SHOW_SET_VOLUME]: handleUiShowSetVolume,
     [EventsTopic.UI_SHOW_SET_BRIGHTNESS]: handleUiShowSetBrightness,
     [EventsTopic.JSON_INITAL_DATA_SET]: (m: any) => {
