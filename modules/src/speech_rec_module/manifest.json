@@ -1,7 +1,7 @@
 {
+    "module.id": "speech_rec_module",
     "module.name": "Speech Recognition",
     "module.desc": "Модуль распознавания речи",
-    "module.main.path": "speech_rec_module/main.py",
 
-    "service.on_start.event": "ready_voice_recognizer"
+    "module.main.path": "speech_rec_module/main.py"
 }

@@ -9,10 +9,10 @@ class SocketMsgBrokerClient {
     static onConnectionAction = (ws) => {};
 
     static Logger = {
-        info: (message) => console.log(`\x1b[35m[WSBroker]\x1b[0m \x1b[32mINFO:\x1b[0m ${message}`),
-        warn: (message) => console.warn(`\x1b[35m[WSBroker]\x1b[0m \x1b[33mWARN:\x1b[0m ${message}`),
-        error: (message) => console.error(`\x1b[35m[WSBroker]\x1b[0m \x1b[31mERROR:\x1b[0m ${message}`),
-        debug: (message) => console.debug(`\x1b[35m[WSBroker]\x1b[0m \x1b[36mDEBUG:\x1b[0m ${message}`)
+        info: (message) => console.log(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[32mINFO:\x1b[0m ${message}`),
+        warn: (message) => console.warn(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[33mWARN:\x1b[0m ${message}`),
+        error: (message) => console.error(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[31mERROR:\x1b[0m ${message}`),
+        debug: (message) => console.debug(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[36mDEBUG:\x1b[0m ${message}`)
     };
 
     static EnableLogger = true;

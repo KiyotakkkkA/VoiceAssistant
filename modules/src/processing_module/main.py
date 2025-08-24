@@ -20,6 +20,10 @@ def run(stop_event):
     )
 
     def handle_raw_text(msg):
+
+        if stop_event.is_set():
+            return
+
         for out in executor.run(msg):
             client.emit({
                 'type': EventsType.SERVICE_ACTION.value,

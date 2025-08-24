@@ -1,4 +1,5 @@
 import os
+import time
 from clients import ModuleClient
 from src.speech_rec_module.services import Recognizer
 from paths import path_resolver
@@ -19,11 +20,38 @@ def run(stop_event):
         log_prefix='speech'
     )
 
-    client.start(stop_event, block=False)
-
-    for item in recognizer.run():
-        if isinstance(item, dict):
-            client.emit({'type': item.get('type'), 'topic': item.get('topic'), 'from': 'speech_rec_module', 'payload': item.get('payload')})
+    try:
+        client.start(stop_event, block=False)
+        
+        for item in recognizer.run(stop_event):
+            if stop_event.is_set():
+                break
+                
+            if isinstance(item, dict):
+                try:
+                    client.emit({
+                        'type': item.get('type'), 
+                        'topic': item.get('topic'), 
+                        'from': 'speech_rec_module', 
+                        'payload': item.get('payload')
+                    })
+                except Exception as e:
+                    print(f"[speech_rec_module] error emitting message: {e}")
+                    if stop_event.is_set():
+                        break
+        
+    except Exception as e:
+        print(f"[speech_rec_module] error in main loop: {e}")
+    finally:
+        try:
+            recognizer.cleanup()
+        except Exception as e:
+            print(f"[speech_rec_module] error during recognizer cleanup: {e}")
+        
+        try:
+            client.stop()
+        except Exception as e:
+            print(f"[speech_rec_module] error during client cleanup: {e}")
 
 
 ORC_STOP = globals().get('ORC_STOP')

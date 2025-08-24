@@ -17,14 +17,6 @@ type Settings = {
             themeNames: string[];
         }
     },
-    modules: {
-        [key: string]: {
-            service_id: string;
-            service_name?: string;
-            service_desc?: string;
-            enabled: boolean;
-        }
-    },
     settings: {
         'ui.current.theme.id': string;
         'ui.current.aimodel.id': string;
@@ -44,7 +36,6 @@ class SettingsStore {
                 themeNames: [],
             }
         },
-        modules: {},
         settings: {
             'ui.current.theme.id': '',
             'ui.current.aimodel.id': '',

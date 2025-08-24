@@ -21,3 +21,14 @@ export type Message = {
     payload: Record<string, any>
     from?: string
 };
+
+// Interface for module metadata
+export interface Module {
+    service_id: string;
+    service_name?: string;
+    service_desc?: string;
+    enabled: boolean;
+    isReloading: boolean;
+    isEnabling: boolean;
+    isDisabling: boolean;
+}

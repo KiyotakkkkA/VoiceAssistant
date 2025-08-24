@@ -8,7 +8,7 @@ import { AppsGrid } from '../organisms/applications';
 import { SettingsPanel } from '../organisms/settings';
 import { EventLog, RightNav } from '../organisms/layout';
 import { observer } from 'mobx-react-lite';
-import settingsStore from '../../store/SettingsStore';
+import SettingsStore from '../../store/SettingsStore';
 
 declare const __SOCKET_PORT__: number;
 
@@ -37,7 +37,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
     },
   }
 
-  const currentMode = settingsStore.data.runtime['runtime.current.mode'] as keyof typeof modes;
+  const currentMode = SettingsStore.data.runtime['runtime.current.mode'] as keyof typeof modes;
   const modeInfo = modes[currentMode] || modes.NORMAL;
 
   const pages: Record<string, Record<string, React.ReactNode>> = {

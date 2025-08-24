@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { AiMessage } from '../../atoms/feedback';
 import { observer } from 'mobx-react-lite';
 import { IconFile } from '../../atoms/icons';
-import settingsStore from '../../../store/SettingsStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 interface ToolCall {
   name: string;
@@ -81,7 +81,7 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
   };
 
   const clearHistory = () => {
-    settingsStore.clearAiHistory();
+    SettingsStore.clearAiHistory();
   };
 
   const getToolsCount = (response: string | AIResponse): number => {

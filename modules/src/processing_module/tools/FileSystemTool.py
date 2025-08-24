@@ -16,7 +16,7 @@ class FileSystemTool:
             "tool": ToolBuilder().set_name("get_apps_tool").set_description('Tool that can retrieve a list of installed applications; Use it in case of getting installed application names').build()
         }
 
-    def get_apps_handler(self):
+    def get_apps_handler(self, **args):
 
         return """
             'Google',

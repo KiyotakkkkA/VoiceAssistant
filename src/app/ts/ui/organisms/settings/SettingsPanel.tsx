@@ -5,7 +5,8 @@ import {
 import { ThemeSelector, ApiKeysField, ModulesView } from './sections';
 import { observer } from 'mobx-react-lite';
 
-import settingsStore from '../../../store/SettingsStore';
+import SettingsStore from '../../../store/SettingsStore';
+import ModulesStore from '../../../store/ModulesStore';
 
 interface SectionConfig {
   title: string;
@@ -21,22 +22,22 @@ const SettingsPanel: React.FC = observer(() => {
         title: "Модели AI / Ключи API",
         component: ApiKeysField,
         props: {
-          apikeys: settingsStore.data.settings?.['ui.current.apikeys'] || []
+          apikeys: SettingsStore.data.settings?.['ui.current.apikeys'] || []
         }
       },
       "general-themes": {
         title: "Общее / Интерфейс",
         component: ThemeSelector,
         props: {
-          themeNames: settingsStore.data.appearance.themes.themeNames,
-          currentTheme: settingsStore.data.settings?.['ui.current.theme.id'] || 'dark'
+          themeNames: SettingsStore.data.appearance.themes.themeNames,
+          currentTheme: SettingsStore.data.settings?.['ui.current.theme.id'] || 'dark'
         }
       },
       "general-modules": {
         title: "Общее / Модули",
         component: ModulesView,
         props: {
-          modules: settingsStore.data.modules || {},
+          modules: ModulesStore.modules || {},
         }
       }
     };

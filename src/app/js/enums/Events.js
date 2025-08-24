@@ -7,6 +7,7 @@ export const EventsType = {
 
 export const EventsTopic = {
 	SERVICE_WAS_REGISTERED: 'registered',
+    SERVICE_WAS_DISABLED: 'disabled',
 	SERVICE_HEARTBEAT: 'heartbeat',
 
     JSON_INITAL_DATA_SET: 'json_initial_data_set',
@@ -24,13 +25,12 @@ export const EventsTopic = {
     ACTION_MODE_SET: 'action_mode_set',
     ACTION_AIMODEL_SET: 'action_aimodel_set',
 
-    UI_SHOW_SET_VOLUME: 'ui_show_set_volume',
-    UI_SHOW_SET_BRIGHTNESS: 'ui_show_set_brightness',
+    ACTION_SERVICE_RELOAD: 'action_service_reload',
+    ACTION_SERVICE_DISABLE: 'action_service_disable',
+    ACTION_SERVICE_ENABLE: 'action_service_enable',
 
     READY_UI: 'ready_ui',
     READY_ORCHESTRATOR: 'ready_orchestrator',
-    READY_VOICE_RECOGNIZER: 'ready_voice_recognizer',
-    READY_PROCESSOR: 'ready_processor',
 
     HAVE_TO_BE_REFETCHED_SETTINGS_DATA: 'have_to_be_refetched_settings_data'
 };

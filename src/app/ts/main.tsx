@@ -8,7 +8,8 @@ import { ToastProvider, useToast } from './providers/ToastProvider';
 import { observer } from 'mobx-react-lite';
 import { EventsTopic, EventsType } from '../js/enums/Events';
 
-import settingsStore from './store/SettingsStore';
+import SettingsStore from './store/SettingsStore';
+import ModulesStore from './store/ModulesStore';
 
 interface IncomingMsg { type: string; topic: string; payload: any; from?: string }
 
@@ -36,87 +37,67 @@ const AppContent = observer(() => {
     setMode('waiting');
   };
 
-  const handleyaml = (m: any) => {
-    const receivedApps = m?.payload?.data?.apps?.applications;
-    if (receivedApps && typeof receivedApps === 'object') {
-      setApps(receivedApps);
-    }
-  };
-
-  const handleUiShowSetVolume = (m: any) => {
-    const lvlRaw = m?.payload?.data?.additional?.level;
-    let level: number | undefined;
-    if (typeof lvlRaw === 'number') {
-      level = lvlRaw <= 1 ? Math.round(lvlRaw * 100) : Math.round(lvlRaw);
-    } else if (typeof lvlRaw === 'string') {
-      const parsed = parseFloat(lvlRaw.replace(/[^0-9.,]/g,'').replace(',','.'));
-      if (!isNaN(parsed)) level = parsed <= 1 ? Math.round(parsed*100) : Math.round(parsed);
-    }
-    const message = `Громкость: ${level !== undefined ? level+'%' : '?'}`;
-    addToast(message, 'info', 3500);
-    setMode('waiting');
-  };
-
-  const handleUiShowSetBrightness = (m: any) => {
-    const lvlRaw = m?.payload?.data?.additional?.level;
-    let level: number | undefined;
-    if (typeof lvlRaw === 'number') level = Math.round(lvlRaw);
-    else if (typeof lvlRaw === 'string') {
-      const parsed = parseFloat(lvlRaw.replace(/[^0-9.,]/g,'').replace(',','.'));
-      if (!isNaN(parsed)) level = Math.round(parsed);
-    }
-    const message = `Яркость: ${level !== undefined ? level+'%' : '?'}`;
-    addToast(message, 'info', 3500);
-    setMode('waiting');
-  };
-
   const setApikeysData = (m: any) => {
     if (m?.payload?.data?.settings) {
-      settingsStore.data.settings = { 
-        ...settingsStore.data.settings, 
+      SettingsStore.data.settings = { 
+        ...SettingsStore.data.settings, 
         ...m.payload.data.settings 
       };
     }
   }
 
   const setThemesData = (m: any) => {
-    settingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themes?.themesList;
-    settingsStore.data.settings = { 
-          ...settingsStore.data.settings, 
+    SettingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themes?.themesList;
+    SettingsStore.data.settings = { 
+          ...SettingsStore.data.settings, 
           ...m.payload.data.settings 
     };
     setTheme(m?.payload?.data?.themes?.currentThemeData || null);
   }
 
   const setModulesRegisteredData = (m: any) => {
-    settingsStore.data.modules = {
-      ...settingsStore.data.modules,
+    ModulesStore.modules = {
+      ...ModulesStore.modules,
       [m?.payload?.service]: {
         service_id: m?.payload?.service || 'Неизвестный модуль',
         service_name: m?.payload?.service_name || '[Нет имени]',
         service_desc: m?.payload?.service_desc || '[Нет описания]',
         enabled: false,
+        isReloading: false,
+        isEnabling: false,
+        isDisabling: false,
       }
     };
   };
 
   const setModulesInitedData = (m: any) => {
-    settingsStore.data.modules = {
-      ...settingsStore.data.modules,
+    ModulesStore.modules = {
+      ...ModulesStore.modules,
       [m?.payload?.service]: {
-        ...settingsStore.data.modules[m?.payload?.service],
+        ...ModulesStore.modules[m?.payload?.service],
         enabled: true,
       }
     };
   };
 
+  const setModulesStoppedData = (m: any) => {
+    ModulesStore.modules = {
+      ...ModulesStore.modules,
+      [m?.payload?.service]: {
+        ...ModulesStore.modules[m?.payload?.service],
+        isDisabling: false,
+        enabled: false,
+      }
+    };
+  }
+
   const setGlobalMode = (m: any) => {
-    settingsStore.data.runtime['runtime.current.mode'] = m?.payload?.data?.additional?.mode_to;
+    SettingsStore.data.runtime['runtime.current.mode'] = m?.payload?.data?.additional?.mode_to;
   };
 
   const setNewMsg = (m: any) => {
     if (m?.payload?.original_text) {
-      settingsStore.data.aiMsgHistory.push({
+      SettingsStore.data.aiMsgHistory.push({
         model_name: 'user',
         text: m.payload.original_text,
         timestamp: new Date()
@@ -124,7 +105,7 @@ const AppContent = observer(() => {
     }
     
     if (m?.payload?.data?.additional?.external_ai_answer) {
-      settingsStore.data.aiMsgHistory.push({
+      SettingsStore.data.aiMsgHistory.push({
         model_name: m.payload.data.additional.model_name || 'unknown',
         text: m.payload.data.additional.external_ai_answer,
         timestamp: new Date()
@@ -145,8 +126,6 @@ const AppContent = observer(() => {
     [EventsTopic.ACTION_WAKE]: handleWake,
     [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,
     [EventsTopic.RAW_TEXT_DATA_RECOGNIZED]: rawDataTextRecognized,
-    [EventsTopic.UI_SHOW_SET_VOLUME]: handleUiShowSetVolume,
-    [EventsTopic.UI_SHOW_SET_BRIGHTNESS]: handleUiShowSetBrightness,
     [EventsTopic.JSON_INITAL_DATA_SET]: (m: any) => {
       setThemesData(m);
       setApikeysData(m);
@@ -157,18 +136,17 @@ const AppContent = observer(() => {
     [EventsTopic.JSON_APIKEYS_DATA_SET]: (m: any) => {
       setApikeysData(m);
     },
-    [EventsTopic.READY_VOICE_RECOGNIZER]: (m: any) => {
-      setModulesInitedData(m);
-      setSystemReady(true);
-      setMode('waiting');
-    },
-    [EventsTopic.READY_PROCESSOR]: (m: any) => {
-      setModulesInitedData(m);
-    },
-    [EventsTopic.READY_ORCHESTRATOR]: (m: any) => {
-      setModulesInitedData(m);
+    [EventsTopic.SERVICE_WAS_DISABLED]: (m: any) => {
+      setModulesStoppedData(m);
     }
   };
+
+  const specModulesInitActions = {
+    ready_speech_rec_module: () => {
+      setSystemReady(true);
+      setMode('waiting');
+    }
+  }
 
   useEffect(() => {
     const unsubscribe = socketClient.subscribe(m => {
@@ -177,6 +155,14 @@ const AppContent = observer(() => {
       if (handler) {
         handler(m);
       }
+
+      if (m.topic.startsWith('ready_')) {
+        setModulesInitedData(m);
+        if (specModulesInitActions[m.topic as keyof typeof specModulesInitActions]) {
+          specModulesInitActions[m.topic as keyof typeof specModulesInitActions]();
+        }
+      }
+
     });
   return () => { unsubscribe(); };
   }, []);

@@ -1,7 +1,7 @@
 {
+    "module.id": "processing_module",
     "module.name": "VA Processing",
     "module.desc": "Модуль обработки текстовых команд",
-    "module.main.path": "processing_module/main.py",
-
-    "service.on_start.event": "ready_processor"
+    
+    "module.main.path": "processing_module/main.py"
 }

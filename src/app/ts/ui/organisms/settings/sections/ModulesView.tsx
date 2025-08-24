@@ -1,14 +1,10 @@
 import React from 'react';
 import { ModuleCard } from '../../../molecules/widgets';
+import { Module } from '../../../../types/Global';
 
-interface Module {
-    service_id: string;
-    service_name?: string;
-    service_desc?: string;
-    enabled: boolean;
-}
+import { observer } from 'mobx-react-lite';
 
-const ModulesView: React.FC<{ modules: { [key: string]: Module } }> = ({ modules }) => {
+const ModulesView: React.FC<{ modules: { [key: string]: Module } }> = observer(({ modules }) => {
     return (
         <div className="space-y-6">
             <p className="text-ui-text-muted">Управление компонентами голосового ассистента</p>
@@ -34,6 +30,6 @@ const ModulesView: React.FC<{ modules: { [key: string]: Module } }> = ({ modules
             )}
         </div>
     );
-};
+});
 
 export { ModulesView }

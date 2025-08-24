@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 import { Dropdown } from '../../atoms';
 import { socketClient } from '../../../clients';
 import { EventsTopic, EventsType } from '../../../../js/enums/Events';
-import settingsStore from '../../../store/SettingsStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 interface Props {
   mode: string;
@@ -19,14 +19,14 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
   const [lastMessageCount, setLastMessageCount] = useState(0);
 
   useEffect(() => {
-    if (settingsStore.data.aiMsgHistory.length > lastMessageCount) {
-      setLastMessageCount(settingsStore.data.aiMsgHistory.length);
-      if (!isHistoryVisible && settingsStore.data.aiMsgHistory.length > 0) {
+    if (SettingsStore.data.aiMsgHistory.length > lastMessageCount) {
+      setLastMessageCount(SettingsStore.data.aiMsgHistory.length);
+      if (!isHistoryVisible && SettingsStore.data.aiMsgHistory.length > 0) {
         window.safeTimers.setTimeout(() => {
         }, 500);
       }
     }
-  }, [settingsStore.data.aiMsgHistory.length, isHistoryVisible, lastMessageCount]);
+  }, [SettingsStore.data.aiMsgHistory.length, isHistoryVisible, lastMessageCount]);
 
   if (!gctx?.states) return null;
 
@@ -83,7 +83,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
       }
 
       const time = performance.now()/1000;
-      const currentMode = settingsStore.data.runtime['runtime.current.mode'];
+      const currentMode = SettingsStore.data.runtime['runtime.current.mode'];
       const globalRot = mal ? time * 0.01 + Math.sin(time*3)*0.002 : time * (m === 'listening' ? 0.25 : 0.08);
       
       const interactiveBoost = 1;
@@ -172,7 +172,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
            }
         });
       }
-      settingsStore.data.settings['ui.current.aimodel.id'] = newModel;
+      SettingsStore.data.settings['ui.current.aimodel.id'] = newModel;
     };
 
   return (
@@ -180,8 +180,8 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
       <canvas ref={canvasRef} className='w-full h-full block' />
         <div className='absolute top-4 left-4'>
           <Dropdown
-            options={settingsStore.data.settings['ui.current.apikeys']?.map((item) => ({ value: item.id || '', label: item.name })) || []}
-            value={settingsStore.data.settings['ui.current.aimodel.id']}
+            options={SettingsStore.data.settings['ui.current.apikeys']?.map((item) => ({ value: item.id || '', label: item.name })) || []}
+            value={SettingsStore.data.settings['ui.current.aimodel.id']}
             onChange={handleCurrentModelChange}
             placeholder="Выберите модель"
           />
@@ -204,7 +204,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
       </div>
 
       <AiHistoryPanel
-        messages={settingsStore.data.aiMsgHistory}
+        messages={SettingsStore.data.aiMsgHistory}
         isVisible={isHistoryVisible}
         onToggle={() => setIsHistoryVisible(!isHistoryVisible)}
         isDropdownVisible={true}

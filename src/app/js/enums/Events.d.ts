@@ -7,6 +7,7 @@ export const EventsType: {
 
 export const EventsTopic: {
     readonly SERVICE_WAS_REGISTERED: 'registered';
+    readonly SERVICE_WAS_DISABLED: 'disabled';
     readonly SERVICE_HEARTBEAT: 'heartbeat';
     
     readonly JSON_INITAL_DATA_SET: 'json_initial_data_set';
@@ -24,13 +25,12 @@ export const EventsTopic: {
     readonly ACTION_MODE_SET: 'action_mode_set';
     readonly ACTION_AIMODEL_SET: 'action_aimodel_set';
 
-    readonly UI_SHOW_SET_VOLUME: 'ui_show_set_volume';
-    readonly UI_SHOW_SET_BRIGHTNESS: 'ui_show_set_brightness';
+    readonly ACTION_SERVICE_RELOAD: 'action_service_reload';
+    readonly ACTION_SERVICE_DISABLE: 'action_service_disable';
+    readonly ACTION_SERVICE_ENABLE: 'action_service_enable';
 
     readonly READY_UI: 'ready_ui';
     readonly READY_ORCHESTRATOR: 'ready_orchestrator';
-    readonly READY_VOICE_RECOGNIZER: 'ready_voice_recognizer';
-    readonly READY_PROCESSOR: 'ready_processor';
 
     readonly HAVE_TO_BE_REFETCHED_SETTINGS_DATA: 'have_to_be_refetched_settings_data';
 };

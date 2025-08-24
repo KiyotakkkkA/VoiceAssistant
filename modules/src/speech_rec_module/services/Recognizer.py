@@ -29,9 +29,21 @@ class Recognizer:
             "speech_recognition": SpeechRecognitionService(name, VOICE_RECOGNITION_MODEL_DIR_PATH),
         }
 
-    def run(self) -> Generator[Message, None, None]:
-        """
-        Запуск ассистента
-        """
-        for item in self.services["speech_recognition"].execute():
-            yield item
+    def run(self, stop_event=None) -> Generator[Message, None, None]:
+        try:
+            for item in self.services["speech_recognition"].execute(stop_event=stop_event):
+                if stop_event and stop_event.is_set():
+                    break
+                yield item
+        except Exception as e:
+            print(f"[Recognizer] error in run loop: {e}")
+        finally:
+            print(f"[Recognizer] run loop finished")
+
+    def cleanup(self):
+        """Корректная очистка ресурсов"""
+        try:
+            if hasattr(self.services["speech_recognition"], 'cleanup'):
+                self.services["speech_recognition"].cleanup()
+        except Exception as e:
+            print(f"[Recognizer] error during cleanup: {e}")
