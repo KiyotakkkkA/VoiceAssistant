@@ -18,10 +18,6 @@ function highlightJson(obj: any) {
     .replace(/\b(-?\d+(?:\.\d+)?)\b/g,'<span class="text-eventlog-json-number">$1</span>');
 }
 
-const typeColors: Record<string,string> = {
-  [EventsTopic.ACTION_TRANSCRIPT]: 'bg-eventlog-bg-transcript',
-};
-
 const EventLog: React.FC<Props> = ({ messages }) => {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const { addToast } = useToast();
@@ -35,32 +31,31 @@ const EventLog: React.FC<Props> = ({ messages }) => {
   });
 
   return (
-    <div className='flex-1 overflow-auto p-3 space-y-2 font-mono text-[11px] bg-log-bg'>
+    <div className='flex-1 overflow-auto p-3 space-y-2 font-mono text-[11px] bg-ui-bg-primary'>
       {messages.map((m,i)=>{
         const defaultOpen = i > messages.length - 10;
         const isOpen = expanded[i] ?? defaultOpen;
-        const color = typeColors[m.type] || 'bg-eventlog-bg-default';
         const payload = typeof m.payload==='string'? m.payload : m.payload;
         const highlighted = typeof payload === 'string' ? payload : highlightJson(payload);
         return (
-          <div key={i} className='group relative rounded-md border border-ui-border-primary bg-gradient-to-br from-eventlog-item-bg-from to-eventlog-item-bg-to shadow-sm hover:shadow-md transition-colors'>
+          <div key={i} className='group relative rounded-md border border-ui-border-primary bg-ui-bg-secondary shadow-sm hover:shadow-md transition-colors'>
             <div className='flex items-center gap-2 px-2 py-1 border-b border-ui-border-primary text-[11px]'>
-              <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold ${color}`}>{m.type}</span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold bg-ui-bg-secondary-light border border-ui-border-primary`}>{m.type}</span>
               <span className='text-eventlog-from-text'> - </span>
-              <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold ${color}`}>{m.topic}</span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] tracking-wide font-semibold bg-ui-bg-secondary-light border border-ui-border-primary`}>{m.topic}</span>
               <span className='text-eventlog-from-text'> :: </span>
               <span className='text-eventlog-from-text'>{m.from||'unknown'}</span>
               <div className='ml-auto flex items-center gap-1'>
                 <button
                   onClick={()=>toggle(i, defaultOpen)}
-                  className='relative px-2 py-0.5 rounded-md border border-ui-border-primary bg-ui-bg hover:border-ui-border-primary-hover hover:bg-ui-bg-hover text-ui-text-primary hover:text-ui-text-primary-hover transition-colors text-[10px]'
+                  className='relative px-2 py-0.5 rounded-md border border-ui-border-primary bg-ui-bg-primary-light hover:border-ui-border-primary-hover hover:bg-ui-bg-secondary-light text-ui-text-primary hover:text-ui-text-primary-hover transition-colors text-[10px]'
                 >{isOpen?'Свернуть':'Развернуть'}</button>
                 <button
                   onClick={()=>{
                     navigator.clipboard.writeText(typeof payload==='string'?payload:JSON.stringify(payload,null,2));
                     addToast('Скопировано в буфер обмена', 'info', 3500);
                   }}
-                  className='px-2 py-0.5 rounded-md border border-ui-border-primary bg-eventlog-button-bg hover:border-ui-border-primary-hover hover:bg-eventlog-button-bg-hover text-eventlog-button-accent hover:text-eventlog-button-accent-hover text-[10px] font-semibold tracking-wide'
+                  className='px-2 py-0.5 rounded-md border border-ui-border-primary bg-ui-bg-primary-light hover:border-ui-border-primary-hover hover:bg-ui-bg-secondary-light text-eventlog-button-accent hover:text-eventlog-button-accent-hover text-[10px] font-semibold tracking-wide'
                 >КОПИЯ</button>
               </div>
             </div>

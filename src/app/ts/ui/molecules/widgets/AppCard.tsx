@@ -31,7 +31,7 @@ const AppCard: React.FC<{ appKey: string; cfg: AppConfig }> = ({ appKey, cfg }) 
             role='button'
             tabIndex={0}
             onKeyDown={(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); handleOpen(); } }}
-            className='group relative rounded-lg border border-ui-border-primary bg-appcard-bg overflow-hidden cursor-pointer hover:border-appcard-border-hover active:scale-[0.98] transition-all duration-200 hover:shadow-lg'
+            className='group relative rounded-lg border border-ui-border-primary bg-ui-bg-secondary overflow-hidden cursor-pointer hover:border-appcard-border-hover active:scale-[0.98] transition-all duration-200 hover:shadow-lg'
             onClick={handleOpen}
         >
             <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-br from-appcard-accent/10 via-transparent to-widget-accent-b/10' />

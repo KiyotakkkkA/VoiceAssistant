@@ -133,7 +133,7 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
           isDropdownVisible ? 'left-[16rem] top-[6rem]' : 'left-[16rem] top-[3rem]'
         } ${
           isVisible 
-            ? 'bg-ui-accent/20 border-ui-border-primary text-ui-accent' 
+            ? 'bg-ui-bg-secondary-light/80 border-ui-border-primary text-ui-accent' 
             : 'border-ui-border-primary text-ui-text-muted hover:border-ui-border-primary hover:text-ui-text-primary'
         }`}
       >

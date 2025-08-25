@@ -1,18 +1,7 @@
 {
-    "main.bg": "#0d1117",
-
-    "topbar.bg": "#161b22",
-
-    "sidebars.bg": "#161b22",
-
-    "log.bg": "#0d1117",
-    "log.panel.bg": "#161b22",
-
-    "appcard.bg": "#161b22",
     "appcard.border.hover": "#58a6ff",
     "appcard.accent": "#58a6ff",
 
-    "widget.bg": "#161b22",
     "widget.muted": "#8b949e",
     "widget.accent.a": "#58a6ff",
     "widget.accent.b": "#3fb950",
@@ -23,18 +12,9 @@
     "eventlog.json.string": "#3fb950",
     "eventlog.json.keyword": "#d2a8ff",
     "eventlog.json.number": "#79c0ff",
-    "eventlog.bg.wake": "#58a6ff",
-    "eventlog.bg.transcript": "#3fb950",
-    "eventlog.bg.pyready": "#f0883e",
-    "eventlog.bg.yaml": "#8b949e",
-    "eventlog.bg.default": "#21262d",
-    "eventlog.button.bg": "#21262d",
-    "eventlog.button.bg.hover": "#30363d",
     "eventlog.button.border.hover": "#58a6ff",
     "eventlog.button.accent": "#58a6ff",
     "eventlog.button.accent.hover": "#4493f8",
-    "eventlog.item.bg.from": "#161b22",
-    "eventlog.item.bg.to": "#21262d",
     "eventlog.from.text": "#8b949e",
     "eventlog.button.text": "rgba(201, 209, 217, 0.8)",
     "eventlog.button.text.hover": "#c9d1d9",
@@ -45,10 +25,8 @@
     "badge.waiting": "#d2a8ff",
     "badge.default": "#8b949e",
 
-    "button.bg": "#21262d",
     "button.bg.hover": "#30363d",
 
-    "input.bg": "#161b22",
     "input.focus": "#21262d",
 
     "draghandle.bg.active": "#58a6ff",
@@ -59,6 +37,10 @@
     "ui.text.muted": "#8b949e",
     "ui.text.accent": "#c9d1d9",
     "ui.border.primary": "#30363d",
+    "ui.bg.primary": "#0d1117",
+    "ui.bg.primary.light": "#14191f",
+    "ui.bg.secondary": "#161b22",
+    "ui.bg.secondary.light": "#1c222b",
 
     "state.listening.bg": "#3fb950",
     "state.listening.gradient": "rgba(63,185,80,0.15)",
@@ -70,17 +52,11 @@
     "nav.text": "#8b949e",
     "nav.text.hover": "#b1bac4",
     "nav.text.active": "#c9d1d9",
-    "nav.bg.hover": "#21262d",
-    "nav.bg.active": "#30363d",
-    "nav.tooltip.bg": "#0d1117",
     "nav.tooltip.text": "#c9d1d9",
 
-    "toast.bg.from": "#161b22",
-    "toast.bg.to": "#21262d",
     "toast.accent": "#58a6ff",
     "toast.bar": "#58a6ff",
 
-    "card.bg": "#21262d",
     "card.title": "#b1bac4",
     
     "version.text": "#8b949e"

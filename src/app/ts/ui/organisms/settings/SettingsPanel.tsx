@@ -68,7 +68,7 @@ const SettingsPanel: React.FC = observer(() => {
   };
 
   return (
-    <div className="h-full flex bg-main-bg">
+    <div className="h-full flex bg-ui-bg-primary">
       <SettingsSidebar 
         onTabSelect={setActiveTab} 
         activeTab={activeTab} 

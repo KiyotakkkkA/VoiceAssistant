@@ -91,8 +91,8 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
     'initializing': 'bg-badge-initializing text-white'
   };
   return (
-    <div className='h-screen flex flex-col bg-main-bg text-ui-text-primary font-sans overflow-hidden relative'>
-      <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-topbar-bg border-b border-ui-border-primary select-none shadow-inner'>
+    <div className='h-screen flex flex-col bg-ui-bg-primary text-ui-text-primary font-sans overflow-hidden relative'>
+      <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-ui-bg-secondary border-b border-ui-border-primary select-none shadow-inner'>
         <div className='flex items-center gap-3'>
           <Badge label={ctx.states[mode]} className={modeClass[mode]||'bg-badge-default text-white'} />
           <span className='tracking-wider uppercase text-ui-text-secondary text-[14px]'>Голосовой ассистент</span>
@@ -104,11 +104,11 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
         </div>
         <div className='flex items-center gap-4 text-ui-text-secondary'>
           <span className='opacity-70'>ws:{__SOCKET_PORT__}</span>
-          <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-button-bg hover:bg-button-bg-hover text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
+          <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-ui-bg-primary-light hover:bg-ui-bg-secondary-light text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
         </div>
       </div>
       <div className='flex-1 relative overflow-hidden flex'>
-        <div className='w-60 bg-sidebars-bg border-r border-ui-border-primary flex flex-col text-xs'>
+        <div className='w-60 bg-ui-bg-secondary border-r border-ui-border-primary flex flex-col text-xs'>
           <div className='px-4 py-3 font-semibold text-ui-text-accent tracking-wide'>Состояния</div>
           <div className='px-4 pb-4 overflow-y-auto custom-scrollbar'>
             <StatePanel assistantName={assistantName} mode={mode} transcript={transcript} />
@@ -123,7 +123,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
           <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'apps')} />
         </div>
       </div>
-      <div className={`absolute left-0 right-0 bottom-0 z-20 bg-log-bg/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
+      <div className={`absolute left-0 right-0 bottom-0 z-20 bg-ui-bg-primary/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
         {logOpen && (
           <div
             onMouseDown={onDragStart}
@@ -146,7 +146,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
         </div>
         {logOpen && (
           <>
-            <div className='flex-1 overflow-auto px-4 pb-2 custom-scrollbar bg-log-panel-bg/80'>
+            <div className='flex-1 overflow-auto px-4 pb-2 custom-scrollbar bg-ui-bg-secondary/80'>
               <EventLog messages={messages} />
             </div>
           </>

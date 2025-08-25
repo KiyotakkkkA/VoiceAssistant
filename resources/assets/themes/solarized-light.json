@@ -61,6 +61,10 @@
     "ui.text.muted": "#93a1a1",
     "ui.text.accent": "#586e75",
     "ui.border.primary": "#d3cbb7",
+    "ui.bg.primary": "#fdf6e3",
+    "ui.bg.primary.light": "#fcf3da",
+    "ui.bg.secondary": "#eee8d5",
+    "ui.bg.secondary.light": "#e8e0c7",
 
     "state.listening.bg": "#859900",
     "state.listening.gradient": "rgba(133,153,0,0.12)",

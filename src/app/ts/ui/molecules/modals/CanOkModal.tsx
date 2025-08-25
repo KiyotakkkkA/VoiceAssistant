@@ -101,7 +101,7 @@ const CanOkModal: React.FC<Props> = ({
         onClick={onClose}
       />
       
-      <div className="relative bg-main-bg border border-ui-border-primary/20 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+      <div className="relative bg-ui-bg-primary border border-ui-border-primary/20 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
         <div className="flex items-center gap-3 p-6 pb-4">
           <div className={`w-12 h-12 bg-gradient-to-r ${currentStyle.gradient} ${currentStyle.shadow} rounded-xl flex items-center justify-center text-white shadow-lg`}>
             {currentStyle.icon}

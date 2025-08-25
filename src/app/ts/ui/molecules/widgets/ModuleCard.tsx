@@ -137,7 +137,7 @@ const ModuleCard = observer(({ module }: { module: Module }) => {
     return (
         <div
             key={module.service_id}
-            className={`group relative rounded-xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-lg border-ui-border-primary bg-gradient-to-br from-ui-bg-secondary/50 to-ui-accent/5 hover:border-ui-border-primary-hover`}
+            className={`group relative rounded-xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-lg border-ui-border-primary bg-ui-bg-secondary/50 hover:border-ui-border-primary-hover`}
         >
             <ModuleStatus isEnabled={isEnabled} isReloading={isReloading} isEnabling={isEnabling} isDisabling={isDisabling} />
 

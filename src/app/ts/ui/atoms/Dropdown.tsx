@@ -53,7 +53,7 @@ const Dropdown: React.FC<Props> = ({ options, value, onChange, placeholder = "В
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-sidebars-bg border border-ui-border-primary/20 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-ui-bg-secondary border border-ui-border-primary/20 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
           {options.map((option) => (
             <button
               key={option.value}
