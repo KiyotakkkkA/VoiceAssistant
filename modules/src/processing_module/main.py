@@ -4,10 +4,6 @@ from src.processing_module.services import Excecutor
 from paths import path_resolver
 from enums.Events import EventsType, EventsTopic
 
-executor = Excecutor(
-    prediction_threshold=float(os.getenv('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', '0.85'))
-)
-
 def run(stop_event):
 
     client = ModuleClient(
@@ -17,6 +13,10 @@ def run(stop_event):
         heartbeat_interval=5.0,
         max_reconnect_attempts=10,
         log_prefix='processing'
+    )
+
+    executor = Excecutor(
+        prediction_threshold=float(os.getenv('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', '0.85'))
     )
 
     def handle_raw_text(msg):

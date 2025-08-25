@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { TextInput } from '../../../atoms/input';
 import { CategoryItem } from '../../../atoms';
-import { CanOkModal } from '../../../atoms/modals';
+import { CanOkModal } from '../../../molecules/modals';
 import { IconPen, IconCopy, IconTrash } from '../../../atoms/icons';
 import { useToast } from '../../../../providers/ToastProvider';
 import { socketClient } from '../../../../clients';

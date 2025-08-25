@@ -18,7 +18,6 @@ class Excecutor:
         Args:
             prediction_threshold (float): Порог уверенности для классификации
         """
-
         self.current_state = 'NORMAL'
 
         self.current_model_id = None
@@ -29,7 +28,7 @@ class Excecutor:
 
         self.services: dict[str, IService] = {
             'audio': AudioService().getInstance(),
-            "open_router": AIService().getInstance(),
+            "ai_service": AIService().getInstance(),
         }
 
         self.get_current_model_data_from_json()
@@ -52,21 +51,15 @@ class Excecutor:
                 if key.get("id") == self.current_model_id:
                     self.current_model_name = key.get("name")
                     self.current_model_key = key.get("value")
-                    self.services["open_router"].set_client_data(self.current_model_key, self.current_model_name) # type: ignore
+                    self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name) # type: ignore
                     break
-    
-    def train(self):
-        """
-        Обучение модели
-        """
-        self.services["dataset_model"].execute()
 
     def run(self, msg):
         """
         Запуск ассистента
         """
 
-        data = self.services["open_router"].execute(msg['payload']['text']) # type: ignore
+        data = self.services["ai_service"].execute(msg['payload']['text']) # type: ignore
 
         yield {
             'event': EventsTopic.ACTION_ANSWERING_AI.value,

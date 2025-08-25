@@ -29,6 +29,9 @@ export const EventsTopic = {
     ACTION_SERVICE_DISABLE: 'action_service_disable',
     ACTION_SERVICE_ENABLE: 'action_service_enable',
 
+    REQUEST_MODULES_LIST: 'request_modules_list',
+    RESPONSE_MODULES_LIST: 'response_modules_list',
+
     READY_UI: 'ready_ui',
     READY_ORCHESTRATOR: 'ready_orchestrator',
 

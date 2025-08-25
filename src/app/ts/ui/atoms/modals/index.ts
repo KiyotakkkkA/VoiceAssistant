@@ -1,1 +1,0 @@
-export { CanOkModal } from "./CanOkModal";

@@ -29,6 +29,9 @@ export const EventsTopic: {
     readonly ACTION_SERVICE_DISABLE: 'action_service_disable';
     readonly ACTION_SERVICE_ENABLE: 'action_service_enable';
 
+    readonly REQUEST_MODULES_LIST: 'request_modules_list';
+    readonly RESPONSE_MODULES_LIST: 'response_modules_list';
+
     readonly READY_UI: 'ready_ui';
     readonly READY_ORCHESTRATOR: 'ready_orchestrator';
 

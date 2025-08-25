@@ -1,8 +1,7 @@
 import os
-import json
 from ollama import Client
 from interfaces import IService
-from src.processing_module.tools import FileSystemTool
+from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool
 
 header = f'''
     Instructions:
@@ -15,13 +14,13 @@ header = f'''
     Message text:
 '''
 
+
 class AIService(IService):
     SERVICE_NAME = "AIService"
 
     def __init__(self):
-        self.client = None
-
-        self.api_model = None
+        self.client: Client | None = None
+        self.api_model: str | None = None
 
         self.tools = []
         self.tool_aliases = {}
@@ -29,11 +28,14 @@ class AIService(IService):
         self.setup_tools()
 
     def setup_tools(self):
-        self.tools_classes = [
-            FileSystemTool
+        tools_classes = [
+            FileSystemTool,
+            ModuleManagementTool,
+            NetworkTool,
+            SystemManagementTool
         ]
 
-        for tool_class in self.tools_classes:
+        for tool_class in tools_classes:
             tools_obj = tool_class().get_commands()
             for tool in tools_obj:
                 self.tools.append(tool['tool'])
@@ -44,101 +46,89 @@ class AIService(IService):
             host="https://ollama.com",
             headers={'Authorization': api_key},
         )
-
         self.api_model = api_model
 
     def create_completion(self, messages: list[dict[str, str]]):
-
         if not self.client or not self.api_model:
             raise ValueError("Client or API model is not set. Please set them before creating a completion.")
 
         return self.client.chat(
-            model=self.api_model, # type: ignore
-            tools=self.tools, # type: ignore
+            model=self.api_model,   # type: ignore
+            tools=self.tools,       # type: ignore
             stream=True,
             messages=messages
         )
 
-    def execute(self, text: str): # type: ignore
-
-        base_msg = [
-            {
-                "role": "assistant",
-                "content": header + text
-            }
-        ]
-
+    def execute(self, text: str):  # type: ignore
         if not self.client or not self.api_model:
             raise ValueError("Client or API model is not set. Please set them before executing.")
 
-        accumulated_response = {
-            'thinking': '',
-            'content': ''
-        }
+        messages = [{
+            "role": "assistant",
+            "content": header + text
+        }]
 
-        final_accumulated_response = {
-            'thinking': '',
-            'content': ''
-        }
+        initial_accumulated_response = {'thinking': '', 'content': ''}
+        final_accumulated_response = {'thinking': '', 'content': ''}
+        tools_results: list[dict] = []
 
-        tool_calls_result = []
-        messages = []
-        messages.extend(base_msg)
+        while True:
+            tool_calls_result = []
 
-        for part in self.create_completion(base_msg):
-            if part.message.get('thinking'):
-                accumulated_response['thinking'] += part.message['thinking']
+            for part in self.client.chat(
+                model=self.api_model,
+                tools=self.tools,
+                stream=True,
+                messages=messages
+            ):
+                if part.message.get('thinking'):
+                    initial_accumulated_response['thinking'] += part.message['thinking']
+                if part.message.get('content'):
+                    initial_accumulated_response['content'] += part.message['content']
 
-            if part.message.get('content'):
-                accumulated_response['content'] += part.message['content']
-
-            if part.message.get('tool_calls'):
-                for tool in part.message['tool_calls']:
-                    call = {
-                        "name": tool['function'].name,
-                        "args": tool['function'].arguments,
-                    }
-
-                    if call['name'] in self.tool_aliases:
-                        handler = self.tool_aliases[call['name']]
-                        response = handler(**call['args']) if isinstance(call['args'], dict) else handler()
-
-                        tool_calls_result.append({
-                            "name": call['name'],
+                if part.message.get('tool_calls'):
+                    for tool in part.message['tool_calls']:
+                        call = {
+                            "name": tool['function'].name,
                             "args": tool['function'].arguments,
-                            "response": response
-                        })
-            
-        for tool_result_dict in tool_calls_result:
-            tool_response_message = {
-                "role": "assistant",
-                "content": f"Result of {tool_result_dict['name']}: {tool_result_dict['response']}"
-            }
-            messages.append(tool_response_message)
-        
-        messages.append({
-            "role": "user",
-            "content": "Please, use these tool-calling results if they are needed here for an accurate and polite answer in Russian."
-        })
+                        }
 
-        if len(tool_calls_result) == 0:
+                        if call['name'] in self.tool_aliases:
+                            handler = self.tool_aliases[call['name']]
+                            args = call['args'] if isinstance(call['args'], dict) else {}
+                            response = handler(**args)
+
+                            tool_calls_result.append({
+                                "name": call['name'],
+                                "args": call['args'],
+                                "response": response
+                            })
+
+            if not tool_calls_result:
+                final_accumulated_response = initial_accumulated_response
+                break
+
+            for tool_result in tool_calls_result:
+                messages.append({
+                    "role": "assistant",
+                    "content": f"Result of {tool_result['name']}: {tool_result['response']}"
+                })
+
+            messages.append({
+                "role": "user",
+                "content": "Please continue using these results if needed for the next step. "
+                           "Answer finally in Russian when all tool calls are done."
+            })
+
+            tools_results.extend(tool_calls_result)
+
+        if len(tools_results) == 0:
             return {
-                "final_stage": accumulated_response,
+                "final_stage": final_accumulated_response
             }
-        
-        for part in self.client.chat(
-            model=self.api_model,
-            messages=messages,
-            stream=True
-        ):
-            if part.message.get('thinking'):
-                final_accumulated_response['thinking'] += part.message['thinking']
-
-            if part.message.get('content'):
-                final_accumulated_response['content'] += part.message['content']
 
         return {
-            "initial_stage": accumulated_response,
-            "tools_calling_stage": tool_calls_result,
+            "initial_stage": initial_accumulated_response,
+            "tools_calling_stage": tools_results,
             "final_stage": final_accumulated_response
         }

@@ -9,3 +9,4 @@ export { IconShield } from "./IconShield";
 export { IconFile } from "./IconFile";
 export { IconMicrophone } from "./IconMicrophone";
 export { IconTerminal } from "./IconTerminal";
+export { IconNotes } from "./IconNotes";

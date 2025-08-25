@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Tuple, Optional
 from clients import SocketClient
 from paths import path_resolver
 from enums.Events import EventsType, EventsTopic
+from store.ModulesStore import ModulesStore
 
 class Logger:
 
@@ -130,6 +131,12 @@ class Orchestrator:
 						manifest = json.load(f)
 						manifest['__dir__'] = os.path.join(modules_root, module_dir)
 						self.modules_manifests[module_dir] = manifest
+
+						ModulesStore.set_module(manifest.get('module.id'), {
+							'module.id': manifest.get('module.id'),
+							'module.name': manifest.get('module.name'),
+						})
+						
 				except Exception as e:
 					print('[Orchestrator] manifest error', manifest_path, e)
 
@@ -191,14 +198,13 @@ class Orchestrator:
 			self.logger.warn(f"module manifest not found for service: {service_id}")
 			return False
 
-		s_id = manifest.get('module.id', 'unknown')
 		name = manifest.get('module.name', 'unknown')
 		rel_path = manifest.get('module.main.path')
 		if not rel_path:
 			self.logger.warn(f"no main path in manifest for service: {service_id}")
 			return False
 
-		key = (s_id, name, rel_path)
+		key = (service_id, name, rel_path)
 		if key in self._running:
 			self.logger.warn(f"module '{service_id}' is already running")
 			return False
@@ -208,6 +214,12 @@ class Orchestrator:
 		self._running[key] = (th, stop_event)
 		th.start()
 		self.logger.info(f"started module '{service_id}'")
+
+		ModulesStore.set_module(service_id, {
+			'module.id': service_id,
+			'module.name': name,
+		})
+
 		return True
 
 	def stop_module(self, service_id: str) -> bool:
@@ -251,6 +263,9 @@ class Orchestrator:
 				del self.registry[service_id]
 			
 			try:
+
+				ModulesStore.remove_module(service_id)
+
 				self.client.send({
 					'type': EventsType.EVENT.value,
 					'topic': EventsTopic.SERVICE_WAS_DISABLED.value,
