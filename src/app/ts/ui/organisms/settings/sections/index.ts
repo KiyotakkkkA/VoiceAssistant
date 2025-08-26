@@ -1,3 +1,3 @@
 export { ApiKeysField } from "./ApiKeysField";
-export { ThemeSelector } from "./ThemeSelector";
+export { ApperanceView } from "./ApperanceView";
 export { ModulesView } from "./ModulesView";

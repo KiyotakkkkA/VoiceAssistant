@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GContext } from '../../../providers';
 import { TimeTracker, BatteryStatus, AiHistoryPanel } from '../../molecules/widgets';
 import { observer } from 'mobx-react-lite';
-import { Dropdown } from '../../atoms';
+import { Dropdown } from '../../atoms/input';
 import { socketClient } from '../../../clients';
 import { EventsTopic, EventsType } from '../../../../js/enums/Events';
 import SettingsStore from '../../../store/SettingsStore';

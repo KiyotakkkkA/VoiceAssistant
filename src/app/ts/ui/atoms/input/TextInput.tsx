@@ -14,8 +14,8 @@ const TextInput: React.FC<TextFieldProps> = ({ label, className='', model, place
       <input
         placeholder={placeholder}
         className={`px-3 py-2 focus:bg-input-focus bg-ui-bg-secondary-light text-ui-text-primary border border-ui-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-ui-accent ${className}`}
-  value={model}
-  {...rest}
+        value={model}
+        {...rest}
       />
     </div>
   );

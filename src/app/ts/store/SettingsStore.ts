@@ -20,6 +20,7 @@ type Settings = {
     settings: {
         'ui.current.theme.id': string;
         'ui.current.aimodel.id': string;
+        'ui.current.event.panel.state'?: boolean;
         'ui.current.apikeys'?: { id?: string; name: string; value: string }[];
 
     };
@@ -39,6 +40,7 @@ class SettingsStore {
         settings: {
             'ui.current.theme.id': '',
             'ui.current.aimodel.id': '',
+            'ui.current.event.panel.state': true,
             'ui.current.apikeys': [],
         }
     };

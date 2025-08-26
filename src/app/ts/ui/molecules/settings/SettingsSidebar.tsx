@@ -95,7 +95,7 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
   };
 
   return (
-    <div className="w-64 h-full border-r border-ui-border-primary p-4 overflow-y-auto">
+    <div className="w-64 h-full bg-ui-bg-primary-light border-r border-ui-border-primary p-4 overflow-y-auto">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-ui-text-primary mb-2">Настройки</h2>
       </div>

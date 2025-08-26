@@ -49,10 +49,59 @@ const services = {
   json: JsonParsingService.getInstance()
 };
 
+function updateSettings(key, value, eventType, eventTopic) {
+  try {
+    const settings = services.json.get('settings') || {};
+    settings[key] = value;
+
+    const settingsPath = `${paths.global_path}/settings.json`;
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+    services.json.load('settings', settingsPath);
+
+    const updatedData = {
+      settings: {
+        [key]: value
+      }
+    };
+
+    for (const client of MsgBroker.getClients()) {
+      if (client.readyState === 1) {
+        client.send(JSON.stringify({
+          type: eventType,
+          topic: eventTopic,
+          from: 'server',
+          payload: { data: updatedData }
+        }));
+      }
+    }
+
+    return true;
+  } catch (e) {
+    console.error(`[Settings] Error updating ${key}:`, e);
+    return false;
+  }
+}
+
+function loadTheme(themeName) {
+  try {
+    const themePath = `${paths.themes_path}/${themeName}.json`;
+
+    if (fs.existsSync(themePath)) {
+      services.json.load('theme', themePath);
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.error(`[Theme] Error loading theme ${themeName}:`, e);
+    return false;
+  }
+}
+
 function createBaseFiles() {
   const settingsPath = `${paths.global_path}/settings.json`;
   const content = {
     "ui.current.theme.id": "github-dark",
+    "ui.current.event.panel.state": true,
     'ui.current.aimodel.id': '',
     "ui.current.apikeys": []
   }
@@ -63,7 +112,6 @@ function createBaseFiles() {
 }
 
 function loadInitialConfigs() {
-
   const cfgs = {
     json: {
       loader: services.json,
@@ -94,7 +142,6 @@ function loadInitialConfigs() {
 
   const selectedTheme = services.json.get('settings')['ui.current.theme.id'];
   services.json.load('theme', `${paths.themes_path}/${selectedTheme}.json`);
-
 }
 
 function startWebSocketServer() {
@@ -111,9 +158,15 @@ function startWebSocketServer() {
       settings: services.json.get('settings')
     };
     if (jsonCfgsData) {
-      ws.send(JSON.stringify({ type: EventsType.SERVICE_INIT, topic: EventsTopic.JSON_INITAL_DATA_SET, from: 'server', payload: { data: jsonCfgsData } }));
+      ws.send(JSON.stringify({ 
+        type: EventsType.SERVICE_INIT, 
+        topic: EventsTopic.JSON_INITAL_DATA_SET, 
+        from: 'server', 
+        payload: { data: jsonCfgsData } 
+      }));
     }
-  })
+  });
+
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APP_OPEN],
     handler: (ws, msg) => {
@@ -136,7 +189,8 @@ function startWebSocketServer() {
         console.error('[WS] opening app error', e);
       }
     }
-  })
+  });
+
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_THEME_SET],
     handler: (ws, msg) => {
@@ -144,20 +198,16 @@ function startWebSocketServer() {
         console.warn('[WS] ACTION_THEME_SET missing theme');
         return;
       }
-      try {
-        const themeName = msg.payload.theme;
-        const themePath = `${paths.themes_path}/${themeName}.json`;
-
-        if (fs.existsSync(themePath)) {
-          services.json.load('theme', themePath);
-
-          const settings = services.json.get('settings') || {};
-          settings['ui.current.theme.id'] = themeName;
-
-          const settingsPath = `${paths.global_path}/settings.json`;
-          fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-          services.json.load('settings', settingsPath);
-
+      
+      const themeName = msg.payload.theme;
+      
+      if (loadTheme(themeName)) {
+        if (updateSettings(
+          'ui.current.theme.id', 
+          themeName, 
+          EventsType.EVENT, 
+          EventsTopic.JSON_THEMES_DATA_SET
+        )) {
           const updatedData = {
             themes: {
               themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
@@ -178,14 +228,27 @@ function startWebSocketServer() {
               }));
             }
           }
-
-          console.log(`[Theme] Switched to ${themeName}`);
         }
-      } catch (e) {
-        console.error('[WS] theme setting error', e);
       }
     }
-  })
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_EVENT_PANEL_TOGGLE],
+    handler: (ws, msg) => {
+      if (!msg.payload?.state && msg.payload?.state !== false) {
+        console.warn('[WS] ACTION_EVENT_PANEL_TOGGLE missing state');
+        return;
+      }
+      
+      updateSettings(
+        'ui.current.event.panel.state', 
+        msg.payload.state, 
+        EventsType.EVENT, 
+        EventsTopic.JSON_EVENT_PANEL_STATE_SET
+      );
+    }
+  });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APIKEYS_SET],
@@ -194,38 +257,15 @@ function startWebSocketServer() {
         console.warn('[WS] ACTION_APIKEYS_SET missing keys');
         return;
       }
-      try {
-        const apiKeys = msg.payload.apikeys;
-
-        const settings = services.json.get('settings') || {};
-        settings['ui.current.apikeys'] = apiKeys;
-
-        const settingsPath = `${paths.global_path}/settings.json`;
-        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-        services.json.load('settings', settingsPath);
-
-        const updatedData = {
-          settings: {
-            "ui.current.apikeys": apiKeys
-          }
-        };
-
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.JSON_APIKEYS_DATA_SET,
-              from: 'server',
-              payload: { data: updatedData }
-            }));
-          }
-        }
-
-      } catch (e) {
-        console.error('[WS] theme setting error', e);
-      }
+      
+      updateSettings(
+        'ui.current.apikeys', 
+        msg.payload.apikeys, 
+        EventsType.EVENT, 
+        EventsTopic.JSON_APIKEYS_DATA_SET
+      );
     }
-  })
+  });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_AIMODEL_SET],
@@ -234,15 +274,13 @@ function startWebSocketServer() {
         console.warn('[WS] ACTION_AIMODEL_SET missing model');
         return;
       }
-      try {
-        const model = msg.payload.modelId;
-
-        const settings = services.json.get('settings') || {};
-        settings['ui.current.aimodel.id'] = model;
-
-        const settingsPath = `${paths.global_path}/settings.json`;
-        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-        services.json.load('settings', settingsPath);
+      
+      if (updateSettings(
+        'ui.current.aimodel.id', 
+        msg.payload.modelId, 
+        EventsType.EVENT, 
+        EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA
+      )) {
 
         for (const client of MsgBroker.getClients()) {
           if (client.readyState === 1) {
@@ -254,12 +292,9 @@ function startWebSocketServer() {
             }));
           }
         }
-
-      } catch (e) {
-        console.error('[WS] theme setting error', e);
       }
     }
-  })
+  });
 
   MsgBroker.startListening();
 }

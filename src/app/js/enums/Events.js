@@ -13,7 +13,8 @@ export const EventsTopic = {
     JSON_INITAL_DATA_SET: 'json_initial_data_set',
     JSON_THEMES_DATA_SET: 'json_themes_data_set',
     JSON_APIKEYS_DATA_SET: 'json_apikeys_data_set',
-    
+    JSON_EVENT_PANEL_STATE_SET: 'json_event_panel_state_set',
+
     RAW_TEXT_DATA_RECOGNIZED: 'raw_text_data_recognized',
 
     ACTION_APP_OPEN: 'action_app_open',
@@ -24,6 +25,7 @@ export const EventsTopic = {
     ACTION_ANSWERING_AI: 'action_answering_ai',
     ACTION_MODE_SET: 'action_mode_set',
     ACTION_AIMODEL_SET: 'action_aimodel_set',
+    ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle',
 
     ACTION_SERVICE_RELOAD: 'action_service_reload',
     ACTION_SERVICE_DISABLE: 'action_service_disable',

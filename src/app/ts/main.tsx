@@ -46,6 +46,17 @@ const AppContent = observer(() => {
     }
   }
 
+  const setEventPanelState = (m: any) => {
+    if (m?.payload?.data?.settings) {
+      SettingsStore.data.settings = { 
+        ...SettingsStore.data.settings, 
+        ...m.payload.data.settings 
+      };
+
+      console.log('Event panel state set to:', m.payload.data.settings['ui.current.event.panel.state']);
+    }
+  };
+
   const setThemesData = (m: any) => {
     SettingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themes?.themesList;
     SettingsStore.data.settings = { 
@@ -129,9 +140,13 @@ const AppContent = observer(() => {
     [EventsTopic.JSON_INITAL_DATA_SET]: (m: any) => {
       setThemesData(m);
       setApikeysData(m);
+      setEventPanelState(m);
     },
     [EventsTopic.JSON_THEMES_DATA_SET]: (m: any) => {
       setThemesData(m);
+    },
+    [EventsTopic.JSON_EVENT_PANEL_STATE_SET]: (m: any) => {
+      setEventPanelState(m);
     },
     [EventsTopic.JSON_APIKEYS_DATA_SET]: (m: any) => {
       setApikeysData(m);

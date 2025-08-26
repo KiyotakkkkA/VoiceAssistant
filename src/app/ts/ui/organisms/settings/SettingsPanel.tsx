@@ -2,7 +2,7 @@ import React, { useState, createElement } from 'react';
 import {
   SettingsSidebar,
   SettingsSection } from '../../molecules/settings';
-import { ThemeSelector, ApiKeysField, ModulesView } from './sections';
+import { ApperanceView, ApiKeysField, ModulesView } from './sections';
 import { observer } from 'mobx-react-lite';
 
 import SettingsStore from '../../../store/SettingsStore';
@@ -27,10 +27,11 @@ const SettingsPanel: React.FC = observer(() => {
       },
       "general-themes": {
         title: "Общее / Интерфейс",
-        component: ThemeSelector,
+        component: ApperanceView,
         props: {
           themeNames: SettingsStore.data.appearance.themes.themeNames,
-          currentTheme: SettingsStore.data.settings?.['ui.current.theme.id'] || 'dark'
+          currentTheme: SettingsStore.data.settings?.['ui.current.theme.id'] || 'dark',
+          currentEventPanelState: SettingsStore.data.settings?.['ui.current.event.panel.state']
         }
       },
       "general-modules": {
@@ -39,7 +40,8 @@ const SettingsPanel: React.FC = observer(() => {
         props: {
           modules: ModulesStore.modules || {},
         }
-      }
+      },
+      
     };
 
   const renderContent = (activeTab: string) => {

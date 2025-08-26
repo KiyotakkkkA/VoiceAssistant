@@ -6,6 +6,7 @@ import { GContext } from '../../providers';
 import { Visualizer } from '../organisms/home';
 import { AppsGrid } from '../organisms/applications';
 import { SettingsPanel } from '../organisms/settings';
+import { NotesView } from '../organisms/notes';
 import { EventLog, RightNav } from '../organisms/layout';
 import { observer } from 'mobx-react-lite';
 import SettingsStore from '../../store/SettingsStore';
@@ -53,6 +54,10 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
       component: <SettingsPanel />,
       fullmode: true
     },
+    notes: {
+      component: <NotesView />,
+      fullmode: true
+    }
   };
 
   const [logOpen, setLogOpen] = useState(true);
@@ -123,35 +128,38 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
           <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'apps')} />
         </div>
       </div>
-      <div className={`absolute left-0 right-0 bottom-0 z-20 bg-ui-bg-primary/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
-        {logOpen && (
-          <div
-            onMouseDown={onDragStart}
-            className={`absolute top-0 left-0 right-0 h-2 -translate-y-full cursor-row-resize ${dragging? 'bg-draghandle-bg-active/20' : 'bg-transparent hover:bg-draghandle-bg-hover/5'}`}
-          >
-            <div className={`w-full h-px bg-gradient-to-r from-widget-accent-a/30 via-widget-accent-b/30 to-widget-accent-a/30 translate-y-[7px] pointer-events-none ${dragging? 'animate-pulse':''}`}></div>
-          </div>
-        )}
-        <div
-          onMouseDown={onDragStart}
-          className={`relative flex items-center justify-between px-4 text-[11px] uppercase tracking-wider text-ui-text-secondary select-none h-8 ${dragging? 'cursor-row-resize':'cursor-pointer'}`}
-          onClick={(e)=>{ if(!didDragRef.current) setLogOpen(o=>!o); }}
-        >
-          <div className={`absolute left-0 right-0 top-0 h-[2px] -translate-y-full ${dragging? 'bg-gradient-to-r from-draghandle-bg-active via-widget-accent-b to-draghandle-bg-active animate-pulse':'bg-transparent'}`}></div>
-          <div className='flex items-center gap-2'>
-            <span className='font-semibold text-ui-text-accent'>Лог событий</span>
-            <span className='text-ui-text-muted'>{logOpen? (dragging ? '⇕' :'▼'):'▲'}</span>
-          </div>
-          <div className='text-ui-text-muted'>{messages.length}</div>
-        </div>
-        {logOpen && (
-          <>
-            <div className='flex-1 overflow-auto px-4 pb-2 custom-scrollbar bg-ui-bg-secondary/80'>
-              <EventLog messages={messages} />
+      { SettingsStore.data.settings['ui.current.event.panel.state'] && (
+        <div className={`absolute left-0 right-0 bottom-0 z-20 bg-ui-bg-primary/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
+          {logOpen && (
+            <div
+              onMouseDown={onDragStart}
+                className={`absolute top-0 left-0 right-0 h-2 -translate-y-full cursor-row-resize ${dragging? 'bg-draghandle-bg-active/20' : 'bg-transparent hover:bg-draghandle-bg-hover/5'}`}
+              >
+                <div className={`w-full h-px bg-gradient-to-r from-widget-accent-a/30 via-widget-accent-b/30 to-widget-accent-a/30 translate-y-[7px] pointer-events-none ${dragging? 'animate-pulse':''}`}></div>
+              </div>
+            )}
+            <div
+              onMouseDown={onDragStart}
+              className={`relative flex items-center justify-between px-4 text-[11px] uppercase tracking-wider text-ui-text-secondary select-none h-8 ${dragging? 'cursor-row-resize':'cursor-pointer'}`}
+              onClick={(e)=>{ if(!didDragRef.current) setLogOpen(o=>!o); }}
+            >
+              <div className={`absolute left-0 right-0 top-0 h-[2px] -translate-y-full ${dragging? 'bg-gradient-to-r from-draghandle-bg-active via-widget-accent-b to-draghandle-bg-active animate-pulse':'bg-transparent'}`}></div>
+              <div className='flex items-center gap-2'>
+                <span className='font-semibold text-ui-text-accent'>Лог событий</span>
+                <span className='text-ui-text-muted'>{logOpen? (dragging ? '⇕' :'▼'):'▲'}</span>
+              </div>
+              <div className='text-ui-text-muted'>{messages.length}</div>
             </div>
-          </>
-        )}
-      </div>
+            {logOpen && (
+              <>
+                <div className='flex-1 overflow-auto px-4 pb-2 custom-scrollbar bg-ui-bg-secondary/80'>
+                  <EventLog messages={messages} />
+                </div>
+              </>
+            )}
+          </div>
+        )
+      }
       <div className='pointer-events-none fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm'>
         {toasts.map(t => (
           <Toast key={t.id} title={t.message} />
