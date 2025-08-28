@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { TextInput } from '../../atoms/input';
 import { ScrollArea, ContextMenu } from '../../atoms';
@@ -6,6 +6,7 @@ import { NoteItem } from '../../../types/Global';
 import { RenderFolderTree } from '../../molecules/notes';
 import { NoteCard } from '../../molecules/widgets';
 import { useMarkdown, useSocketActions, useToast } from '../../../composables';
+import { IconPen, IconPlus, IconTrash, IconSearch, IconRefetch} from '../../atoms/icons';
 
 import NotesStore from '../../../store/NotesStore';
 
@@ -20,7 +21,7 @@ const NotesView = observer(() => {
   const currentNote = NotesStore.selectedNoteId !== null ? NotesStore.getNoteById(NotesStore.selectedNoteId) : null;
   const [noteContent, setNoteContent] = useState(currentNote?.content || '');
 
-  const { folderRename, folderCreate, folderDelete, fileWrite, fileDelete, fileRename } = useSocketActions();
+  const { folderRename, folderCreate, folderDelete, fileWrite, fileDelete, fileRename, notesRefetch } = useSocketActions();
 
   useEffect(() => {
     if (currentNote) {
@@ -287,14 +288,7 @@ const NotesView = observer(() => {
               onClick={handleCreateFolder}
               className="w-full text-left px-3 py-1.5 text-sm hover:bg-ui-bg-secondary-light flex items-center gap-2"
             >
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+              <IconPlus size={20}/>
               Создать папку
             </button>
         )}
@@ -305,14 +299,7 @@ const NotesView = observer(() => {
               onClick={handleCreateNote}
               className="w-full text-left px-3 py-1.5 text-sm hover:bg-ui-bg-secondary-light flex items-center gap-2"
             >
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+              <IconPlus size={20}/>
               Создать заметку
             </button>
         )}
@@ -321,14 +308,7 @@ const NotesView = observer(() => {
           onClick={contextMenu.noteName ? handleRenameNote : handleRenameFolder}
           className="w-full text-left px-3 py-1.5 text-sm hover:bg-ui-bg-secondary-light flex items-center gap-2"
         >
-          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-            />
-          </svg>
+          <IconPen size={20}/>
           Переименовать
         </button>
 
@@ -338,30 +318,23 @@ const NotesView = observer(() => {
           onClick={contextMenu.noteName ? handleDeleteNote : handleDeleteFolder}
           className="w-full text-left px-3 py-1.5 text-sm hover:bg-red-600 hover:bg-opacity-20 text-red-400 flex items-center gap-2"
         >
-          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
+          <IconTrash size={20}/>
           Удалить
         </button>
       </ContextMenu>
 
-      <div className="w-80 bg-ui-bg-primary-light border-r border-ui-border-primary flex flex-col">
+      <div className="w-80 bg-ui-bg-primary-light border-r bor  der-ui-border-primary flex flex-col">
         <div className="p-4 border-b border-ui-border-primary">
           <div className="relative">
             <TextInput
               placeholder="Поиск заметок..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-ui-bg-secondary-light text-ui-text-primary px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-ui-text-muted"
+              className="w-full bg-ui-bg-secondary-light text-ui-text-primary px-3 pr-8 py-2 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-ui-text-muted"
             />
-            <svg className="absolute right-3 top-2.5 h-4 w-4 text-ui-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+              <IconSearch size={20} />
+            </div>
           </div>
         </div>
 
@@ -371,14 +344,10 @@ const NotesView = observer(() => {
               <h3 className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider">Директории</h3>
               <div className='flex items-center'>
                 <button onClick={handleCreateFolder} className='p-1 rounded hover:bg-ui-bg-secondary-light'>
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    />
-                  </svg>
+                  <IconPlus size={20}/>
+                </button>
+                <button onClick={() => notesRefetch()} className='p-1 rounded hover:bg-ui-bg-secondary-light'>
+                  <IconRefetch size={18}/>
                 </button>
               </div>
             </div>

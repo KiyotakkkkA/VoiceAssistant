@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { socketClient } from './clients';
 import { MainLayout } from './ui/templates/MainLayout';
 import { GlobalContext } from './providers';
-import { ToastProvider, useToast } from './providers/ToastProvider';
+import { ToastProvider } from './providers/ToastProvider';
 import { observer } from 'mobx-react-lite';
 import { EventsTopic, EventsType } from '../js/enums/Events';
 
@@ -18,7 +18,7 @@ declare const __ASSISTANT_NAME__: string;
 
 const AppContent = observer(() => {
   const [messages, setMessages] = useState<IncomingMsg[]>([]);
-  const [mode, setMode] = useState<'waiting' | 'listening' | "initializing">('initializing');
+  const [mode, setMode] = useState<'waiting' | 'listening' | "initializing" | "thinking">('initializing');
   const [transcript, setTranscript] = useState({});
   const [apps, setApps] = useState<Record<string, any>>({});
   const [systemReady, setSystemReady] = useState(false);
@@ -33,7 +33,7 @@ const AppContent = observer(() => {
   };
 
   const rawDataTextRecognized = (m: any) => {
-    setMode('waiting');
+    setMode('thinking');
   };
 
   const setApikeysData = (m: any) => {
@@ -127,6 +127,8 @@ const AppContent = observer(() => {
         timestamp: new Date()
       });
     }
+
+    setMode('waiting');
   };
 
   const bindings = {

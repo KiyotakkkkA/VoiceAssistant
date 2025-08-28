@@ -48,6 +48,8 @@
     "state.waiting.gradient": "rgba(102,0,204,0.15)",
     "state.initializing.bg": "#cc0000",
     "state.initializing.gradient": "rgba(204,0,0,0.15)",
+    "state.thinking.bg": "#fee75c",
+    "state.thinking.gradient": "rgba(254,231,92,0.15)",
 
     "nav.text": "#666666",
     "nav.text.hover": "#000000",

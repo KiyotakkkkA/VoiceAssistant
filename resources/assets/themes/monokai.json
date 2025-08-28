@@ -26,6 +26,7 @@
     "badge.initializing": "#f92672",
     "badge.waiting": "#ae81ff",
     "badge.default": "#75715e",
+    "badge.thinking": "#f39c12",
 
     "input.focus": "#49483e",
 
@@ -48,6 +49,8 @@
     "state.waiting.gradient": "rgba(174,129,255,0.15)",
     "state.initializing.bg": "#f92672",
     "state.initializing.gradient": "rgba(249,38,114,0.15)",
+    "state.thinking.bg": "#fee75c",
+    "state.thinking.gradient": "rgba(254,231,92,0.15)",
 
     "nav.text": "#75715e",
     "nav.text.hover": "#f8f8f2",

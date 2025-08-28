@@ -6,7 +6,7 @@ interface Props {
   type?: 'info' | 'success' | 'warning' | 'error';
   duration?: number;
   className?: string;
-  onClose: (id: string) => void;
+  onClose?: (id: string) => void;
 }
 
 const selectLineColor = (type: string) => {
@@ -24,7 +24,7 @@ const selectLineColor = (type: string) => {
 
 const Toast: React.FC<Props> = ({ id, title, type = 'info', duration = 3500, className, onClose }) => {
   useEffect(() => {
-    const timer = setTimeout(() => onClose(id), duration);
+    const timer = setTimeout(() => onClose?.(id), duration);
     return () => clearTimeout(timer);
   }, [id, duration, onClose]);
 

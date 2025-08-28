@@ -84,7 +84,13 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
 
       const time = performance.now()/1000;
       const currentMode = SettingsStore.data.runtime['runtime.current.mode'];
-      const globalRot = mal ? time * 0.01 + Math.sin(time*3)*0.002 : time * (m === 'listening' ? 0.25 : 0.08);
+      const globalRot = mal 
+        ? time * 0.01 + Math.sin(time*3)*0.002 
+        : time * (
+            m === 'listening' ? 0.25 : 
+            m === 'thinking' ? 0.5 : 
+            0.08
+          );
       
       const interactiveBoost = 1;
       const modeSpeedMultiplier = 1;
@@ -98,7 +104,12 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
           p.a += p.spd * 0.0005 * (Math.sin(time*2)+1.2);
         } else {
           if (m === 'listening') pulse = Math.sin(time*4 + p.baseR)*2.2 * interactiveBoost;
-          p.a += p.spd * 0.002 * modeSpeedMultiplier + (m==='listening'?0.0005*interactiveBoost:0);
+          else if (m === 'thinking') pulse = Math.sin(time*6 + p.baseR*2)*1.5;
+          p.a += p.spd * 0.002 * modeSpeedMultiplier + (
+            m==='listening' ? 0.0005*interactiveBoost :
+            m==='thinking' ? 0.005 :
+            0
+          );
         }
         const rr = p.r + pulse;
         const x = Math.cos(p.a + globalRot)*rr;
@@ -115,7 +126,10 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
           basePalette = [20, 220, 160];
           particleMultiplier = 1.3;
         }
-
+        else if (m === 'thinking') {
+          basePalette = [255, 140, 0]; // Оранжевый (#FF8C00)
+          particleMultiplier = 1.5;
+        }
 
         const baseColor = mal ? [160+Math.sin(time*6 + p.a*9)*60, 20+Math.sin(time*4 + p.a*3)*10, 25+Math.sin(time*5 + p.a*2)*20] : basePalette;
         const alpha = mal ? (0.15 + 0.6*((Math.sin(time*6 + p.a*7)+1)/2)) : 0.3 + 0.7*( (Math.sin(time*3 + p.a*5)+1)/2 );
@@ -143,6 +157,9 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
   }
   else if (m === 'listening' && currentMode === 'NORMAL') {
     rgbacolor = 'rgba(20,220,160,0.25)';
+  }
+  else if (m === 'thinking') {
+    rgbacolor = 'rgba(255,140,0,0.25)'; // Оранжевый
   }
   
   const gradient = ctx.createRadialGradient(0,0,12,0,0, Math.min(width,height)/3);

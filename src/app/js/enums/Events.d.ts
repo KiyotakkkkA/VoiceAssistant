@@ -26,6 +26,7 @@ export const EventsTopic: {
     readonly ACTION_MODE_SET: 'action_mode_set';
     readonly ACTION_AIMODEL_SET: 'action_aimodel_set';
     readonly ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle';
+    readonly ACTION_NOTES_REFETCH: 'action_notes_refetch';
 
     readonly ACTION_FOLDER_RENAME: 'action_folder_rename';
     readonly ACTION_FOLDER_DELETE: 'action_folder_delete';

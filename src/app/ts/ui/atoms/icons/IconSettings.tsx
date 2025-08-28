@@ -1,10 +1,10 @@
 import React from 'react';
 
-const IconSettings: React.FC<{ className?: string }> = ({ className }) => (
+const IconSettings: React.FC<{ size?: number; className?: string }> = ({ size = 18, className }) => (
   <svg
     className={className}
-    width="18"
-    height="18"
+    width={size}
+    height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"

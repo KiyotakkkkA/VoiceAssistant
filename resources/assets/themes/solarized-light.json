@@ -46,6 +46,7 @@
     "badge.initializing": "#dc322f",
     "badge.waiting": "#6c71c4",
     "badge.default": "#93a1a1",
+    "badge.thinking": "#f39c12",
 
     "button.bg": "#eee8d5",
     "button.bg.hover": "#e3dcc9",
@@ -72,6 +73,8 @@
     "state.waiting.gradient": "rgba(108,113,196,0.12)",
     "state.initializing.bg": "#dc322f",
     "state.initializing.gradient": "rgba(220,50,47,0.12)",
+    "state.thinking.bg": "#fee75c",
+    "state.thinking.gradient": "rgba(254,231,92,0.12)",
 
     "nav.text": "#93a1a1",
     "nav.text.hover": "#657b83",

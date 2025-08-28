@@ -21,7 +21,6 @@ const RightNav: React.FC<Props> = ({ active, onChange }) => {
             <NavItem key={item.label} {...item} />
           ))}
         </div>
-        <div className='p-2 text-[10px] text-version-text tracking-wider uppercase'>v1</div>
     </nav>
   );
 };

@@ -10,3 +10,5 @@ export { IconFile } from "./IconFile";
 export { IconMicrophone } from "./IconMicrophone";
 export { IconTerminal } from "./IconTerminal";
 export { IconNotes } from "./IconNotes";
+export { IconSearch } from "./IconSearch";
+export { IconRefetch } from "./IconRefetch";

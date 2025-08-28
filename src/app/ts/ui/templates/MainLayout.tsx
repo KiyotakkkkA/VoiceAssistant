@@ -82,7 +82,8 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
   const modeClass: Record<string,string> = {
     'waiting': 'bg-badge-waiting text-white',
     'listening': 'bg-badge-listening text-white',
-    'initializing': 'bg-badge-initializing text-white'
+    'initializing': 'bg-badge-initializing text-white',
+    'thinking': 'bg-badge-thinking text-black'
   };
   return (
     <div className='h-screen flex flex-col bg-ui-bg-primary text-ui-text-primary font-sans overflow-hidden relative'>
@@ -98,7 +99,9 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
         </div>
         <div className='flex items-center gap-4 text-ui-text-secondary'>
           <span className='opacity-70'>ws:{__SOCKET_PORT__}</span>
-          <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-ui-bg-primary-light hover:bg-ui-bg-secondary-light text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
+          { SettingsStore.data.settings['ui.current.event.panel.state'] && (
+            <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-ui-bg-primary-light hover:bg-ui-bg-secondary-light text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
+          )}
         </div>
       </div>
       <div className='flex-1 relative overflow-hidden flex'>
@@ -151,7 +154,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
       }
       <div className='pointer-events-none fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm'>
         {toasts.map(t => (
-          <Toast key={t.id} title={t.message} />
+          <Toast id={t.id} key={t.id} title={t.message} />
         ))}
       </div>
     </div>

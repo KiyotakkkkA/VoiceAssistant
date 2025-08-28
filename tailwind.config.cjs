@@ -37,6 +37,7 @@ module.exports = {
         'badge-initializing': withOpacity('--badge-initializing'),
         'badge-waiting': withOpacity('--badge-waiting'),
         'badge-default': withOpacity('--badge-default'),
+        'badge-thinking': withOpacity('--badge-thinking'),
 
         'input-focus': withOpacity('--input-focus'),
 
@@ -56,6 +57,7 @@ module.exports = {
         'state-listening-bg': withOpacity('--state-listening-bg'),
         'state-waiting-bg': withOpacity('--state-waiting-bg'),
         'state-initializing-bg': withOpacity('--state-initializing-bg'),
+        'state-thinking-bg': withOpacity('--state-thinking-bg'),
 
         'nav-text': withOpacity('--nav-text'),
         'nav-text-hover': withOpacity('--nav-text-hover'),

@@ -69,10 +69,15 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_FILE_RENAME, '', { path, newName });
   };
 
+  const notesRefetch = () => {
+    sendServiceAction(EventsTopic.ACTION_NOTES_REFETCH, '', {});
+  };
+
   return {
     fileWrite,
     fileDelete,
     fileRename,
+    notesRefetch,
     folderRename,
     folderDelete,
     folderCreate,

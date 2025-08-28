@@ -26,6 +26,7 @@ export const EventsTopic = {
     ACTION_MODE_SET: 'action_mode_set',
     ACTION_AIMODEL_SET: 'action_aimodel_set',
     ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle',
+    ACTION_NOTES_REFETCH: 'action_notes_refetch',
 
     ACTION_FOLDER_RENAME: 'action_folder_rename',
     ACTION_FOLDER_DELETE: 'action_folder_delete',

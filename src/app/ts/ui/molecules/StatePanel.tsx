@@ -21,6 +21,10 @@ const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
     'initializing': {
       main: 'bg-state-initializing-bg',
       alphaGradient: 'var(--state-initializing-gradient)'
+    },
+    'thinking': {
+      main: 'bg-state-thinking-bg',
+      alphaGradient: 'var(--state-thinking-gradient)'
     }
   }
 

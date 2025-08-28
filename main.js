@@ -174,6 +174,30 @@ function startWebSocketServer() {
   });
 
   MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_NOTES_REFETCH],
+    handler: (ws, msg) => {
+      try {
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
+              from: 'server',
+              payload: {
+                data: {
+                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+                }
+              }
+            }));
+          }
+        }
+      } catch (e) {
+        console.error('[WS] ACTION_NOTES_REFETCH error', e);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_RENAME],
     handler: (ws, msg) => {
       if (!msg.payload?.path || !msg.payload?.newName) {
