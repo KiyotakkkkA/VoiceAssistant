@@ -33,6 +33,7 @@ path_resolver = {
     'cl_model_path': _as_str(resolve_path(os.getenv('TEXT_CLASSIFICATION_MODEL_DIR_PATH'), _as_str(resources / 'temp'))),
     'templates_path': _as_str(resolve_path(os.getenv('PATH_TO_TEMPLATES_DIR_PATH'), _as_str(resources / 'assets' / 'templates'))),
     'audio_path': _as_str(resolve_path(os.getenv('PATH_TO_AUDIO_DIR'), _as_str(resources / 'assets' / 'audio'))),
+    'notes_path': _as_str(resolve_path(os.getenv('PATH_TO_NOTES_DIR'), _as_str(resources / 'assets' / 'notes'))),
     'global_path': _as_str(resolve_path(os.getenv('PATH_TO_GLOBALS_DIR'), _as_str(resources / 'global'))),
     'new_projects_path': _as_str(resolve_path(os.getenv('PATH_TO_NEW_PROJECTS_DIR'), 'DESKTOP')),
 }

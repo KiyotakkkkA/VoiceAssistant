@@ -10,6 +10,7 @@ import { EventsTopic, EventsType } from '../js/enums/Events';
 
 import SettingsStore from './store/SettingsStore';
 import ModulesStore from './store/ModulesStore';
+import NotesStore from './store/NotesStore';
 
 interface IncomingMsg { type: string; topic: string; payload: any; from?: string }
 
@@ -22,8 +23,6 @@ const AppContent = observer(() => {
   const [apps, setApps] = useState<Record<string, any>>({});
   const [systemReady, setSystemReady] = useState(false);
   const [theme, setTheme] = useState<Record<string, string> | null>(null);
-  
-  const { addToast } = useToast();
 
   const handleWake = () => {
     setMode('listening');
@@ -54,6 +53,12 @@ const AppContent = observer(() => {
       };
 
       console.log('Event panel state set to:', m.payload.data.settings['ui.current.event.panel.state']);
+    }
+  };
+
+  const setNotesData = (m: any) => {
+    if (m?.payload?.data?.notes) {
+      NotesStore.notes = m.payload.data.notes;
     }
   };
 
@@ -141,6 +146,7 @@ const AppContent = observer(() => {
       setThemesData(m);
       setApikeysData(m);
       setEventPanelState(m);
+      setNotesData(m);
     },
     [EventsTopic.JSON_THEMES_DATA_SET]: (m: any) => {
       setThemesData(m);
@@ -153,7 +159,11 @@ const AppContent = observer(() => {
     },
     [EventsTopic.SERVICE_WAS_DISABLED]: (m: any) => {
       setModulesStoppedData(m);
+    },
+    [EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA]: (m: any) => {
+      setNotesData(m);
     }
+
   };
 
   const specModulesInitActions = {

@@ -1,231 +1,240 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { observer } from 'mobx-react-lite';
 import { TextInput } from '../../atoms/input';
+import { ScrollArea, ContextMenu } from '../../atoms';
+import { NoteItem } from '../../../types/Global';
+import { RenderFolderTree } from '../../molecules/notes';
+import { NoteCard } from '../../molecules/widgets';
+import { useMarkdown, useSocketActions, useToast } from '../../../composables';
 
-const ScrollArea = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => {
-  return (
-    <div className={`overflow-y-auto scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-600 hover:scrollbar-thumb-slate-500 ${className}`}>
-      {children}
-    </div>
-  );
-};
+import NotesStore from '../../../store/NotesStore';
 
-const parseMarkdown = (text: string) => {
-  if (!text) return '';
-  
-  let html = text
-    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold text-ui-text-primary mb-2 mt-4">$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold text-ui-text-primary mb-3 mt-4">$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold text-ui-text-primary mb-4 mt-4">$1</h1>')
+const NotesView = observer(() => {
+  const { addToast } = useToast();
 
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-ui-text-primary">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic text-ui-text-primary">$1</em>')
-
-    .replace(/```([\s\S]*?)```/g, '<pre class="bg-ui-bg-secondary p-3 rounded-md my-3 overflow-x-auto"><code class="text-green-400 text-sm">$1</code></pre>')
-    .replace(/`([^`]+)`/g, '<code class="bg-ui-bg-secondary px-2 py-1 rounded text-green-400 text-sm">$1</code>')
-
-    .replace(/^- (.*$)/gm, '<li class="text-ui-text-primary ml-4 mb-1">• $1</li>')
-    .replace(/^(\d+)\. (.*$)/gm, '<li class="text-ui-text-primary ml-4 mb-1">$1. $2</li>')
-
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-400 hover:text-blue-300 underline">$1</a>')
-    
-    .replace(/\n\n/g, '<br><br>')
-    .replace(/\n/g, '<br>');
-    
-  return html;
-};
-
-const NotesView = () => {
-  const [selectedNote, setSelectedNote] = useState(0);
-  const [noteContent, setNoteContent] = useState('# Welcome to Notes\n\nThis is your note-taking space. Start writing your thoughts, ideas, and everything that matters to you.\n\n## Features\n- Dark theme interface\n- Markdown support\n- File explorer\n- Search functionality\n\n**Start typing to create your first note!**\n\n### Code Example\n```javascript\nconst greeting = "Hello World!";\nconsole.log(greeting);\n```\n\nYou can also add `inline code` and [links](https://example.com).');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isCreatingNote, setIsCreatingNote] = useState(false);
-  const [newNoteTitle, setNewNoteTitle] = useState('');
   const [viewMode, setViewMode] = useState('editor');
-  const [expandedFolders, setExpandedFolders] = useState(new Set(['daily-notes']));
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
 
-  const parsedContent = useMemo(() => parseMarkdown(noteContent), [noteContent]);
+  const currentNote = NotesStore.selectedNoteId !== null ? NotesStore.getNoteById(NotesStore.selectedNoteId) : null;
+  const [noteContent, setNoteContent] = useState(currentNote?.content || '');
 
-  // Расширенная структура папок с подпапками и заметками
-  const folderStructure = {
-    'daily-notes': {
-      name: 'Daily Notes',
-      type: 'folder',
-      children: {
-        '2024': {
-          name: '2024',
-          type: 'folder',
-          children: {
-            'january': {
-              name: 'January',
-              type: 'folder',
-              children: {
-                'note-1': { name: 'Meeting Notes Jan 15', type: 'note', id: 1, modified: '3 hours ago', preview: 'Team meeting discussion...' },
-                'note-2': { name: 'Daily Reflection', type: 'note', id: 2, modified: '1 day ago', preview: 'Thoughts about today...' }
-              }
-            },
-            'february': {
-              name: 'February',
-              type: 'folder',
-              children: {
-                'note-3': { name: 'Project Ideas', type: 'note', id: 3, modified: '2 days ago', preview: 'New project concepts...' }
-              }
-            }
-          }
-        },
-        '2025': {
-          name: '2025',
-          type: 'folder',
-          children: {
-            'note-0': { name: 'Welcome', type: 'note', id: 0, modified: '2 minutes ago', preview: 'Welcome to Notes...' }
-          }
+  const { folderRename, folderCreate, folderDelete, fileWrite, fileDelete, fileRename } = useSocketActions();
+
+  useEffect(() => {
+    if (currentNote) {
+      if (NotesStore.selectedNoteId !== null && noteContent && noteContent !== currentNote.content) {
+        const prevNoteId = NotesStore.selectedNoteId;
+        if (prevNoteId !== currentNote.id) {
+          NotesStore.updateNoteContent(prevNoteId, noteContent);
         }
       }
-    },
-    'projects': {
-      name: 'Projects',
-      type: 'folder',
-      children: {
-        'web-app': {
-          name: 'Web Application',
-          type: 'folder',
-          children: {
-            'note-4': { name: 'Project Plan', type: 'note', id: 4, modified: '1 day ago', preview: 'Project roadmap and milestones...' },
-            'note-5': { name: 'Tech Stack', type: 'note', id: 5, modified: '3 days ago', preview: 'Technology decisions...' }
-          }
-        },
-        'mobile-app': {
-          name: 'Mobile App',
-          type: 'folder',
-          children: {
-            'note-6': { name: 'UI Design', type: 'note', id: 6, modified: '1 week ago', preview: 'Mobile interface concepts...' }
-          }
-        }
-      }
-    },
-    'personal': {
-      name: 'Personal',
-      type: 'folder',
-      children: {
-        'note-7': { name: 'Travel Plans', type: 'note', id: 7, modified: '1 week ago', preview: 'Itinerary for upcoming trip...' },
-        'note-8': { name: 'Shopping List', type: 'note', id: 8, modified: '2 weeks ago', preview: 'Items to buy...' }
-      }
-    },
-    'archive': {
-      name: 'Archive',
-      type: 'folder',
-      children: {
-        'old-notes': {
-          name: 'Old Notes',
-          type: 'folder',
-          children: {
-            'note-9': { name: 'Research Notes', type: 'note', id: 9, modified: '1 month ago', preview: 'Research findings...' }
-          }
-        }
-      }
-    }
-  };
-
-  const [notes] = useState([
-    { id: 0, title: 'Welcome', modified: '2 minutes ago', preview: 'Welcome to Notes...' },
-    { id: 1, title: 'Meeting Notes Jan 15', modified: '3 hours ago', preview: 'Team meeting discussion...' },
-    { id: 2, title: 'Daily Reflection', modified: '1 day ago', preview: 'Thoughts about today...' },
-    { id: 3, title: 'Project Ideas', modified: '2 days ago', preview: 'New project concepts...' },
-    { id: 4, title: 'Project Plan', modified: '1 day ago', preview: 'Project roadmap and milestones...' },
-    { id: 5, title: 'Tech Stack', modified: '3 days ago', preview: 'Technology decisions...' },
-    { id: 6, title: 'UI Design', modified: '1 week ago', preview: 'Mobile interface concepts...' },
-    { id: 7, title: 'Travel Plans', modified: '1 week ago', preview: 'Itinerary for upcoming trip...' },
-    { id: 8, title: 'Shopping List', modified: '2 weeks ago', preview: 'Items to buy...' },
-    { id: 9, title: 'Research Notes', modified: '1 month ago', preview: 'Research findings...' }
-  ]);
-
-  const toggleFolder = (folderId: string) => {
-    const newExpanded = new Set(expandedFolders);
-    if (newExpanded.has(folderId)) {
-      newExpanded.delete(folderId);
-    } else {
-      newExpanded.add(folderId);
-    }
-    setExpandedFolders(newExpanded);
-  };
-
-  const selectFolder = (folderId: string) => {
-    setSelectedFolder(selectedFolder === folderId ? null : folderId);
-  };
-
-  const renderFolderTree = (items: any, level: number = 0, parentPath: string = '') => {
-    return Object.entries(items).map(([key, item]: [string, any]) => {
-      const fullPath = parentPath ? `${parentPath}/${key}` : key;
-      const isExpanded = expandedFolders.has(fullPath);
-      const isSelected = selectedFolder === fullPath;
       
-      if (item.type === 'folder') {
-        const childrenCount = Object.keys(item.children).length;
-        const notesInFolder = Object.values(item.children).filter((child: any) => child.type === 'note').length;
-        
-        return (
-          <div key={fullPath}>
-            <div
-              className={`flex items-center justify-between py-1 px-2 rounded cursor-pointer text-sm transition-colors ${
-                isSelected ? 'bg-blue-600 bg-opacity-20' : 'hover:bg-ui-bg-secondary-light'
-              }`}
-              style={{ marginLeft: `${level * 12}px` }}
-              onClick={() => {
-                toggleFolder(fullPath);
-                selectFolder(fullPath);
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <svg
-                  className={`h-3 w-3 text-ui-text-muted transition-transform ${
-                    isExpanded ? 'rotate-90' : ''
-                  }`}
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-                <svg className="h-3 w-3 text-ui-text-muted" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                </svg>
-                <span>{item.name}</span>
-              </div>
-              <span className="text-xs text-ui-text-muted">{childrenCount}</span>
-            </div>
-            {isExpanded && (
-              <div className="mt-1">
-                {renderFolderTree(item.children, level + 1, fullPath)}
-              </div>
-            )}
-          </div>
-        );
-      } else if (item.type === 'note') {
-        return (
-          <div
-            key={fullPath}
-            onClick={() => setSelectedNote(item.id)}
-            className={`p-2 rounded cursor-pointer transition-colors ${
-              selectedNote === item.id
-                ? 'bg-blue-600 bg-opacity-20 border border-blue-500'
-                : 'hover:bg-ui-bg-secondary-light'
-            }`}
-            style={{ marginLeft: `${(level + 1) * 12}px` }}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <svg className="h-3 w-3 text-ui-text-muted flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-              </svg>
-              <div className="font-medium text-xs">{item.name}</div>
-            </div>
-            <div className="text-xs text-ui-text-muted mb-1">{item.modified}</div>
-            <div className="text-xs text-ui-text-muted truncate">{item.preview}</div>
-          </div>
-        );
+      setNoteContent(currentNote.content || '');
+      setUnsavedChanges(false);
+    }
+  }, [currentNote?.id]);
+
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    folderId: string;
+    folderName: string;
+    noteName: string;
+  }>({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+
+  const [isRenaming, setIsRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+
+  const [isRenamingNote, setIsRenamingNote] = useState<string | null>(null);
+  const [renameNoteValue, setRenameNoteValue] = useState<string>('');
+
+  const contextMenuRef = useRef<HTMLDivElement>(null);
+
+  const parsedContent = useMarkdown(noteContent || '');
+
+  const folderStructure = NotesStore.notes;
+  const allNotes = NotesStore.getAllNotes();
+
+  const handleSave = useCallback(() => {
+    if (NotesStore.selectedNoteId !== null && noteContent) {
+      NotesStore.updateNoteContent(NotesStore.selectedNoteId, noteContent);
+      
+      const currentNote = NotesStore.getNoteById(NotesStore.selectedNoteId);
+      if (currentNote?.path) {
+        fileWrite(currentNote.path, noteContent, 'w');
       }
+      
+      setUnsavedChanges(false);
+      addToast('Заметка сохранена!', 'success');
+    }
+  }, [noteContent, fileWrite]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleSave]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
+  useEffect(() => {
+    if (currentNote && noteContent !== currentNote.content) {
+      setUnsavedChanges(true);
+    } else {
+      setUnsavedChanges(false);
+    }
+  }, [noteContent, currentNote?.content]);
+
+
+  useEffect(() => {
+    return () => {
+      if (NotesStore.selectedNoteId !== null && noteContent && unsavedChanges) {
+        NotesStore.updateNoteContent(NotesStore.selectedNoteId, noteContent);
+      }
+    };
+  }, [noteContent, unsavedChanges]);
+
+  const handleContextMenu = (e: React.MouseEvent, folderId: string, folderName: string, noteName: string = '') => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      folderId,
+      folderName,
+      noteName,
     });
   };
 
-  // Получение заметок из выбранной папки
+  const handleRenameNote = () => {
+    setIsRenamingNote(contextMenu.folderId + '/' + contextMenu.noteName);
+    setRenameNoteValue(contextMenu.noteName);
+    setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+  }
+
+  const handleDeleteNote = () => {
+    if (contextMenu.noteName) {
+      fileDelete(contextMenu.folderId + '/' + contextMenu.noteName);
+    }
+    setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+  };
+
+  const handleCreateNote = () => {
+    const baseNoteTitle = 'New_Note.txt';
+    if (baseNoteTitle && baseNoteTitle.trim()) {
+      fileWrite(contextMenu.folderId + '/' + baseNoteTitle, '', 'c');
+    }
+    setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+  };
+
+  const handleDeleteFolder = () => {
+    folderDelete(contextMenu.folderId);
+    setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+  };
+
+  const handleCreateFolder = () => {
+    const baseFolderName = 'new-folder'
+    if (baseFolderName && baseFolderName.trim()) {
+      folderCreate(contextMenu.folderId, baseFolderName);
+    }
+    setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+  };
+
+  const handleRenameFolder = () => {
+    setIsRenaming(contextMenu.folderId);
+    setRenameValue(contextMenu.folderName);
+    setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
+  };
+
+  const confirmRename = (path: string, newName: string) => {
+    if (newName.trim()) {
+      folderRename(path, newName);
+    }
+    setIsRenaming(null);
+    setRenameValue('');
+  };
+
+  const confirmRenameNote = (fullPath: string, newName: string) => {
+    if (newName.trim()) {
+      fileRename(fullPath, newName);
+    }
+    setIsRenamingNote(null);
+    setRenameNoteValue('');
+  };
+
+  const cancelRename = () => {
+    setIsRenaming(null);
+    setRenameValue('');
+  };
+
+  const cancelRenameNote = () => {
+    setIsRenamingNote(null);
+    setRenameNoteValue('');
+  };
+
+  const toggleFolder = useCallback((folderId: string) => {
+    NotesStore.toggleFolderExpansion(folderId);
+  }, []);
+
+  const selectFolder = useCallback((folderId: string) => {
+    setSelectedFolder(selectedFolder === folderId ? null : folderId);
+  }, [selectedFolder]);
+
+  const selectNote = useCallback((noteId: number) => {
+    if (NotesStore.selectedNoteId !== null && noteContent && unsavedChanges) {
+      NotesStore.updateNoteContent(NotesStore.selectedNoteId, noteContent);
+    }
+    
+    NotesStore.setSelectedNote(noteId);
+  }, [noteContent, unsavedChanges]);
+
+  const handleContextMenuCallback = useCallback((e: React.MouseEvent, folderId: string, folderName: string, noteName: string) => {
+    handleContextMenu(e, folderId, folderName, noteName);
+  }, []);
+
+  const confirmRenameCallback = useCallback((fullPath: string, newName: string) => {
+    confirmRename(fullPath, newName);
+  }, []);
+
+  const cancelRenameCallback = useCallback(() => {
+    cancelRename();
+  }, []);
+
+  const setRenameValueCallback = useCallback((value: string) => {
+    setRenameValue(value);
+  }, []);
+
+  const setRenameNoteValueCallback = useCallback((value: string) => {
+    setRenameNoteValue(value);
+  }, []);
+
+  const confirmRenameNoteCallback = useCallback((fullPath: string, newName: string) => {
+    confirmRenameNote(fullPath, newName);
+  }, []);
+
+  const cancelRenameNoteCallback = useCallback(() => {
+    cancelRenameNote();
+  }, []);
+
   const getNotesFromFolder = (folderId: string) => {
     const pathParts = folderId.split('/');
     let current: any = folderStructure;
@@ -255,29 +264,97 @@ const NotesView = () => {
   };
 
   const filteredNotes = selectedFolder 
-    ? getNotesFromFolder(selectedFolder).filter(note => 
+    ? getNotesFromFolder(selectedFolder).filter((note: NoteItem) => 
         note.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         note.preview.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : notes.filter(note => 
-        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    : allNotes.filter((note: NoteItem) => 
+        note.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         note.preview.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-  const handleCreateNote = () => {
-    if (newNoteTitle.trim()) {
-      setIsCreatingNote(false);
-      setNewNoteTitle('');
-    }
-  };
-
   return (
     <div className="flex h-screen bg-ui-bg-primary text-ui-text-primary">
+      <ContextMenu
+        ref={contextMenuRef}
+        visible={contextMenu.visible}
+        x={contextMenu.x}
+        y={contextMenu.y}
+      >
+        { 
+          !contextMenu.noteName && (
+            <button
+              onClick={handleCreateFolder}
+              className="w-full text-left px-3 py-1.5 text-sm hover:bg-ui-bg-secondary-light flex items-center gap-2"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Создать папку
+            </button>
+        )}
+
+        { 
+          !contextMenu.noteName && (
+            <button
+              onClick={handleCreateNote}
+              className="w-full text-left px-3 py-1.5 text-sm hover:bg-ui-bg-secondary-light flex items-center gap-2"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Создать заметку
+            </button>
+        )}
+
+        <button
+          onClick={contextMenu.noteName ? handleRenameNote : handleRenameFolder}
+          className="w-full text-left px-3 py-1.5 text-sm hover:bg-ui-bg-secondary-light flex items-center gap-2"
+        >
+          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            />
+          </svg>
+          Переименовать
+        </button>
+
+        <div className="border-t border-ui-border-primary my-1"></div>
+
+        <button
+          onClick={contextMenu.noteName ? handleDeleteNote : handleDeleteFolder}
+          className="w-full text-left px-3 py-1.5 text-sm hover:bg-red-600 hover:bg-opacity-20 text-red-400 flex items-center gap-2"
+        >
+          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+          Удалить
+        </button>
+      </ContextMenu>
+
       <div className="w-80 bg-ui-bg-primary-light border-r border-ui-border-primary flex flex-col">
         <div className="p-4 border-b border-ui-border-primary">
           <div className="relative">
             <TextInput
-              placeholder="Search notes..."
+              placeholder="Поиск заметок..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-ui-bg-secondary-light text-ui-text-primary px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-ui-text-muted"
@@ -289,80 +366,63 @@ const NotesView = () => {
         </div>
 
         <div className="p-4 border-b border-ui-border-primary">
-          {!isCreatingNote ? (
-            <button
-              onClick={() => setIsCreatingNote(true)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-slate-100 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              New Note
-            </button>
-          ) : (
-            <div className="space-y-2">
-              <TextInput
-                placeholder="Note title..."
-                value={newNoteTitle}
-                onChange={(e) => setNewNoteTitle(e.target.value)}
-                className="w-full bg-ui-bg-secondary-light text-ui-text-primary px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                autoFocus
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleCreateNote}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-ui-text-primary px-3 py-1.5 rounded text-xs font-medium"
-                >
-                  Create
-                </button>
-                <button
-                  onClick={() => {setIsCreatingNote(false); setNewNoteTitle('');}}
-                  className="flex-1 bg-slate-600 hover:bg-slate-500 text-ui-text-primary px-3 py-1.5 rounded text-xs font-medium"
-                >
-                  Cancel
+          <div className="flex items-center justify-between mb-3">
+            <div className='flex items-center gap-2'>
+              <h3 className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider">Директории</h3>
+              <div className='flex items-center'>
+                <button onClick={handleCreateFolder} className='p-1 rounded hover:bg-ui-bg-secondary-light'>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>
-          )}
-        </div>
-
-        <div className="p-4 border-b border-ui-border-primary">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider">Folders</h3>
             {selectedFolder && (
               <button
                 onClick={() => setSelectedFolder(null)}
                 className="text-xs text-blue-400 hover:text-blue-300"
               >
-                Show All
+                Показать всё
               </button>
             )}
           </div>
           <div className="space-y-1">
-            {renderFolderTree(folderStructure)}
+            <RenderFolderTree
+              items={folderStructure}
+              level={0}
+              parentPath=""
+              selectedFolder={selectedFolder}
+              isRenaming={isRenaming}
+              renameValue={renameValue}
+              isRenamingNote={isRenamingNote}
+              renameNoteValue={renameNoteValue}
+              onSelectFolder={selectFolder}
+              onToggleFolder={toggleFolder}
+              onSelectNote={selectNote}
+              onHandleContextMenu={handleContextMenuCallback}
+              onConfirmRename={confirmRenameCallback}
+              onConfirmRenameNote={confirmRenameNoteCallback}
+              onCancelRename={cancelRenameCallback}
+              onCancelRenameNote={cancelRenameNoteCallback}
+              onSetRenameValue={setRenameValueCallback}
+              onSetRenameNoteValue={setRenameNoteValueCallback}
+            />
           </div>
         </div>
 
         <ScrollArea className="flex-1">
           <div className="p-4">
             <h3 className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-3">
-              {selectedFolder ? `Notes in ${selectedFolder.split('/').pop()}` : 'All Notes'}
+              {selectedFolder ? `Заметки в '${selectedFolder.split('/').pop()}'` : 'Все заметки'}
             </h3>
             <div className="space-y-1">
-              {filteredNotes.map((note) => (
-                <div
-                  key={note.id}
-                  onClick={() => setSelectedNote(note.id)}
-                  className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedNote === note.id
-                      ? 'bg-blue-600 bg-opacity-20 border border-blue-500'
-                      : 'hover:bg-ui-bg-secondary-light'
-                  }`}
-                >
-                  <div className="font-medium text-sm mb-1">{note.title || note.name}</div>
-                  <div className="text-xs text-ui-text-muted mb-2">{note.modified}</div>
-                  <div className="text-xs text-ui-text-muted truncate">{note.preview}</div>
-                </div>
+              {filteredNotes.map((note: NoteItem) => (
+                <NoteCard key={note.id} note={note} onSelect={selectNote} />
               ))}
             </div>
           </div>
@@ -370,15 +430,29 @@ const NotesView = () => {
       </div>
 
       <div className="flex-1 flex flex-col">
-        {/* Header */}
         <div className="h-12 bg-ui-bg-primary-light border-b border-ui-border-primary flex items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold">{notes[selectedNote]?.title || 'Untitled'}</h1>
+            <h1 className="text-lg font-semibold">{currentNote?.name || 'Untitled'}</h1>
             <div className="text-xs text-ui-text-muted">
-              Last modified: {notes[selectedNote]?.modified}
+              Последнее изменение: {currentNote?.modified}
             </div>
+            {unsavedChanges && (
+              <div className="flex items-center gap-1 text-xs text-yellow-400">
+                <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                <span>Не сохранено</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded transition-colors flex items-center gap-1"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              Сохранить (Ctrl+S)
+            </button>
             <div className="flex bg-ui-bg-secondary-light rounded-md p-1">
               <button
                 onClick={() => setViewMode('editor')}
@@ -386,7 +460,7 @@ const NotesView = () => {
                   viewMode === 'editor' ? 'bg-blue-600 text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
                 }`}
               >
-                Edit
+                Изменить
               </button>
               <button
                 onClick={() => setViewMode('preview')}
@@ -394,7 +468,7 @@ const NotesView = () => {
                   viewMode === 'preview' ? 'bg-blue-600 text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
                 }`}
               >
-                Preview
+                Предпросмотр
               </button>
               <button
                 onClick={() => setViewMode('split')}
@@ -402,7 +476,7 @@ const NotesView = () => {
                   viewMode === 'split' ? 'bg-blue-600 text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
                 }`}
               >
-                Split
+                Разделить
               </button>
             </div>
             <button className="p-2 hover:bg-ui-bg-secondary-light rounded transition-colors">
@@ -425,8 +499,8 @@ const NotesView = () => {
                 <textarea
                   value={noteContent}
                   onChange={(e) => setNoteContent(e.target.value)}
-                  className="w-full h-full bg-transparent text-ui-text-primary resize-none focus:outline-none font-mono text-sm leading-relaxed placeholder-ui-text-primary"
-                  placeholder="Start writing your note..."
+                  className="w-full h-full bg-transparent text-ui-text-primary resize-none focus:outline-none font-mono text-sm leading-relaxed placeholder-ui-text-muted"
+                  placeholder="Это начало вашей заметки..."
                   style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace' }}
                 />
               </div>
@@ -453,13 +527,13 @@ const NotesView = () => {
           </div>
           <div className="flex items-center gap-2">
             <span>Markdown</span>
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>Saved</span>
+            <div className={`w-2 h-2 rounded-full ${unsavedChanges ? 'bg-yellow-400' : 'bg-green-500'}`}></div>
+            <span>{unsavedChanges ? 'Modified' : 'Saved'}</span>
           </div>
         </div>
       </div>
     </div>
   );
-};
+});
 
 export { NotesView };

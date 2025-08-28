@@ -10,6 +10,7 @@ import { NotesView } from '../organisms/notes';
 import { EventLog, RightNav } from '../organisms/layout';
 import { observer } from 'mobx-react-lite';
 import SettingsStore from '../../store/SettingsStore';
+import { useDragResize } from '../../composables';
 
 declare const __SOCKET_PORT__: number;
 
@@ -63,29 +64,17 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
   const [logOpen, setLogOpen] = useState(true);
   const [logHeight, setLogHeight] = useState(256);
   const [dragging, setDragging] = useState(false);
-  const startRef = React.useRef<{y:number; h:number}>();
-  const didDragRef = React.useRef(false);
+  
+  const { onDragStart, didDragRef } = useDragResize(
+    logHeight, 
+    120, 
+    0.9,
+    'vertical'
+  );
 
-  const onDragStart = (e: React.MouseEvent) => {
+  const handleDragStart = (e: React.MouseEvent) => {
     if (!logOpen) return;
-    setDragging(true);
-    didDragRef.current = false;
-    startRef.current = { y: e.clientY, h: logHeight };
-    window.addEventListener('mousemove', onDragMove);
-    window.addEventListener('mouseup', onDragEnd);
-  };
-  const onDragMove = (e: MouseEvent) => {
-    if (!startRef.current) return;
-    const dy = startRef.current.y - e.clientY;
-    if (Math.abs(dy) > 2) didDragRef.current = true;
-    let newH = startRef.current.h + dy;
-    newH = Math.max(120, Math.min(window.innerHeight*0.9, newH));
-    setLogHeight(newH);
-  };
-  const onDragEnd = () => {
-    setDragging(false);
-    window.removeEventListener('mousemove', onDragMove);
-    window.removeEventListener('mouseup', onDragEnd);
+    onDragStart(e, setLogHeight, setDragging);
   };
   const [activeTab, setActiveTab] = useState<
     'home' | 'apps' | 'settings'
@@ -132,14 +121,14 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
         <div className={`absolute left-0 right-0 bottom-0 z-20 bg-ui-bg-primary/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
           {logOpen && (
             <div
-              onMouseDown={onDragStart}
+              onMouseDown={handleDragStart}
                 className={`absolute top-0 left-0 right-0 h-2 -translate-y-full cursor-row-resize ${dragging? 'bg-draghandle-bg-active/20' : 'bg-transparent hover:bg-draghandle-bg-hover/5'}`}
               >
                 <div className={`w-full h-px bg-gradient-to-r from-widget-accent-a/30 via-widget-accent-b/30 to-widget-accent-a/30 translate-y-[7px] pointer-events-none ${dragging? 'animate-pulse':''}`}></div>
               </div>
             )}
             <div
-              onMouseDown={onDragStart}
+              onMouseDown={handleDragStart}
               className={`relative flex items-center justify-between px-4 text-[11px] uppercase tracking-wider text-ui-text-secondary select-none h-8 ${dragging? 'cursor-row-resize':'cursor-pointer'}`}
               onClick={(e)=>{ if(!didDragRef.current) setLogOpen(o=>!o); }}
             >

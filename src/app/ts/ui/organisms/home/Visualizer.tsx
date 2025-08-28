@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GContext } from '../../../providers';
-import { TimeTracker, BatteryStatus, AiHistoryPanel } from '../../molecules/widgets';
+import { TimeTracker, BatteryStatus } from '../../molecules/widgets';
+import { AiHistoryPanel } from '../../molecules';
 import { observer } from 'mobx-react-lite';
 import { Dropdown } from '../../atoms/input';
-import { socketClient } from '../../../clients';
-import { EventsTopic, EventsType } from '../../../../js/enums/Events';
+import { useSocketActions } from '../../../composables';
 import SettingsStore from '../../../store/SettingsStore';
 
 interface Props {
@@ -162,16 +162,8 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
   }, []);
 
   const handleCurrentModelChange = (newModel: string) => {
-      if (socketClient) {
-
-        socketClient.send({
-          type: EventsType.SERVICE_ACTION,
-          topic: EventsTopic.ACTION_AIMODEL_SET,
-          payload: { 
-            modelId: newModel,
-           }
-        });
-      }
+      const { setAiModel } = useSocketActions();
+      setAiModel(newModel);
       SettingsStore.data.settings['ui.current.aimodel.id'] = newModel;
     };
 

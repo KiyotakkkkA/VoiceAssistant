@@ -40,6 +40,7 @@ const resources = 'resources';
 
 export const paths = {
   themes_path: resolvePath(process.env.PATH_TO_THEMES_CONFIGS_DIR, `${resources}/assets/themes`),
+  notes_path: resolvePath(process.env.PATH_TO_NOTES_DIR, `${resources}/assets/notes`),
   global_path: resolvePath(process.env.PATH_TO_GLOBAL_DIR, `${resources}/global`)
 };
 

@@ -74,8 +74,6 @@ class SystemManagementTool:
                 .build()
         }
 
-    # ========== Handlers ==========
-
     def set_system_brightness_handler(self, brightness_level: int):
         try:
             sbc.set_brightness(brightness_level)
@@ -85,7 +83,7 @@ class SystemManagementTool:
 
     def get_system_brightness_handler(self, **kwargs):
         try:
-            brightness = sbc.get_brightness(display=0)  # первый монитор
+            brightness = sbc.get_brightness(display=0)
             return {"status": "success", "brightness": brightness[0] if isinstance(brightness, list) else brightness}
         except Exception as e:
             return {"status": "error", "message": str(e)}
@@ -96,7 +94,6 @@ class SystemManagementTool:
             interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
             volume = interface.QueryInterface(IAudioEndpointVolume)
 
-            # pycaw работает с уровнем от 0.0 до 1.0
             volume.SetMasterVolumeLevelScalar(volume_level / 100.0, None)
             return {"status": "success", "volume_set": volume_level}
         except Exception as e:

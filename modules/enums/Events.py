@@ -26,9 +26,17 @@ class EventsTopic(enum.Enum):
     ACTION_AIMODEL_SET = 'action_aimodel_set'
     ACTION_EVENT_PANEL_TOGGLE = 'action_event_panel_toggle'
 
+    ACTION_FOLDER_RENAME = 'action_folder_rename'
+    ACTION_FOLDER_DELETE = 'action_folder_delete'
+    ACTION_FOLDER_CREATE = 'action_folder_create'
+    ACTION_FILE_WRITE = 'ACTION_FILE_WRITE'
+    ACTION_FILE_DELETE = 'action_file_delete'
+    ACTION_FILE_RENAME = 'action_file_rename'
+
     ACTION_SERVICE_RELOAD = 'action_service_reload'
     ACTION_SERVICE_DISABLE = 'action_service_disable'
     ACTION_SERVICE_ENABLE = 'action_service_enable'
+    ACTION_FILE_REWRITED = 'action_file_rewrited'
 
     REQUEST_MODULES_LIST = 'request_modules_list'
     RESPONSE_MODULES_LIST = 'response_modules_list'
@@ -37,3 +45,4 @@ class EventsTopic(enum.Enum):
     READY_ORCHESTRATOR = 'ready_orchestrator'
 
     HAVE_TO_BE_REFETCHED_SETTINGS_DATA = "have_to_be_refetched_settings_data"
+    HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA = "have_to_be_refetched_notes_structure_data"

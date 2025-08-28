@@ -15,3 +15,4 @@ pycaw>=20240210
 screen-brightness-control>=0.24.2
 openai>=1.99.9
 ollama>=0.5.3
+bs4>=0.0.2

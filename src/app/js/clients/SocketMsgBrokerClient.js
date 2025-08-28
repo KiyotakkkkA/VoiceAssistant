@@ -8,6 +8,9 @@ class SocketMsgBrokerClient {
     static WssMessageHistory = [];
     static onConnectionAction = (ws) => {};
 
+    static clientMetadata = new Map();
+    static messageIdCounter = 0;
+
     static Logger = {
         info: (message) => console.log(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[32mINFO:\x1b[0m ${message}`),
         warn: (message) => console.warn(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[33mWARN:\x1b[0m ${message}`),
@@ -24,6 +27,8 @@ class SocketMsgBrokerClient {
         SocketMsgBrokerClient.ConnectedClients.clear();
         SocketMsgBrokerClient.Bindings.clear();
         SocketMsgBrokerClient.WssMessageHistory.length = 0;
+        SocketMsgBrokerClient.clientMetadata.clear();
+        SocketMsgBrokerClient.messageIdCounter = 0;
     }
 
     init(WSS, EnableLogger = true) {
@@ -32,6 +37,12 @@ class SocketMsgBrokerClient {
 
         try {
             SocketMsgBrokerClient.WebsocketServer = WSS;
+
+            SocketMsgBrokerClient.WssMessageHistory.forEach(msg => {
+                if (!msg._id) {
+                    msg._id = ++SocketMsgBrokerClient.messageIdCounter;
+                }
+            });
 
             this.logInfo(`Server listening on ws://localhost:${SocketMsgBrokerClient.WebsocketServer.options.port}`);
             return true;
@@ -46,12 +57,17 @@ class SocketMsgBrokerClient {
         SocketMsgBrokerClient.WebsocketServer.on('connection', (ws) => {
             SocketMsgBrokerClient.ConnectedClients.add(ws);
             this.logDebug(`New client connected. Client: ${ws._socket.remoteAddress}:${ws._socket.remotePort}`);
-            for (const msg of SocketMsgBrokerClient.WssMessageHistory) {
-                if (ws.readyState === 1) {
-                    ws.send(JSON.stringify(msg));
+            
+            let clientServiceId = null;
+            let hasReceivedInitialMessage = false;
+
+            ws.on('close', () => {
+                SocketMsgBrokerClient.ConnectedClients.delete(ws);
+                if (clientServiceId) {
+                    this.logDebug(`Client ${clientServiceId} disconnected`);
                 }
-            }
-            ws.on('close', () => SocketMsgBrokerClient.ConnectedClients.delete(ws));
+            });
+
             ws.on('message', (data) => {
                 let msg;
                 try { msg = JSON.parse(data.toString()); } catch (e) {
@@ -61,6 +77,31 @@ class SocketMsgBrokerClient {
 
                 if (!msg.type) msg.type = 'unknown';
                 if (!msg.from) msg.from = 'unknown';
+
+                msg._id = ++SocketMsgBrokerClient.messageIdCounter;
+
+                if (!hasReceivedInitialMessage) {
+                    hasReceivedInitialMessage = true;
+                    clientServiceId = msg.from;
+                    
+                    const lastSeenId = SocketMsgBrokerClient.clientMetadata.get(clientServiceId) || 0;
+                    
+                    const missedMessages = SocketMsgBrokerClient.WssMessageHistory.filter(historyMsg => 
+                        historyMsg._id > lastSeenId
+                    );
+                    
+                    for (const missedMsg of missedMessages) {
+                        if (ws.readyState === 1) {
+                            ws.send(JSON.stringify(missedMsg));
+                        }
+                    }
+                    
+                    this.logDebug(`Client ${clientServiceId} reconnected. Sent ${missedMessages.length} missed messages (last seen: ${lastSeenId})`);
+                } else {
+                    if (clientServiceId) {
+                        SocketMsgBrokerClient.clientMetadata.set(clientServiceId, msg._id);
+                    }
+                }
 
                 if (SocketMsgBrokerClient.WssMessageHistory.length >= SocketMsgBrokerClient.MAX_CACHED_MESSAGES) {
                     SocketMsgBrokerClient.WssMessageHistory.shift();

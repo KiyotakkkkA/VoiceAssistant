@@ -27,6 +27,14 @@ export const EventsTopic: {
     readonly ACTION_AIMODEL_SET: 'action_aimodel_set';
     readonly ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle';
 
+    readonly ACTION_FOLDER_RENAME: 'action_folder_rename';
+    readonly ACTION_FOLDER_DELETE: 'action_folder_delete';
+    readonly ACTION_FOLDER_CREATE: 'action_folder_create';
+    readonly ACTION_FILE_WRITE: 'ACTION_FILE_WRITE';
+    readonly ACTION_FILE_DELETE: 'action_file_delete';
+    readonly ACTION_FILE_RENAME: 'action_file_rename';
+    readonly ACTION_FILE_REWRITED: 'action_file_rewrited';
+
     readonly ACTION_SERVICE_RELOAD: 'action_service_reload';
     readonly ACTION_SERVICE_DISABLE: 'action_service_disable';
     readonly ACTION_SERVICE_ENABLE: 'action_service_enable';
@@ -38,6 +46,7 @@ export const EventsTopic: {
     readonly READY_ORCHESTRATOR: 'ready_orchestrator';
 
     readonly HAVE_TO_BE_REFETCHED_SETTINGS_DATA: 'have_to_be_refetched_settings_data';
+    readonly HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA: 'have_to_be_refetched_notes_structure_data';
 };
 
 export type TEventTypeValue = typeof EventsType[keyof typeof EventsType];

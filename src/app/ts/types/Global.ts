@@ -32,3 +32,38 @@ export interface Module {
     isEnabling: boolean;
     isDisabling: boolean;
 }
+
+// File structure representation
+export type FileStructure = {
+  _isDir: boolean;
+  content?: string;
+};
+
+// Folder structure representation
+export type FolderStructure = {
+  [key: string]: FileStructure | FolderStructure | boolean;
+};
+
+// Notes specific types
+export type NoteItem = {
+  id: number;
+  name: string;
+  type: 'note';
+  content: string;
+  modified: string;
+  preview: string;
+  path: string;
+};
+
+// Notes folder item type
+export type NoteFolderItem = {
+  name: string;
+  type: 'folder';
+  path: string;
+  children: { [key: string]: NoteItem | NoteFolderItem };
+};
+
+// Notes structure representation
+export type NotesStructure = {
+  [key: string]: NoteItem | NoteFolderItem;
+};

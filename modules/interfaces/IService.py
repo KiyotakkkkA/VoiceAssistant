@@ -7,7 +7,7 @@ class IService(ISingleton):
 
     def __init__(self):
 
-        self.services: Dict[str, 'IService'] | None = {} # Список сервисов, привязанных к инструменту
+        self.services: Dict[str, 'IService'] | None = {}
 
     @abstractmethod
     def execute(self, **args) -> Any:

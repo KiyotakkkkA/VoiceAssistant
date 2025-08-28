@@ -1,5 +1,2 @@
-import { ThemeResolver } from "./ThemeResolver";
-
-export {
-    ThemeResolver
-}
+export { ThemeResolver } from "./ThemeResolver";
+export { Formatter } from "./Formatter";

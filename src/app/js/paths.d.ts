@@ -1,6 +1,6 @@
 export interface PathsConfig {  
   themes_path: string;
-  
+  notes_path: string;
   global_path: string;
 }
 

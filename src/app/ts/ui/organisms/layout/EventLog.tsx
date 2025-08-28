@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useToast } from '../../../providers/ToastProvider';
-import { EventsTopic } from '../../../../js/enums/Events';
+import { useToast } from '../../../composables';
 
 interface Msg { type: string; topic: string; payload: any; from?: string; _ts?: number }
 interface Props { messages: Msg[] }

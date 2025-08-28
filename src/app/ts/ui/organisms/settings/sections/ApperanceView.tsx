@@ -4,6 +4,7 @@ import { socketClient } from '../../../../clients';
 import { EventsTopic, EventsType } from '../../../../../js/enums/Events';
 import { Dropdown, Checkbox } from '../../../atoms/input';
 import { observer } from 'mobx-react-lite';
+import { useSocketActions } from '../../../../composables';
 
 interface Props {
   themeNames: string[];
@@ -12,24 +13,14 @@ interface Props {
 }
 
 const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme, currentEventPanelState }) => {
+  const { themeSet, eventPanelToggle } = useSocketActions();
+
   const handleThemeChange = (newTheme: string) => {
-    if (socketClient) {
-      socketClient.send({
-        type: EventsType.SERVICE_ACTION,
-        topic: EventsTopic.ACTION_THEME_SET,
-        payload: { theme: newTheme }
-      });
-    }
+    themeSet(newTheme);
   };
 
   const handleEventPanelToggle = (value: boolean) => {
-    if (socketClient) {
-      socketClient.send({
-        type: EventsType.SERVICE_ACTION,
-        topic: EventsTopic.ACTION_EVENT_PANEL_TOGGLE,
-        payload: { state: value }
-      });
-    }
+    eventPanelToggle(value);
   };
 
   const themeOptions = themeNames?.map(theme => ({

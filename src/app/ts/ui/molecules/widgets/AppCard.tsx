@@ -1,6 +1,5 @@
-import { socketClient } from '../../../clients';
-import { EventsTopic, EventsType } from '../../../../js/enums/Events';
 import React from 'react';
+import { useSocketActions } from '../../../composables';
 
 interface AppConfig {
 	display_name?: string;
@@ -11,10 +10,12 @@ interface AppConfig {
 }
 
 const AppCard: React.FC<{ appKey: string; cfg: AppConfig }> = ({ appKey, cfg }) => {
+    const { openApp } = useSocketActions();
     const fileName = cfg.path?.split(/\\|\//).slice(-1)[0] || '';
+    
     const handleOpen = () => {
-        socketClient.send({ type: EventsType.SERVICE_ACTION, topic: EventsTopic.ACTION_APP_OPEN, payload: { key: appKey, path: cfg.path } })
-        window?.postMessage?.({ type: EventsType.SERVICE_ACTION, topic: EventsTopic.ACTION_APP_OPEN, payload: { key: appKey, path: cfg.path } }, '*');
+        openApp(appKey, cfg.path || '');
+        window?.postMessage?.({ type: 'action', topic: 'action_app_open', payload: { key: appKey, path: cfg.path } }, '*');
     };
     
     const getInitials = (name: string) => {

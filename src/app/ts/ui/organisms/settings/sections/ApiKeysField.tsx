@@ -3,7 +3,7 @@ import { TextInput } from '../../../atoms/input';
 import { CategoryItem } from '../../../atoms';
 import { CanOkModal } from '../../../molecules/modals';
 import { IconPen, IconCopy, IconTrash } from '../../../atoms/icons';
-import { useToast } from '../../../../providers/ToastProvider';
+import { useToast } from '../../../../composables';
 import { socketClient } from '../../../../clients';
 import { EventsTopic, EventsType } from '../../../../../js/enums/Events';
 

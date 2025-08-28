@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
 import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
+import { FileSystemService } from './src/app/js/services/FileSystemService.js';
 import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
 import { MsgBroker } from "./src/app/js/clients/SocketMsgBrokerClient.js";
 import { paths } from './src/app/js/paths.js';
@@ -46,7 +47,8 @@ const createWindow = () => {
 let wss = null;
 
 const services = {
-  json: JsonParsingService.getInstance()
+  json: JsonParsingService.getInstance(),
+  fsystem: FileSystemService.getInstance()
 };
 
 function updateSettings(key, value, eventType, eventTopic) {
@@ -111,7 +113,7 @@ function createBaseFiles() {
   }
 }
 
-function loadInitialConfigs() {
+function loadInitialData() {
   const cfgs = {
     json: {
       loader: services.json,
@@ -150,13 +152,17 @@ function startWebSocketServer() {
 
   MsgBroker.init(wss, true);
   MsgBroker.onConnection((ws) => {
+    const notesPath = paths.notes_path;
+    const notesData = services.fsystem.buildNotesStructure(notesPath);
     const jsonCfgsData = {
+      notes: notesData ? notesData.children : {},
       themes: {
         themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
         currentThemeData: services.json.get('theme'),
       },
       settings: services.json.get('settings')
     };
+
     if (jsonCfgsData) {
       ws.send(JSON.stringify({ 
         type: EventsType.SERVICE_INIT, 
@@ -166,6 +172,213 @@ function startWebSocketServer() {
       }));
     }
   });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_RENAME],
+    handler: (ws, msg) => {
+      if (!msg.payload?.path || !msg.payload?.newName) {
+        console.warn('[WS] ACTION_FILE_RENAME missing path or newName');
+        return;
+      }
+
+      const baseExt = '.txt';
+
+      try {
+        services.fsystem.fileRename(path.join(paths.notes_path, msg.payload.path + baseExt), msg.payload.newName + baseExt);
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
+              from: 'server',
+              payload: {
+                data: {
+                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+                }
+              }
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] ACTION_FILE_RENAME error', e);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_DELETE],
+
+    handler: (ws, msg) => {
+      if (!msg.payload?.path) {
+        console.warn('[WS] ACTION_FILE_DELETE missing path');
+        return;
+      }
+
+      const baseExt = '.txt';
+
+      try {
+        services.fsystem.fileDelete(path.join(paths.notes_path, msg.payload.path + baseExt));
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
+              from: 'server',
+              payload: {
+                data: {
+                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+                }
+              }
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] ACTION_FILE_DELETE error', e);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_WRITE],
+    handler: (ws, msg) => {
+      if (!msg.payload?.path) {
+        console.warn('[WS] ACTION_FILE_WRITE missing path');
+        return;
+      }
+
+      try {
+        let total_path = null;
+        if (msg.payload.flag === 'c') {
+          total_path = path.join(paths.notes_path, msg.payload.path);
+        }
+        else if (msg.payload.flag === 'w') {
+          total_path = msg.payload.path;
+        }
+        
+        if (total_path) {
+          services.fsystem.fileWrite(total_path, msg.payload.content, msg.payload.flag);
+        }
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
+              from: 'server',
+              payload: {
+                data: {
+                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+                }
+              }
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] ACTION_FILE_WRITE error', e);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FOLDER_CREATE],
+    handler: (ws, msg) => {
+      if (!msg.payload?.name) {
+        console.warn('[WS] ACTION_FOLDER_CREATE missing name');
+        return;
+      }
+
+      try {
+        services.fsystem.folderCreate(path.join(paths.notes_path, msg.payload.path), msg.payload.name);
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
+              from: 'server',
+              payload: {
+                data: {
+                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+                }
+              }
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] ACTION_FOLDER_CREATE error', e);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FOLDER_DELETE],
+    handler: (ws, msg) => {
+      if (!msg.payload?.path) {
+        console.warn('[WS] ACTION_FOLDER_DELETE missing path');
+        return;
+      }
+
+      try {
+        services.fsystem.folderDelete(path.join(paths.notes_path, msg.payload.path));
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
+              from: 'server',
+              payload: {
+                data: {
+                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+                }
+              }
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] ACTION_FOLDER_DELETE error', e);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FOLDER_RENAME],
+    handler: (ws, msg) => {
+      if (!msg.payload?.path || !msg.payload?.newName) {
+        console.warn('[WS] ACTION_FOLDER_RENAME missing path or newName');
+        return;
+      }
+
+      try {
+        services.fsystem.folderRename(path.join(paths.notes_path, msg.payload.path), msg.payload.newName);
+
+        for (const client of MsgBroker.getClients()) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify({
+              type: EventsType.EVENT,
+              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
+              from: 'server',
+              payload: {
+                data: {
+                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+                }
+              }
+            }));
+          }
+        }
+
+      } catch (e) {
+        console.error('[WS] ACTION_FOLDER_RENAME error', e);
+      }
+    }
+  })
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APP_OPEN],
@@ -340,7 +553,7 @@ function stopPythonProcess() {
 app.whenReady().then(() => {
   startWebSocketServer();
   createBaseFiles();
-  loadInitialConfigs();
+  loadInitialData();
   startPythonProcess();
   createWindow();
   app.on('activate', () => {
