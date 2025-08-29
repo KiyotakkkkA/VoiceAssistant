@@ -7,5 +7,3 @@ export { WidgetCard } from "./WidgetCard";
 export { AiMsgPreviewCard } from "./AiMsgPreviewCard";
 export { AiMessageCard } from "./AiMessageCard";
 export { ToolCard } from "./ToolCard";
-
-export type { AppConfig } from "./AppCard";
