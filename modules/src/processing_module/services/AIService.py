@@ -1,4 +1,5 @@
 import os
+import time
 from ollama import Client
 from interfaces import IService
 from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool
@@ -72,9 +73,16 @@ class AIService(IService):
         final_accumulated_response = {'thinking': '', 'content': ''}
         tools_results: list[dict] = []
 
+        total_timer = time.time()
+        thinking_timer = 0
+        tool_calls_timer = 0
+
         while True:
             tool_calls_result = []
 
+            streaming_start = time.time()
+            thinking_in_iteration = 0
+            
             for part in self.client.chat(
                 model=self.api_model,
                 tools=self.tools,
@@ -82,7 +90,10 @@ class AIService(IService):
                 messages=messages
             ):
                 if part.message.get('thinking'):
+                    thinking_chunk_start = time.time()
                     initial_accumulated_response['thinking'] += part.message['thinking']
+                    thinking_in_iteration += time.time() - thinking_chunk_start
+                    
                 if part.message.get('content'):
                     initial_accumulated_response['content'] += part.message['content']
 
@@ -96,13 +107,23 @@ class AIService(IService):
                         if call['name'] in self.tool_aliases:
                             handler = self.tool_aliases[call['name']]
                             args = call['args'] if isinstance(call['args'], dict) else {}
+
+                            tool_execution_start = time.time()
                             response = handler(**args)
+                            tool_execution_time = time.time() - tool_execution_start
 
                             tool_calls_result.append({
                                 "name": call['name'],
                                 "args": call['args'],
-                                "response": response
+                                "response": response,
+                                "execution_time": f"{tool_execution_time:.2f}"
                             })
+            
+            thinking_timer += thinking_in_iteration
+            
+            if tool_calls_result:
+                iteration_tool_time = sum(float(tool['execution_time']) for tool in tool_calls_result)
+                tool_calls_timer += iteration_tool_time
 
             if not tool_calls_result:
                 final_accumulated_response = initial_accumulated_response
@@ -117,18 +138,29 @@ class AIService(IService):
             messages.append({
                 "role": "user",
                 "content": "Please continue using these results if needed for the next step. "
-                           "Answer finally in Russian when all tool calls are done."
+                        "Answer finally in Russian when all tool calls are done."
             })
 
             tools_results.extend(tool_calls_result)
+        
+        total_time = time.time() - total_timer
 
         if len(tools_results) == 0:
             return {
-                "final_stage": final_accumulated_response
+                "final_stage": final_accumulated_response,
+                "timing": {
+                    'total_time': f"{total_time:.2f}",
+                    "thinking_time": f"{thinking_timer:.2f}"
+                }
             }
 
         return {
             "initial_stage": initial_accumulated_response,
             "tools_calling_stage": tools_results,
-            "final_stage": final_accumulated_response
+            "final_stage": final_accumulated_response,
+            'timing': {
+                'total_time': f"{total_time:.2f}",
+                'thinking_time': f"{thinking_timer:.2f}",
+                'tool_calls_time': f"{tool_calls_timer:.2f}"
+            }
         }

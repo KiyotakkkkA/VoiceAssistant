@@ -4,24 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { IconFile, IconTrash } from '../atoms/icons';
 import SettingsStore from '../../store/SettingsStore';
 import { useDragResize } from '../../composables';
-
-interface ToolCall {
-  name: string;
-  args: any;
-  response: any;
-}
-
-interface AIResponse {
-  initial_stage?: {
-    thinking?: string;
-    content?: string;
-  };
-  tools_calling_stage?: ToolCall[];
-  final_stage?: {
-    thinking?: string;
-    content?: string;
-  };
-}
+import { AIResponse } from '../../types/Global';
 
 interface AiHistoryMsg {
   model_name: string;

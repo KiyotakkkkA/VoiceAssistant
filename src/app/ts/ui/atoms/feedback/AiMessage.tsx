@@ -1,23 +1,6 @@
 import React from 'react';
 import { useMarkdown, useTimeFormatter, useModuleHelpers, useExpandable } from '../../../composables';
-
-interface ToolCall {
-  name: string;
-  args: any;
-  response: any;
-}
-
-interface AIResponse {
-  initial_stage?: {
-    thinking?: string;
-    content?: string;
-  };
-  tools_calling_stage?: ToolCall[];
-  final_stage?: {
-    thinking?: string;
-    content?: string;
-  };
-}
+import { AIResponse, ToolCall } from '../../../types/Global';
 
 interface AiMessageProps {
   userText: string;
@@ -27,7 +10,8 @@ interface AiMessageProps {
   isLatest?: boolean;
 }
 
-const ThinkingBlock: React.FC<{ thinking: string; isExpanded: boolean; onToggle: () => void }> = ({ 
+const ThinkingBlock: React.FC<{ thinking: string; isExpanded: boolean; onToggle: () => void, thinkingTime: number }> = ({ 
+  thinkingTime,
   thinking, 
   isExpanded, 
   onToggle 
@@ -46,12 +30,15 @@ const ThinkingBlock: React.FC<{ thinking: string; isExpanded: boolean; onToggle:
           </svg>
           <span className="text-sm font-medium text-ui-text-secondary">Размышления модели</span>
         </div>
-        <svg 
-          className={`w-4 h-4 text-ui-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
-          fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-ui-text-muted">{thinkingTime} сек.</span>
+          <svg 
+            className={`w-4 h-4 text-ui-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </button>
       
       {isExpanded && (
@@ -65,7 +52,8 @@ const ThinkingBlock: React.FC<{ thinking: string; isExpanded: boolean; onToggle:
   );
 };
 
-const ToolCallsBlock: React.FC<{ toolCalls: ToolCall[]; isExpanded: boolean; onToggle: () => void }> = ({ 
+const ToolCallsBlock: React.FC<{ toolCalls: ToolCall[]; isExpanded: boolean; onToggle: () => void, toolsTime: number }> = ({
+  toolsTime, 
   toolCalls, 
   isExpanded, 
   onToggle 
@@ -88,12 +76,15 @@ const ToolCallsBlock: React.FC<{ toolCalls: ToolCall[]; isExpanded: boolean; onT
             {toolCalls.length}
           </span>
         </div>
-        <svg 
-          className={`w-4 h-4 text-ui-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
-          fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-ui-text-muted">{toolsTime} сек.</span>
+          <svg
+            className={`w-4 h-4 text-ui-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </button>
       
       {isExpanded && (
@@ -106,7 +97,10 @@ const ToolCallsBlock: React.FC<{ toolCalls: ToolCall[]; isExpanded: boolean; onT
                     <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   </svg>
                 </div>
-                <span className="font-mono text-sm font-medium text-ui-text-primary">{tool.name}</span>
+                <div className="flex justify-between w-full">
+                  <span className="font-mono text-sm font-medium text-ui-text-primary">{tool.name}</span>
+                  <span className="font-mono text-xs font-medium text-ui-text-muted">{tool.execution_time} сек.</span>
+                </div>
               </div>
             </div>
           ))}
@@ -200,6 +194,7 @@ const AiMessage: React.FC<AiMessageProps> = ({
               thinking={response.initial_stage.thinking}
               isExpanded={thinkingExpandable.isExpanded}
               onToggle={thinkingExpandable.toggle}
+              thinkingTime={response.timing?.thinking_time || 0}
             />
           )}
 
@@ -208,6 +203,7 @@ const AiMessage: React.FC<AiMessageProps> = ({
               toolCalls={response.tools_calling_stage}
               isExpanded={toolsExpandable.isExpanded}
               onToggle={toolsExpandable.toggle}
+              toolsTime={response.timing?.tool_calls_time || 0}
             />
           )}
 
@@ -216,6 +212,7 @@ const AiMessage: React.FC<AiMessageProps> = ({
               thinking={response.final_stage.thinking}
               isExpanded={finalThinkingExpandable.isExpanded}
               onToggle={finalThinkingExpandable.toggle}
+              thinkingTime={response.timing?.thinking_time || 0}
             />
           )}
 

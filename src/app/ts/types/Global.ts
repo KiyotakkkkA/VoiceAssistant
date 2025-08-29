@@ -67,3 +67,29 @@ export type NoteFolderItem = {
 export type NotesStructure = {
   [key: string]: NoteItem | NoteFolderItem;
 };
+
+// Tool call representation
+export interface ToolCall {
+  name: string;
+  execution_time: string;
+  args: any;
+  response: any;
+}
+
+// AI response representation
+export interface AIResponse {
+  initial_stage?: {
+    thinking?: string;
+    content?: string;
+  };
+  tools_calling_stage?: ToolCall[];
+  final_stage?: {
+    thinking?: string;
+    content?: string;
+  };
+  timing?: {
+    total_time?: number;
+    thinking_time?: number;
+    tool_calls_time?: number;
+  };
+}

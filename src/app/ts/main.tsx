@@ -128,6 +128,8 @@ const AppContent = observer(() => {
       });
     }
 
+    console.log('AI Answer received:', m?.payload?.data?.additional?.external_ai_answer);
+
     setMode('waiting');
   };
 
