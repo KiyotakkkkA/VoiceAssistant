@@ -1,14 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 
-type Msg = {
-    model_name: string;
-    text: string;
-    timestamp?: Date;
-}
-
 type Settings = {
-    aiMsgHistory: Msg[];
-
     runtime: {
         'runtime.current.mode': string;
     },
@@ -28,7 +20,6 @@ type Settings = {
 
 class SettingsStore {
     data: Settings = {
-        aiMsgHistory: [],
         runtime: {
             'runtime.current.mode': 'NORMAL',
         },
@@ -47,10 +38,6 @@ class SettingsStore {
     
     constructor() {
         makeAutoObservable(this);
-    }
-
-    clearAiHistory() {
-        this.data.aiMsgHistory = [];
     }
 }
 

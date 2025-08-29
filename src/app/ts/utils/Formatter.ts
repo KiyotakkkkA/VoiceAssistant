@@ -119,7 +119,7 @@ export class Formatter {
       return tableHtml;
     };
     
-    const tableRegex = /^(\s*\|.*\|.*\n)+\s*\|[\s\-\|:]+\|\s*\n(\s*\|.*\|.*\n?)+/gm;
+    const tableRegex = /^(\s*\|[^\n]*\n)+\s*\|[\s\-\|:]+\|\s*\n(\s*\|[^\n]*\n?)+/gm;
     
     return text
       .replace(tableRegex, (match) => {

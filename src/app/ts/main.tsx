@@ -11,6 +11,7 @@ import { EventsTopic, EventsType } from '../js/enums/Events';
 import SettingsStore from './store/SettingsStore';
 import ModulesStore from './store/ModulesStore';
 import NotesStore from './store/NotesStore';
+import AIMessagesStore from './store/AIMessagesStore';
 
 interface IncomingMsg { type: string; topic: string; payload: any; from?: string }
 
@@ -113,19 +114,30 @@ const AppContent = observer(() => {
 
   const setNewMsg = (m: any) => {
     if (m?.payload?.original_text) {
-      SettingsStore.data.aiMsgHistory.push({
+      AIMessagesStore.data.aiMsgHistory.push({
         model_name: 'user',
         text: m.payload.original_text,
         timestamp: new Date()
       });
+      
+      AIMessagesStore.addMessageToActiveDialog(
+        m.payload.original_text,
+        'user'
+      );
     }
     
     if (m?.payload?.data?.additional?.external_ai_answer) {
-      SettingsStore.data.aiMsgHistory.push({
+      AIMessagesStore.data.aiMsgHistory.push({
         model_name: m.payload.data.additional.model_name || 'unknown',
         text: m.payload.data.additional.external_ai_answer,
         timestamp: new Date()
       });
+      
+      AIMessagesStore.addMessageToActiveDialog(
+        m.payload.data.additional.external_ai_answer,
+        'assistant',
+        m.payload.data.additional.model_name || 'unknown'
+      );
     }
 
     console.log('AI Answer received:', m?.payload?.data?.additional?.external_ai_answer);

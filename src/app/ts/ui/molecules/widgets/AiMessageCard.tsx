@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMarkdown, useTimeFormatter, useModuleHelpers, useExpandable } from '../../../composables';
 import { AIResponse, ToolCall } from '../../../types/Global';
-import { IconIdea, IconSettings } from '../icons';
+import { IconIdea, IconSettings } from '../../atoms/icons';
 
 interface AiMessageProps {
   userText: string;
@@ -106,7 +106,7 @@ const ToolCallsBlock: React.FC<{ toolCalls: ToolCall[]; isExpanded: boolean; onT
   );
 };
 
-const AiMessage: React.FC<AiMessageProps> = ({ 
+const AiMessageCard: React.FC<AiMessageProps> = ({ 
   userText, 
   aiResponse, 
   modelName, 
@@ -231,4 +231,4 @@ const AiMessage: React.FC<AiMessageProps> = ({
   );
 };
 
-export { AiMessage };
+export { AiMessageCard };

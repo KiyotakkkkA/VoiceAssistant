@@ -93,3 +93,22 @@ export interface AIResponse {
     tool_calls_time?: number;
   };
 }
+
+// Dialog message representation
+export interface DialogMessage {
+  id: string;
+  content: string | AIResponse;
+  role: 'user' | 'assistant';
+  timestamp: Date;
+  model_name?: string;
+}
+
+// Dialog representation
+export interface Dialog {
+  id: string;
+  title: string;
+  messages: DialogMessage[];
+  created_at: Date;
+  updated_at: Date;
+  is_active: boolean;
+}

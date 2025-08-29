@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AiMessage } from '../atoms/feedback';
+import { AiMessageCard } from '../molecules/widgets';
 import { observer } from 'mobx-react-lite';
 import { IconFile, IconTrash } from '../atoms/icons';
-import SettingsStore from '../../store/SettingsStore';
 import { useDragResize } from '../../composables';
 import { AIResponse } from '../../types/Global';
+
+import AIMessagesStore from '../../store/AIMessagesStore';
 
 interface AiHistoryMsg {
   model_name: string;
@@ -45,7 +46,7 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
   };
 
   const clearHistory = () => {
-    SettingsStore.clearAiHistory();
+    AIMessagesStore.clearAiHistory();
   };
 
   const getToolsCount = (response: string | AIResponse): number => {
@@ -178,7 +179,7 @@ const AiHistoryPanel: React.FC<AiHistoryPanelProps> = observer(({
               </div>
             ) : (
               messageHistory.map((conversation, index) => (
-                <AiMessage
+                <AiMessageCard
                   key={index}
                   userText={conversation.userText}
                   aiResponse={conversation.aiResponse}

@@ -4,5 +4,7 @@ export { NoteCard } from "./NoteCard";
 export { BatteryStatus } from "./BatteryStatus";
 export { TimeTracker } from "./TimeTracker";
 export { WidgetCard } from "./WidgetCard";
+export { AiMsgPreviewCard } from "./AiMsgPreviewCard";
+export { AiMessageCard } from "./AiMessageCard";
 
 export type { AppConfig } from "./AppCard";

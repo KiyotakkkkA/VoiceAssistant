@@ -360,31 +360,33 @@ const NotesView = observer(() => {
               </button>
             )}
           </div>
-          <div className="space-y-1">
-            <RenderFolderTree
-              items={folderStructure}
-              level={0}
-              parentPath=""
-              selectedFolder={selectedFolder}
-              isRenaming={isRenaming}
-              renameValue={renameValue}
-              isRenamingNote={isRenamingNote}
-              renameNoteValue={renameNoteValue}
-              onSelectFolder={selectFolder}
-              onToggleFolder={toggleFolder}
-              onSelectNote={selectNote}
-              onHandleContextMenu={handleContextMenuCallback}
-              onConfirmRename={confirmRenameCallback}
-              onConfirmRenameNote={confirmRenameNoteCallback}
-              onCancelRename={cancelRenameCallback}
-              onCancelRenameNote={cancelRenameNoteCallback}
-              onSetRenameValue={setRenameValueCallback}
-              onSetRenameNoteValue={setRenameNoteValueCallback}
-            />
-          </div>
+          <ScrollArea className='max-h-96 pr-4'>
+            <div className="space-y-1">
+              <RenderFolderTree
+                items={folderStructure}
+                level={0}
+                parentPath=""
+                selectedFolder={selectedFolder}
+                isRenaming={isRenaming}
+                renameValue={renameValue}
+                isRenamingNote={isRenamingNote}
+                renameNoteValue={renameNoteValue}
+                onSelectFolder={selectFolder}
+                onToggleFolder={toggleFolder}
+                onSelectNote={selectNote}
+                onHandleContextMenu={handleContextMenuCallback}
+                onConfirmRename={confirmRenameCallback}
+                onConfirmRenameNote={confirmRenameNoteCallback}
+                onCancelRename={cancelRenameCallback}
+                onCancelRenameNote={cancelRenameNoteCallback}
+                onSetRenameValue={setRenameValueCallback}
+                onSetRenameNoteValue={setRenameNoteValueCallback}
+              />
+            </div>
+          </ScrollArea>
         </div>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 mr-4">
           <div className="p-4">
             <h3 className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-3">
               {selectedFolder ? `Заметки в '${selectedFolder.split('/').pop()}'` : 'Все заметки'}
@@ -398,8 +400,8 @@ const NotesView = observer(() => {
         </ScrollArea>
       </div>
 
-      <div className="flex-1 flex flex-col">
-        <div className="h-12 bg-ui-bg-primary-light border-b border-ui-border-primary flex items-center justify-between px-6">
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="h-12 bg-ui-bg-primary-light border-b border-ui-border-primary flex items-center justify-between px-6 flex-shrink-0">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-semibold">{currentNote?.name || 'Untitled'}</h1>
             <div className="text-xs text-ui-text-muted">
@@ -437,7 +439,7 @@ const NotesView = observer(() => {
                   viewMode === 'preview' ? 'bg-blue-600 text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
                 }`}
               >
-                Предпросмотр
+                Просмотр
               </button>
               <button
                 onClick={() => setViewMode('split')}
@@ -468,7 +470,7 @@ const NotesView = observer(() => {
                 <textarea
                   value={noteContent}
                   onChange={(e) => setNoteContent(e.target.value)}
-                  className="w-full h-full bg-transparent text-ui-text-primary resize-none focus:outline-none font-mono text-sm leading-relaxed placeholder-ui-text-muted"
+                  className="w-full h-full bg-transparent text-ui-text-primary resize-none focus:outline-none font-mono text-sm leading-relaxed placeholder-ui-text-muted custom-scrollbar"
                   placeholder="Это начало вашей заметки..."
                   style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace' }}
                 />
@@ -478,7 +480,7 @@ const NotesView = observer(() => {
           
           {(viewMode === 'preview' || viewMode === 'split') && (
             <div className={`${viewMode === 'split' ? 'w-1/2' : 'flex-1'} p-6`}>
-              <ScrollArea className="h-full">
+              <ScrollArea className="max-h-screen">
                 <div 
                   className="prose prose-invert max-w-none text-ui-text-primary leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: parsedContent }}

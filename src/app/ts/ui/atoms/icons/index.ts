@@ -13,3 +13,7 @@ export { IconNotes } from "./IconNotes";
 export { IconSearch } from "./IconSearch";
 export { IconRefetch } from "./IconRefetch";
 export { IconIdea } from "./IconIdea";
+export { IconMessage } from "./IconMessage";
+export { IconCheck } from "./IconCheck";
+export { IconX } from "./IconX";
+export { IconChevronLeft } from "./IconChevronLeft";

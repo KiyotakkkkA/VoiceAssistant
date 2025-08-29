@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GContext } from '../../../providers';
 import { TimeTracker, BatteryStatus } from '../../molecules/widgets';
-import { AiHistoryPanel } from '../../molecules';
+import { DialogsPanel } from '../../molecules';
 import { observer } from 'mobx-react-lite';
 import { Dropdown } from '../../atoms/input';
 import { useSocketActions } from '../../../composables';
+
 import SettingsStore from '../../../store/SettingsStore';
+import AIMessagesStore from '../../../store/AIMessagesStore';
 
 interface Props {
   mode: string;
@@ -19,14 +21,17 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
   const [lastMessageCount, setLastMessageCount] = useState(0);
 
   useEffect(() => {
-    if (SettingsStore.data.aiMsgHistory.length > lastMessageCount) {
-      setLastMessageCount(SettingsStore.data.aiMsgHistory.length);
-      if (!isHistoryVisible && SettingsStore.data.aiMsgHistory.length > 0) {
+    const activeDialog = AIMessagesStore.getActiveDialog();
+    const currentMessageCount = activeDialog?.messages.length || 0;
+    
+    if (currentMessageCount > lastMessageCount) {
+      setLastMessageCount(currentMessageCount);
+      if (!isHistoryVisible && currentMessageCount > 0) {
         window.safeTimers.setTimeout(() => {
         }, 500);
       }
     }
-  }, [SettingsStore.data.aiMsgHistory.length, isHistoryVisible, lastMessageCount]);
+  }, [AIMessagesStore.getActiveDialog()?.messages.length, isHistoryVisible, lastMessageCount]);
 
   if (!gctx?.states) return null;
 
@@ -212,8 +217,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
         </div>
       </div>
 
-      <AiHistoryPanel
-        messages={SettingsStore.data.aiMsgHistory}
+      <DialogsPanel
         isVisible={isHistoryVisible}
         onToggle={() => setIsHistoryVisible(!isHistoryVisible)}
         isDropdownVisible={true}
