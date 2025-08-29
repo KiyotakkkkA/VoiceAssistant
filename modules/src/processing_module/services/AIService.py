@@ -2,7 +2,8 @@ import os
 import time
 from ollama import Client
 from interfaces import IService
-from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool
+from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool, \
+DockerTool
 
 header = f'''
     Instructions:
@@ -26,21 +27,37 @@ class AIService(IService):
         self.tools = []
         self.tool_aliases = {}
 
+        self.tools_representation = {}
+
         self.setup_tools()
+
+    def get_tools(self):
+        return self.tools_representation
 
     def setup_tools(self):
         tools_classes = [
             FileSystemTool,
             ModuleManagementTool,
             NetworkTool,
-            SystemManagementTool
+            SystemManagementTool,
+            DockerTool
         ]
 
         for tool_class in tools_classes:
             tools_obj = tool_class().get_commands()
+
+            if not self.tools_representation.get(tool_class.name):
+                self.tools_representation[tool_class.name] = {
+                    "enabled": True,
+                    "functions": []
+                }
+
             for tool in tools_obj:
                 self.tools.append(tool['tool'])
                 self.tool_aliases[tool['name']] = tool['handler']
+                self.tools_representation[tool_class.name]["functions"].append({
+                    "name": tool['name'],
+                })
 
     def set_client_data(self, api_key: str, api_model: str):
         self.client = Client(

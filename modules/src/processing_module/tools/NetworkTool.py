@@ -2,11 +2,14 @@ from src.processing_module.facades import ToolBuilder
 import socket
 import psutil
 import requests
-from bs4 import BeautifulSoup
 
 
 class NetworkTool:
+
+    name = 'Networking Tools Pack'
+
     def __init__(self) -> None:
+
         self.commands = [
             self.setup_get_network_info_tool(),
             self.setup_web_search_tool(),

@@ -11,9 +11,10 @@ class EventsTopic(enum.Enum):
     SERVICE_HEARTBEAT = 'heartbeat'
     SERVICE_WAS_DISABLED = 'disabled'
 
-    JSON_THEMES_DATA_SET = 'json_themes_data_set',
-    JSON_APIKEYS_DATA_SET = 'json_apikeys_data_set',
-    JSON_EVENT_PANEL_STATE_SET = 'json_event_panel_state_set',
+    JSON_THEMES_DATA_SET = 'json_themes_data_set'
+    JSON_APIKEYS_DATA_SET = 'json_apikeys_data_set'
+    JSON_EVENT_PANEL_STATE_SET = 'json_event_panel_state_set'
+    JSON_TOOLS_DATA_SET = 'json_tools_data_set'
 
     RAW_TEXT_DATA_RECOGNIZED = 'raw_text_data_recognized'
 

@@ -9,6 +9,7 @@ import { FileSystemService } from './src/app/js/services/FileSystemService.js';
 import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
 import { MsgBroker } from "./src/app/js/clients/SocketMsgBrokerClient.js";
 import { paths } from './src/app/js/paths.js';
+import { useSocketServer } from "./src/app/js/composables/useSocketServer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,8 @@ const isDev = process.env.NODE_ENV === 'development';
 let mainWindow = null;
 let pythonProc = null;
 const WS_PORT = 8765;
+
+const { sendToAll } = useSocketServer();
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -176,24 +179,9 @@ function startWebSocketServer() {
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_NOTES_REFETCH],
     handler: (ws, msg) => {
-      try {
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
-              from: 'server',
-              payload: {
-                data: {
-                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
-                }
-              }
-            }));
-          }
-        }
-      } catch (e) {
-        console.error('[WS] ACTION_NOTES_REFETCH error', e);
-      }
+      sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+        notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+      });
     }
   });
 
@@ -206,28 +194,11 @@ function startWebSocketServer() {
       }
 
       const baseExt = '.txt';
+      services.fsystem.fileRename(path.join(paths.notes_path, msg.payload.path + baseExt), msg.payload.newName + baseExt);
 
-      try {
-        services.fsystem.fileRename(path.join(paths.notes_path, msg.payload.path + baseExt), msg.payload.newName + baseExt);
-
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
-              from: 'server',
-              payload: {
-                data: {
-                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
-                }
-              }
-            }));
-          }
-        }
-
-      } catch (e) {
-        console.error('[WS] ACTION_FILE_RENAME error', e);
-      }
+      sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+        notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+      });
     }
   });
 
@@ -241,28 +212,11 @@ function startWebSocketServer() {
       }
 
       const baseExt = '.txt';
+      services.fsystem.fileDelete(path.join(paths.notes_path, msg.payload.path + baseExt));
 
-      try {
-        services.fsystem.fileDelete(path.join(paths.notes_path, msg.payload.path + baseExt));
-
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
-              from: 'server',
-              payload: {
-                data: {
-                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
-                }
-              }
-            }));
-          }
-        }
-
-      } catch (e) {
-        console.error('[WS] ACTION_FILE_DELETE error', e);
-      }
+      sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+        notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+      });
     }
   });
 
@@ -274,37 +228,22 @@ function startWebSocketServer() {
         return;
       }
 
-      try {
-        let total_path = null;
-        if (msg.payload.flag === 'c') {
-          total_path = path.join(paths.notes_path, msg.payload.path);
-        }
-        else if (msg.payload.flag === 'w') {
-          total_path = msg.payload.path;
-        }
-        
-        if (total_path) {
-          services.fsystem.fileWrite(total_path, msg.payload.content, msg.payload.flag);
-        }
+      let total_path = null;
 
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
-              from: 'server',
-              payload: {
-                data: {
-                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
-                }
-              }
-            }));
-          }
-        }
-
-      } catch (e) {
-        console.error('[WS] ACTION_FILE_WRITE error', e);
+      if (msg.payload.flag === 'c') {
+        total_path = path.join(paths.notes_path, msg.payload.path);
       }
+      else if (msg.payload.flag === 'w') {
+        total_path = msg.payload.path;
+      }
+      
+      if (total_path) {
+        services.fsystem.fileWrite(total_path, msg.payload.content, msg.payload.flag);
+      }
+
+      sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+        notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+      });
     }
   });
 
@@ -316,27 +255,11 @@ function startWebSocketServer() {
         return;
       }
 
-      try {
-        services.fsystem.folderCreate(path.join(paths.notes_path, msg.payload.path), msg.payload.name);
+      services.fsystem.folderCreate(path.join(paths.notes_path, msg.payload.path), msg.payload.name);
 
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
-              from: 'server',
-              payload: {
-                data: {
-                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
-                }
-              }
-            }));
-          }
-        }
-
-      } catch (e) {
-        console.error('[WS] ACTION_FOLDER_CREATE error', e);
-      }
+      sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+        notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+      });
     }
   });
 
@@ -348,27 +271,11 @@ function startWebSocketServer() {
         return;
       }
 
-      try {
-        services.fsystem.folderDelete(path.join(paths.notes_path, msg.payload.path));
+      services.fsystem.folderDelete(path.join(paths.notes_path, msg.payload.path));
 
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
-              from: 'server',
-              payload: {
-                data: {
-                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
-                }
-              }
-            }));
-          }
-        }
-
-      } catch (e) {
-        console.error('[WS] ACTION_FOLDER_DELETE error', e);
-      }
+      sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+        notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+      });
     }
   });
 
@@ -380,29 +287,13 @@ function startWebSocketServer() {
         return;
       }
 
-      try {
-        services.fsystem.folderRename(path.join(paths.notes_path, msg.payload.path), msg.payload.newName);
+      services.fsystem.folderRename(path.join(paths.notes_path, msg.payload.path), msg.payload.newName);
 
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA,
-              from: 'server',
-              payload: {
-                data: {
-                  notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
-                }
-              }
-            }));
-          }
-        }
-
-      } catch (e) {
-        console.error('[WS] ACTION_FOLDER_RENAME error', e);
-      }
+      sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+        notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
+      });
     }
-  })
+  });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APP_OPEN],
@@ -439,12 +330,14 @@ function startWebSocketServer() {
       const themeName = msg.payload.theme;
       
       if (loadTheme(themeName)) {
+
         if (updateSettings(
           'ui.current.theme.id', 
           themeName, 
           EventsType.EVENT, 
           EventsTopic.JSON_THEMES_DATA_SET
         )) {
+
           const updatedData = {
             themes: {
               themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
@@ -455,16 +348,9 @@ function startWebSocketServer() {
             }
           };
 
-          for (const client of MsgBroker.getClients()) {
-            if (client.readyState === 1) {
-              client.send(JSON.stringify({
-                type: EventsType.EVENT,
-                topic: EventsTopic.JSON_THEMES_DATA_SET,
-                from: 'server',
-                payload: { data: updatedData }
-              }));
-            }
-          }
+          sendToAll(EventsType.EVENT, EventsTopic.JSON_THEMES_DATA_SET, {
+            ...updatedData
+          });
         }
       }
     }
@@ -518,17 +404,7 @@ function startWebSocketServer() {
         EventsType.EVENT, 
         EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA
       )) {
-
-        for (const client of MsgBroker.getClients()) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify({
-              type: EventsType.EVENT,
-              topic: EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA,
-              from: 'server',
-              payload: {}
-            }));
-          }
-        }
+        sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA, {});
       }
     }
   });

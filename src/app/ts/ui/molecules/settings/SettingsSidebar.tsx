@@ -35,11 +35,15 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
     },
     {
       id: 'models',
-      title: 'Модели AI',
+      title: 'Ассистент',
       children: [
         {
           id: 'models-apikeys',
           title: 'Ключи API',
+        },
+        {
+          id: 'models-tools',
+          title: 'Инструменты',
         },
       ]
     },

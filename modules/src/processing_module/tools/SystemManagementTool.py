@@ -2,13 +2,16 @@ from src.processing_module.facades import ToolBuilder
 import platform
 import psutil
 import screen_brightness_control as sbc
-from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 
 class SystemManagementTool:
+
+    name = 'System Management Tools Pack'
+
     def __init__(self) -> None:
+
         self.commands = [
             self.setup_get_system_info_tool(),
             self.setup_set_system_volume_tool(),

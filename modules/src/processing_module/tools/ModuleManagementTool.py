@@ -2,7 +2,11 @@ from src.processing_module.facades import ToolBuilder
 from store.ModulesStore import ModulesStore
 
 class ModuleManagementTool:
+
+    name = 'Module Management Tools Pack'
+
     def __init__(self) -> None:
+
         self.commands = [
             self.setup_get_modules_tool()
         ]

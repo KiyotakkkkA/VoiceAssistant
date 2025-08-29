@@ -3,7 +3,11 @@ from src.processing_module.facades import ToolBuilder
 from paths import path_resolver
 
 class FileSystemTool:
+
+    name = 'FileSystem Tools Pack'
+
     def __init__(self) -> None:
+
         self.commands = [
             self.setup_get_apps_tool(),
             self.setup_get_notes_tool(),

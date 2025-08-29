@@ -2,7 +2,7 @@ import React, { useState, createElement } from 'react';
 import {
   SettingsSidebar,
   SettingsSection } from '../../molecules/settings';
-import { ApperanceView, ApiKeysField, ModulesView } from './sections';
+import { ApperanceView, ApiKeysField, ModulesView, ToolsView } from './sections';
 import { observer } from 'mobx-react-lite';
 
 import SettingsStore from '../../../store/SettingsStore';
@@ -19,11 +19,16 @@ const SettingsPanel: React.FC = observer(() => {
 
   const sections: Record<string, SectionConfig> = {
       "models-apikeys": {
-        title: "Модели AI / Ключи API",
+        title: "Ассистент / Ключи API",
         component: ApiKeysField,
         props: {
           apikeys: SettingsStore.data.settings?.['ui.current.apikeys'] || []
         }
+      },
+      "models-tools": {
+        title: "Ассистент / Инструменты",
+        component: ToolsView,
+        props: {}
       },
       "general-themes": {
         title: "Общее / Интерфейс",
@@ -41,14 +46,13 @@ const SettingsPanel: React.FC = observer(() => {
           modules: ModulesStore.modules || {},
         }
       },
-      
     };
 
   const renderContent = (activeTab: string) => {
 
     if (!sections[activeTab as keyof typeof sections]) {
       return (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 rounded-full bg-ui-text-secondary/10 flex items-center justify-center mb-4 mx-auto">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-ui-text-secondary">
@@ -75,7 +79,7 @@ const SettingsPanel: React.FC = observer(() => {
         onTabSelect={setActiveTab} 
         activeTab={activeTab} 
       />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="max-w-4xl mx-auto p-6">
           {renderContent(activeTab)}
         </div>

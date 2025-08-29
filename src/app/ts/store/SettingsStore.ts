@@ -16,6 +16,14 @@ type Settings = {
         'ui.current.apikeys'?: { id?: string; name: string; value: string }[];
 
     };
+    tools: {
+        [key: string]: {
+            enabled: boolean;
+            functions: {
+                name: string;
+            }[];
+        };
+    }
 }
 
 class SettingsStore {
@@ -33,7 +41,8 @@ class SettingsStore {
             'ui.current.aimodel.id': '',
             'ui.current.event.panel.state': true,
             'ui.current.apikeys': [],
-        }
+        },
+        tools: {}
     };
     
     constructor() {

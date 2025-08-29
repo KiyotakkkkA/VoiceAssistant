@@ -37,6 +37,15 @@ const AppContent = observer(() => {
     setMode('thinking');
   };
 
+  const setToolsData = (m: any) => {
+    if (m?.payload?.data?.tools) {
+      SettingsStore.data.tools = { 
+        ...m.payload.data.tools,
+        ...SettingsStore.data.tools, 
+      };
+    }
+  };
+
   const setApikeysData = (m: any) => {
     if (m?.payload?.data?.settings) {
       SettingsStore.data.settings = { 
@@ -52,8 +61,6 @@ const AppContent = observer(() => {
         ...SettingsStore.data.settings, 
         ...m.payload.data.settings 
       };
-
-      console.log('Event panel state set to:', m.payload.data.settings['ui.current.event.panel.state']);
     }
   };
 
@@ -178,8 +185,10 @@ const AppContent = observer(() => {
     },
     [EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA]: (m: any) => {
       setNotesData(m);
+    },
+    [EventsTopic.JSON_TOOLS_DATA_SET]: (m: any) => {
+      setToolsData(m);
     }
-
   };
 
   const specModulesInitActions = {
