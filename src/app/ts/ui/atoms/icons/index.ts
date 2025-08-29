@@ -12,3 +12,4 @@ export { IconTerminal } from "./IconTerminal";
 export { IconNotes } from "./IconNotes";
 export { IconSearch } from "./IconSearch";
 export { IconRefetch } from "./IconRefetch";
+export { IconIdea } from "./IconIdea";

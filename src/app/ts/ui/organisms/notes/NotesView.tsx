@@ -323,7 +323,7 @@ const NotesView = observer(() => {
         </button>
       </ContextMenu>
 
-      <div className="w-80 bg-ui-bg-primary-light border-r bor  der-ui-border-primary flex flex-col">
+      <div className="w-80 bg-ui-bg-primary-light border-r border-ui-border-primary flex flex-col">
         <div className="p-4 border-b border-ui-border-primary">
           <div className="relative">
             <TextInput
@@ -486,19 +486,6 @@ const NotesView = observer(() => {
               </ScrollArea>
             </div>
           )}
-        </div>
-
-        <div className="h-8 bg-ui-bg-secondary border-t border-ui-border-primary flex items-center justify-between px-4 text-xs text-ui-text-muted">
-          <div className="flex items-center gap-4">
-            <span>{noteContent.length} characters</span>
-            <span>{noteContent.split('\n').length} lines</span>
-            <span>{noteContent.split(' ').filter(word => word.length > 0).length} words</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>Markdown</span>
-            <div className={`w-2 h-2 rounded-full ${unsavedChanges ? 'bg-yellow-400' : 'bg-green-500'}`}></div>
-            <span>{unsavedChanges ? 'Modified' : 'Saved'}</span>
-          </div>
         </div>
       </div>
     </div>
