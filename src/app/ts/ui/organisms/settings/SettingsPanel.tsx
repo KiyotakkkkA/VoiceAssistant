@@ -2,7 +2,7 @@ import React, { useState, createElement } from 'react';
 import {
   SettingsSidebar,
   SettingsSection } from '../../molecules/settings';
-import { ApperanceView, ApiKeysField, ModulesView, ToolsView } from './sections';
+import { ApperanceView, ApiKeysField, ModulesView, ToolsView, AccountsView } from './sections';
 import { observer } from 'mobx-react-lite';
 
 import SettingsStore from '../../../store/SettingsStore';
@@ -18,6 +18,11 @@ const SettingsPanel: React.FC = observer(() => {
   const [activeTab, setActiveTab] = useState('general-themes');
 
   const sections: Record<string, SectionConfig> = {
+      "user-accounts": {
+        title: "Пользователь / Учетные записи",
+        component: AccountsView,
+        props: {}
+      },
       "models-apikeys": {
         title: "Ассистент / Ключи API",
         component: ApiKeysField,

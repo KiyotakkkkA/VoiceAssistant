@@ -17,3 +17,4 @@ export { IconMessage } from "./IconMessage";
 export { IconCheck } from "./IconCheck";
 export { IconX } from "./IconX";
 export { IconChevronLeft } from "./IconChevronLeft";
+export { IconGithub } from "./IconGithub";

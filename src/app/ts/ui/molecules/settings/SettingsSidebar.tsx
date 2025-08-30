@@ -20,6 +20,16 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
 
   const settingsTabs: SettingsTab[] = [
     {
+      id: 'accounts',
+      title: 'Пользователь',
+      children: [
+        {
+          id: 'user-accounts',
+          title: 'Учетные записи',
+        },
+      ]
+    },
+    {
       id: 'general',
       title: 'Общее',
       children: [

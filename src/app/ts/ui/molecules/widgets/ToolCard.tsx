@@ -10,7 +10,7 @@ const ToolCard: React.FC<ToolCardProps> = ({
 }) => {
   return (
     <div className={`
-      group relative p-4 rounded-xl transition-all duration-200 bg-ui-bg-primary-light border border-ui-border-primary
+      group relative py-2 px-4 rounded-xl transition-all duration-200 bg-ui-bg-primary-light border border-ui-border-primary
       hover:shadow-md hover:-translate-y-0.5
     `}>
       <div className="flex items-center gap-4">

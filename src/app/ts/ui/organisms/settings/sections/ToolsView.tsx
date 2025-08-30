@@ -30,9 +30,9 @@ const ToolsView: React.FC = observer(() => {
         {Object.entries(categories).map(([category, { enabled }]) => {          
           return (
             <div key={category} className="space-y-4">
-              <div className={`flex items-center justify-between p-4 ${enabled ? 'bg-ui-bg-secondary' : 'bg-ui-bg-primary-light'} rounded-xl border border-ui-border-primary`}>
+              <div className={`flex items-center justify-between p-3 ${enabled ? 'bg-ui-bg-secondary' : 'bg-ui-bg-primary-light'} rounded-xl border border-ui-border-primary`}>
                 <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-lg`}>
+                  <div className={`rounded-lg`}>
                     <IconIdea size={20} className={` ${enabled ? 'text-yellow-500' : ''}`} />
                   </div>
                   <div>
