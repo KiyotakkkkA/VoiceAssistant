@@ -39,9 +39,9 @@ const AppContent = observer(() => {
 
   const setToolsData = (m: any) => {
     if (m?.payload?.data?.tools) {
-      SettingsStore.data.tools = { 
-        ...m.payload.data.tools,
-        ...SettingsStore.data.tools, 
+      SettingsStore.data.tools = {
+        ...SettingsStore.data.tools,
+        ...m.payload.data.tools
       };
     }
   };

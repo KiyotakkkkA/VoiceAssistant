@@ -17,7 +17,7 @@ class ModuleManagementTool(ITool):
     @staticmethod
     def get_modules_handler(**kwargs):
         modules = ModulesStore.get_all_modules()
-        return "\n".join([f"Модуль {module['module.name']}" for module in modules.values()])
+        return {module_name: {"enabled": enabled} for module_name, enabled in modules.items()}
 
 ModuleManagementTool.commands = [
     ModuleManagementTool.setup_get_modules_tool()

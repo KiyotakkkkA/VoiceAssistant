@@ -3,7 +3,6 @@ import time
 from clients import ModuleClient
 from src.speech_rec_module.services import Recognizer
 from paths import path_resolver
-from enums.Events import EventsTopic
 
 recognizer = Recognizer(
     name=os.getenv('ASSISTANT_NAME', 'Ассистент').strip('"'),

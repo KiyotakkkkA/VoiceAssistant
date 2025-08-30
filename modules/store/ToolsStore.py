@@ -9,8 +9,13 @@ if TYPE_CHECKING:
 class ToolsStore(ISingleton):
 
     _ai_service: "AIService"
-    _tools: dict[str, dict] = {}
     _available_tools: dict[str, dict] = {}
+
+    _tools_names_with_statuses: dict[str, bool] = {}
+
+    @staticmethod
+    def get_all_tools_names_with_statuses() -> dict[str, bool]:
+        return ToolsStore._tools_names_with_statuses
 
     @staticmethod
     def update_tool_status(tool_name: str, status: bool) -> None:
@@ -31,6 +36,7 @@ class ToolsStore(ISingleton):
 
     @staticmethod
     def refetch_tools():
+        ToolsStore._tools_names_with_statuses = {}
         tools_representations = {}
         settings_path = f"{path_resolver['global_path']}/settings.json"
         
@@ -43,7 +49,9 @@ class ToolsStore(ISingleton):
             for tool_name, tool_info in ToolsStore._available_tools.items():
                 element_exists = tool_name in tools
                 enabled_status = tools[tool_name]['enabled'] if element_exists else True
-                
+
+                ToolsStore._tools_names_with_statuses[tool_name] = enabled_status
+
                 tools_representations[tool_name] = {
                     'enabled': enabled_status,
                     'functions': tool_info['functions']

@@ -1,9 +1,7 @@
 import os
 import time
-import json
 from clients import ModuleClient
 from src.processing_module.services import Excecutor
-from paths import path_resolver
 from enums.Events import EventsType, EventsTopic
 from store.ToolsStore import ToolsStore
 
@@ -36,12 +34,25 @@ def run(stop_event):
             return
 
         for out in executor.run(msg):
+
+            service = executor.services["ai_service"]
+
             client.emit({
                 'type': EventsType.SERVICE_ACTION.value,
                 'topic': out['event'] if out.get("event") else EventsTopic.ACTION_TRANSCRIPT.value,
                 'payload': out,
                 'from': 'processing_module'
             })
+
+            for side_effect in service.get_socket_messages_queue():
+                client.emit({
+                    'type': side_effect.get('type', EventsType.SERVICE_ACTION.value),
+                    'topic': side_effect.get('topic', EventsTopic.ACTION_TRANSCRIPT.value),
+                    'payload': side_effect.get('payload', {}),
+                    'from': 'processing_module'
+                })
+
+            service.clear_socket_messages_queue()
 
     def handle_model_change(msg):
         executor.get_current_model_data_from_json(msg.get('payload', {}).get('modelId'))

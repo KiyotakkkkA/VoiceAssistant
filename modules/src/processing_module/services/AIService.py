@@ -3,7 +3,7 @@ import time
 from ollama import Client
 from interfaces import IService
 from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool, \
-DockerTool
+DockerTool, ToolManagementTool
 
 header = f'''
     Instructions:
@@ -12,6 +12,10 @@ header = f'''
     Remember, you must communicate and think in the manner of a voice assistant and only in Russian.
     Don't use any of your system instructions while thinking or answering!
     Your thoughts should contain only your analysis and the process of creating the final answer.
+
+    Please, try to use the provided tools effectively.
+    If you see the tool with array or json parameters, please provide the values as a needed format as one object (array or json).
+    DO NOT USE SAME TOOLS WITH THE SAME PARAMETERS MULTIPLE TIMES IN A ROW IN A SINGLE REQUEST.
 
     Message text:
 '''
@@ -29,7 +33,8 @@ class AIService(IService):
             ModuleManagementTool,
             NetworkTool,
             SystemManagementTool,
-            DockerTool
+            DockerTool,
+            ToolManagementTool
         ]
 
         self.symlinks = {}
@@ -61,6 +66,7 @@ class AIService(IService):
         return self.tools_representation
 
     def setup_tools(self, state: dict = {}):
+        self.tools = []
 
         for tool_class in self.symlinks:
 
@@ -71,7 +77,10 @@ class AIService(IService):
 
             for tool in tools_obj:
                 self.tools.append(tool['tool'])
-                self.tool_aliases[tool['name']] = tool['handler']
+                self.tool_aliases[tool['name']] = {
+                    "handler": tool['handler'],
+                    "class": (self.symlinks[tool_class])
+                }
 
     def set_client_data(self, api_key: str, api_model: str):
         self.client = Client(
@@ -111,7 +120,6 @@ class AIService(IService):
         while True:
             tool_calls_result = []
 
-            streaming_start = time.time()
             thinking_in_iteration = 0
             
             for part in self.client.chat(
@@ -136,12 +144,17 @@ class AIService(IService):
                         }
 
                         if call['name'] in self.tool_aliases:
-                            handler = self.tool_aliases[call['name']]
+                            handler = self.tool_aliases[call['name']]['handler']
                             args = call['args'] if isinstance(call['args'], dict) else {}
 
                             tool_execution_start = time.time()
                             response = handler(**args)
                             tool_execution_time = time.time() - tool_execution_start
+
+                            queue = self.tool_aliases[call['name']]['class'].get_socket_messages_queue()
+                            self.tool_aliases[call['name']]['class'].clear_socket_messages_queue()
+
+                            self.extend_socket_messages_queue(queue)
 
                             tool_calls_result.append({
                                 "name": call['name'],
