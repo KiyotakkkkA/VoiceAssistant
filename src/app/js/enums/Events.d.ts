@@ -41,6 +41,9 @@ export const EventsTopic: {
     readonly ACTION_SERVICE_DISABLE: 'action_service_disable';
     readonly ACTION_SERVICE_ENABLE: 'action_service_enable';
 
+    readonly ACTION_TOOL_OFF: 'action_tool_off';
+    readonly ACTION_TOOL_ON: 'action_tool_on';
+
     readonly REQUEST_MODULES_LIST: 'request_modules_list';
     readonly RESPONSE_MODULES_LIST: 'response_modules_list';
 

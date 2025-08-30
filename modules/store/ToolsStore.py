@@ -1,0 +1,66 @@
+import json
+from interfaces import ISingleton, IService
+from paths import path_resolver
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.processing_module.services import AIService
+
+class ToolsStore(ISingleton):
+
+    _ai_service: "AIService"
+    _tools: dict[str, dict] = {}
+    _available_tools: dict[str, dict] = {}
+
+    @staticmethod
+    def update_tool_status(tool_name: str, status: bool) -> None:
+        settings_path = f"{path_resolver['global_path']}/settings.json"
+        
+        with open(settings_path, 'r+') as f:
+            settings = json.load(f)
+            if tool_name in settings['ui.current.tools']:
+                settings['ui.current.tools'][tool_name]['enabled'] = status
+                f.seek(0)
+                json.dump(settings, f, indent=4, ensure_ascii=False)
+                f.truncate()
+
+    @staticmethod
+    def init_available_tools(ai_service: "AIService") -> None:
+        ToolsStore._ai_service = ai_service
+        ToolsStore._available_tools = ai_service.get_tools()
+
+    @staticmethod
+    def refetch_tools():
+        tools_representations = {}
+        settings_path = f"{path_resolver['global_path']}/settings.json"
+        
+        with open(settings_path, 'r+') as f:
+            settings = json.load(f)
+            tools = settings['ui.current.tools']
+            
+            tools_start_len = len(tools)
+
+            for tool_name, tool_info in ToolsStore._available_tools.items():
+                element_exists = tool_name in tools
+                enabled_status = tools[tool_name]['enabled'] if element_exists else True
+                
+                tools_representations[tool_name] = {
+                    'enabled': enabled_status,
+                    'functions': tool_info['functions']
+                }
+                
+                tools[tool_name] = {
+                    'enabled': enabled_status,
+                }
+            
+            tools_end_len = len(tools)
+            
+            if tools_start_len != tools_end_len:
+                settings['ui.current.tools'] = tools
+                f.seek(0)
+                json.dump(settings, f, indent=4, ensure_ascii=False)
+                f.truncate()
+
+        ToolsStore._ai_service.setup_tools(state=tools)
+
+        return tools_representations

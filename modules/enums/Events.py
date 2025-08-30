@@ -40,6 +40,9 @@ class EventsTopic(enum.Enum):
     ACTION_SERVICE_ENABLE = 'action_service_enable'
     ACTION_FILE_REWRITED = 'action_file_rewrited'
 
+    ACTION_TOOL_OFF = 'action_tool_off'
+    ACTION_TOOL_ON = 'action_tool_on'
+
     REQUEST_MODULES_LIST = 'request_modules_list'
     RESPONSE_MODULES_LIST = 'response_modules_list'
 

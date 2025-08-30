@@ -1,42 +1,32 @@
-from src.processing_module.facades import ToolBuilder
 import platform
 import psutil
 import screen_brightness_control as sbc
+from src.processing_module.facades import ToolBuilder
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from interfaces import ITool
 
 
-class SystemManagementTool:
+class SystemManagementTool(ITool):
 
     name = 'System Management Tools Pack'
 
-    def __init__(self) -> None:
-
-        self.commands = [
-            self.setup_get_system_info_tool(),
-            self.setup_set_system_volume_tool(),
-            self.setup_set_system_brightness_tool(),
-            self.setup_get_system_volume_tool(),
-            self.setup_get_system_brightness_tool()
-        ]
-    
-    def get_commands(self):
-        return self.commands
-
-    def setup_get_system_info_tool(self):
+    @staticmethod
+    def setup_get_system_info_tool():
         return {
             "name": "get_system_info_tool",
-            "handler": self.get_system_info_handler,
+            "handler": SystemManagementTool.get_system_info_handler,
             "tool": ToolBuilder()
                 .set_name("get_system_info_tool")
                 .set_description("Tool that collects basic system information (OS, CPU, RAM, architecture, etc.)")
                 .build()
         }
 
-    def setup_set_system_volume_tool(self):
+    @staticmethod
+    def setup_set_system_volume_tool():
         return {
             "name": "set_system_volume_tool",
-            "handler": self.set_system_volume_handler,
+            "handler": SystemManagementTool.set_system_volume_handler,
             "tool": ToolBuilder()
                 .set_name("set_system_volume_tool")
                 .set_description("Tool that sets the system volume (0-100)")
@@ -44,21 +34,23 @@ class SystemManagementTool:
                 .add_requirements(['volume_level'])
                 .build()
         }
-    
-    def setup_get_system_volume_tool(self):
+
+    @staticmethod
+    def setup_get_system_volume_tool():
         return {
             "name": "get_system_volume_tool",
-            "handler": self.get_system_volume_handler,
+            "handler": SystemManagementTool.get_system_volume_handler,
             "tool": ToolBuilder()
                 .set_name("get_system_volume_tool")
                 .set_description("Tool that gets the current system volume")
                 .build()
         }
 
-    def setup_set_system_brightness_tool(self):
+    @staticmethod
+    def setup_set_system_brightness_tool():
         return {
             "name": "set_system_brightness_tool",
-            "handler": self.set_system_brightness_handler,
+            "handler": SystemManagementTool.set_system_brightness_handler,
             "tool": ToolBuilder()
                 .set_name("set_system_brightness_tool")
                 .set_description("Tool that sets the system brightness (0-100)")
@@ -66,32 +58,36 @@ class SystemManagementTool:
                 .add_requirements(['brightness_level'])
                 .build()
         }
-    
-    def setup_get_system_brightness_tool(self):
+
+    @staticmethod
+    def setup_get_system_brightness_tool():
         return {
             "name": "get_system_brightness_tool",
-            "handler": self.get_system_brightness_handler,
+            "handler": SystemManagementTool.get_system_brightness_handler,
             "tool": ToolBuilder()
                 .set_name("get_system_brightness_tool")
                 .set_description("Tool that gets the current system brightness")
                 .build()
         }
 
-    def set_system_brightness_handler(self, brightness_level: int):
+    @staticmethod
+    def set_system_brightness_handler(brightness_level: int):
         try:
             sbc.set_brightness(brightness_level)
             return {"status": "success", "brightness_set": brightness_level}
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def get_system_brightness_handler(self, **kwargs):
+    @staticmethod
+    def get_system_brightness_handler(**kwargs):
         try:
             brightness = sbc.get_brightness(display=0)
             return {"status": "success", "brightness": brightness[0] if isinstance(brightness, list) else brightness}
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def set_system_volume_handler(self, volume_level: int):
+    @staticmethod
+    def set_system_volume_handler(volume_level: int):
         try:
             devices = AudioUtilities.GetSpeakers()
             interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -102,7 +98,8 @@ class SystemManagementTool:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def get_system_volume_handler(self, **kwargs):
+    @staticmethod
+    def get_system_volume_handler(**kwargs):
         try:
             devices = AudioUtilities.GetSpeakers()
             interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -113,7 +110,8 @@ class SystemManagementTool:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def get_system_info_handler(self, **kwargs):
+    @staticmethod
+    def get_system_info_handler(**kwargs):
         system_info = {}
 
         try:
@@ -159,3 +157,11 @@ class SystemManagementTool:
             system_info["disk"] = f"Error: {e}"
 
         return system_info
+
+SystemManagementTool.commands = [
+    SystemManagementTool.setup_get_system_info_tool(),
+    SystemManagementTool.setup_set_system_volume_tool(),
+    SystemManagementTool.setup_set_system_brightness_tool(),
+    SystemManagementTool.setup_get_system_volume_tool(),
+    SystemManagementTool.setup_get_system_brightness_tool()
+]

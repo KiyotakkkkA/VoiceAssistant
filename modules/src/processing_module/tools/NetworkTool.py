@@ -1,34 +1,27 @@
-from src.processing_module.facades import ToolBuilder
 import socket
 import psutil
 import requests
+from src.processing_module.facades import ToolBuilder
+from interfaces import ITool
 
 
-class NetworkTool:
+class NetworkTool(ITool):
 
     name = 'Networking Tools Pack'
 
-    def __init__(self) -> None:
-
-        self.commands = [
-            self.setup_get_network_info_tool(),
-            self.setup_web_search_tool(),
-        ]
-    
-    def get_commands(self):
-        return self.commands
-
-    def setup_get_network_info_tool(self):
+    @staticmethod
+    def setup_get_network_info_tool():
         return {
             "name": "get_network_info_tool",
-            "handler": self.get_network_info_handler,
+            "handler": NetworkTool.get_network_info_handler,
             "tool": ToolBuilder()
                 .set_name("get_network_info_tool")
                 .set_description("Tool that collects detailed network information (IP addresses, gateway, DNS, MAC, etc.)")
                 .build()
         }
 
-    def get_network_info_handler(self, **kwargs):
+    @staticmethod
+    def get_network_info_handler(**kwargs):
         network_info = {}
 
         try:
@@ -75,10 +68,11 @@ class NetworkTool:
 
         return network_info
 
-    def setup_web_search_tool(self):
+    @staticmethod
+    def setup_web_search_tool():
         return {
             "name": "web_search_tool",
-            "handler": self.web_search_handler,
+            "handler": NetworkTool.web_search_handler,
             "tool": ToolBuilder()
                 .set_name("web_search_tool")
                 .set_description("Tool that performs a web search using SearchAPI.io (DuckDuckGo engine) and returns a list of result links with titles.")
@@ -87,7 +81,8 @@ class NetworkTool:
                 .build()
         }
 
-    def web_search_handler(self, query: str, **kwargs):
+    @staticmethod
+    def web_search_handler(query: str, **kwargs):
         try:
             url = "https://www.searchapi.io/api/v1/search?api_key=N1wZ2qhY33qz1MGS9JNUbrmg"
             params = {
@@ -109,3 +104,8 @@ class NetworkTool:
             return results[:4] if results else "No results found"
         except Exception as e:
             return {"error": str(e)}
+
+NetworkTool.commands = [
+    NetworkTool.setup_get_network_info_tool(),
+    NetworkTool.setup_web_search_tool(),
+]

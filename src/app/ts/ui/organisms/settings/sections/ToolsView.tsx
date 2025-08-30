@@ -2,11 +2,24 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { ToolCard } from '../../../molecules/widgets';
 import { SlidedCheckbox } from '../../../atoms/input';
-import { IconIdea, IconSearch } from '../../../atoms/icons';
+import { IconIdea } from '../../../atoms/icons';
+import { useSocketActions } from '../../../../composables';
 
 import SettingsStore from '../../../../store/SettingsStore';
 
 const ToolsView: React.FC = observer(() => {
+
+  const { toolOff, toolOn } = useSocketActions();
+
+  const toggleTool = (category: string, enabled: boolean) => {
+    SettingsStore.data.tools[category].enabled = !enabled;
+    if (enabled) {
+      toolOff(category);
+    } else {
+      toolOn(category);
+    }
+  }
+
   const categories = Object.entries(SettingsStore.data.tools).reduce((acc, [key, value]) => {
     acc[key] = {
       ...value,
@@ -44,9 +57,7 @@ const ToolsView: React.FC = observer(() => {
                   <span className="text-sm text-ui-text-muted">Категория</span>
                   <SlidedCheckbox
                     checked={enabled}
-                    onChange={() => {
-                        SettingsStore.data.tools[category].enabled = !enabled;
-                    }}
+                    onChange={() => toggleTool(category, enabled)}
                     size="lg"
                   />
                 </div>

@@ -24,18 +24,7 @@ class AIService(IService):
         self.client: Client | None = None
         self.api_model: str | None = None
 
-        self.tools = []
-        self.tool_aliases = {}
-
-        self.tools_representation = {}
-
-        self.setup_tools()
-
-    def get_tools(self):
-        return self.tools_representation
-
-    def setup_tools(self):
-        tools_classes = [
+        self.tools_classes = [
             FileSystemTool,
             ModuleManagementTool,
             NetworkTool,
@@ -43,21 +32,46 @@ class AIService(IService):
             DockerTool
         ]
 
-        for tool_class in tools_classes:
-            tools_obj = tool_class().get_commands()
+        self.symlinks = {}
 
-            if not self.tools_representation.get(tool_class.name):
-                self.tools_representation[tool_class.name] = {
-                    "enabled": True,
+        self.tools = []
+        self.tool_aliases = {}
+
+        self.tools_representation = {}
+
+        self.form_symlinks()
+
+    def form_symlinks(self):
+        for tool in self.tools_classes:
+            self.symlinks[tool.name] = tool
+
+            tool_commands = tool.get_commands()
+
+            if not self.tools_representation.get(tool.name):
+                self.tools_representation[tool.name] = {
                     "functions": []
                 }
+
+            for tool_el in tool_commands:
+                self.tools_representation[tool.name]["functions"].append({
+                    "name": tool_el['name'],
+                })
+
+    def get_tools(self):
+        return self.tools_representation
+
+    def setup_tools(self, state: dict = {}):
+
+        for tool_class in self.symlinks:
+
+            if not state.get(self.symlinks[tool_class].name) or not state[self.symlinks[tool_class].name].get("enabled"):
+                continue
+
+            tools_obj = self.symlinks[tool_class].get_commands()
 
             for tool in tools_obj:
                 self.tools.append(tool['tool'])
                 self.tool_aliases[tool['name']] = tool['handler']
-                self.tools_representation[tool_class.name]["functions"].append({
-                    "name": tool['name'],
-                })
 
     def set_client_data(self, api_key: str, api_model: str):
         self.client = Client(

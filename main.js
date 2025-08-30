@@ -108,7 +108,9 @@ function createBaseFiles() {
     "ui.current.theme.id": "github-dark",
     "ui.current.event.panel.state": true,
     'ui.current.aimodel.id': '',
-    "ui.current.apikeys": []
+
+    "ui.current.apikeys": [],
+    "ui.current.tools": {}
   }
 
   if (!fs.existsSync(settingsPath)) {

@@ -73,7 +73,17 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_NOTES_REFETCH, '', {});
   };
 
+  const toolOff = (toolName: string) => {
+    sendServiceAction(EventsTopic.ACTION_TOOL_OFF, '', { toolName });
+  };
+
+  const toolOn = (toolName: string) => {
+    sendServiceAction(EventsTopic.ACTION_TOOL_ON, '', { toolName });
+  };
+
   return {
+    toolOff,
+    toolOn,
     fileWrite,
     fileDelete,
     fileRename,

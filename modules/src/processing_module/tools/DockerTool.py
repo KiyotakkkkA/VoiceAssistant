@@ -1,48 +1,38 @@
-from src.processing_module.facades import ToolBuilder
 import docker
+from src.processing_module.facades import ToolBuilder
+from interfaces import ITool
 from docker.errors import DockerException, APIError, NotFound
-import json
 
 
-class DockerTool:
+class DockerTool(ITool):
 
     name = 'Docker Tools Pack'
 
-    def __init__(self) -> None:
-        try:
-            self.client = docker.from_env()
-            self.client.ping()
-        except DockerException as e:
-            print(f"Docker connection error: {e}")
-            self.client = None
-            
-        self.commands = [
-            self.setup_get_all_images_tool(),
-            self.setup_get_all_containers_tool(),
-            self.setup_run_container_tool(),
-            self.setup_start_container_tool(),
-            self.setup_stop_container_tool(),
-        ]
-    
-    def get_commands(self):
-        return self.commands
+    try:
+        client = docker.from_env()
+        client.ping()
+    except DockerException as e:
+        print(f"Docker connection error: {e}")
+        client = None
 
-    def setup_get_all_images_tool(self):
+    @staticmethod
+    def setup_get_all_images_tool():
         return {
             "name": "get_all_images_tool",
-            "handler": self.get_all_images_handler,
+            "handler": DockerTool.get_all_images_handler,
             "tool": ToolBuilder()
                 .set_name("get_all_images_tool")
                 .set_description("Tool that retrieves information about all Docker images on the system")
                 .build()
         }
-
-    def get_all_images_handler(self, **kwargs):
-        if not self.client:
+    
+    @staticmethod
+    def get_all_images_handler( **kwargs):
+        if not DockerTool.client:
             return {"error": "Docker client not available"}
         
         try:
-            images = self.client.images.list(all=True)
+            images = DockerTool.client.images.list(all=True)
             images_info = []
             
             for image in images:
@@ -74,10 +64,11 @@ class DockerTool:
         except Exception as e:
             return {"error": f"Unexpected error: {e}"}
 
-    def setup_get_all_containers_tool(self):
+    @staticmethod
+    def setup_get_all_containers_tool():
         return {
             "name": "get_all_containers_tool",
-            "handler": self.get_all_containers_handler,
+            "handler": DockerTool.get_all_containers_handler,
             "tool": ToolBuilder()
                 .set_name("get_all_containers_tool")
                 .set_description("Tool that retrieves information about all Docker containers (running and stopped)")
@@ -85,12 +76,13 @@ class DockerTool:
                 .build()
         }
 
-    def get_all_containers_handler(self, show_all: bool = True, **kwargs):
-        if not self.client:
+    @staticmethod
+    def get_all_containers_handler(show_all: bool = True, **kwargs):
+        if not DockerTool.client:
             return {"error": "Docker client not available"}
         
         try:
-            containers = self.client.containers.list(all=show_all)
+            containers = DockerTool.client.containers.list(all=show_all)
             containers_info = []
             
             for container in containers:
@@ -140,10 +132,11 @@ class DockerTool:
         except Exception as e:
             return {"error": f"Unexpected error: {e}"}
 
-    def setup_run_container_tool(self):
+    @staticmethod
+    def setup_run_container_tool():
         return {
             "name": "run_container_tool",
-            "handler": self.run_container_handler,
+            "handler": DockerTool.run_container_handler,
             "tool": ToolBuilder()
                 .set_name("run_container_tool")
                 .set_description("Tool that runs a Docker container from an image")
@@ -160,10 +153,11 @@ class DockerTool:
                 .build()
         }
 
-    def run_container_handler(self, image: str, name: str | None = None, command: str | None = None, 
+    @staticmethod
+    def run_container_handler(image: str, name: str | None = None, command: str | None = None, 
                             ports: dict | None = None, environment: dict | None = None, volumes: dict | None = None,
                             detach: bool = True, remove: bool = False, network: str | None = None, **kwargs):
-        if not self.client:
+        if not DockerTool.client:
             return {"error": "Docker client not available"}
         
         try:
@@ -185,9 +179,9 @@ class DockerTool:
                 run_kwargs['volumes'] = volumes
             if network:
                 run_kwargs['network'] = network
-            
-            container = self.client.containers.run(**run_kwargs)
-            
+
+            container = DockerTool.client.containers.run(**run_kwargs)
+
             container.reload()
             
             result = {
@@ -218,11 +212,12 @@ class DockerTool:
             return {"error": f"Docker API error: {e}"}
         except Exception as e:
             return {"error": f"Unexpected error: {e}"}
-    
-    def setup_start_container_tool(self):
+
+    @staticmethod
+    def setup_start_container_tool():
         return {
             "name": "start_container_tool",
-            "handler": self.start_container_handler,
+            "handler": DockerTool.start_container_handler,
             "tool": ToolBuilder()
                 .set_name("start_container_tool")
                 .set_description("Tool that starts a stopped Docker container")
@@ -231,12 +226,13 @@ class DockerTool:
                 .build()
         }
 
-    def start_container_handler(self, container_id: str, **kwargs):
-        if not self.client:
+    @staticmethod
+    def start_container_handler(container_id: str, **kwargs):
+        if not DockerTool.client:
             return {"error": "Docker client not available"}
         
         try:
-            container = self.client.containers.get(container_id)
+            container = DockerTool.client.containers.get(container_id)
             container.start()
             
             container.reload()
@@ -256,10 +252,11 @@ class DockerTool:
         except Exception as e:
             return {"error": f"Unexpected error: {e}"}
 
-    def setup_stop_container_tool(self):
+    @staticmethod
+    def setup_stop_container_tool():
         return {
             "name": "stop_container_tool",
-            "handler": self.stop_container_handler,
+            "handler": DockerTool.stop_container_handler,
             "tool": ToolBuilder()
                 .set_name("stop_container_tool")
                 .set_description("Tool that stops a running Docker container")
@@ -269,12 +266,13 @@ class DockerTool:
                 .build()
         }
 
-    def stop_container_handler(self, container_id: str, timeout: int = 10, **kwargs):
-        if not self.client:
+    @staticmethod
+    def stop_container_handler(container_id: str, timeout: int = 10, **kwargs):
+        if not DockerTool.client:
             return {"error": "Docker client not available"}
         
         try:
-            container = self.client.containers.get(container_id)
+            container = DockerTool.client.containers.get(container_id)
             container.stop(timeout=timeout)
             
             container.reload()
@@ -293,3 +291,11 @@ class DockerTool:
             return {"error": f"Docker API error: {e}"}
         except Exception as e:
             return {"error": f"Unexpected error: {e}"}
+    
+DockerTool.commands = [
+    DockerTool.setup_get_all_images_tool(),
+    DockerTool.setup_get_all_containers_tool(),
+    DockerTool.setup_run_container_tool(),
+    DockerTool.setup_start_container_tool(),
+    DockerTool.setup_stop_container_tool(),
+]

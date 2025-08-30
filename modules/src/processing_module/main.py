@@ -1,9 +1,11 @@
 import os
 import time
+import json
 from clients import ModuleClient
 from src.processing_module.services import Excecutor
 from paths import path_resolver
 from enums.Events import EventsType, EventsTopic
+from store.ToolsStore import ToolsStore
 
 def run(stop_event):
 
@@ -20,7 +22,13 @@ def run(stop_event):
         prediction_threshold=float(os.getenv('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', '0.85'))
     )
 
-    avaliable_tools = executor.services['ai_service'].get_tools() # type: ignore
+    def handle_tool_off(msg):
+        ToolsStore.update_tool_status(msg.get('payload', {}).get('toolName'), False)
+        ToolsStore.refetch_tools()
+
+    def handle_tool_on(msg):
+        ToolsStore.update_tool_status(msg.get('payload', {}).get('toolName'), True)
+        ToolsStore.refetch_tools()
 
     def handle_raw_text(msg):
 
@@ -40,6 +48,8 @@ def run(stop_event):
 
     client.on(EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value, handle_raw_text)
     client.on(EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA.value, handle_model_change)
+    client.on(EventsTopic.ACTION_TOOL_OFF.value, handle_tool_off)
+    client.on(EventsTopic.ACTION_TOOL_ON.value, handle_tool_on)
 
     client.start(stop_event, block=False)
 
@@ -47,13 +57,17 @@ def run(stop_event):
         time.sleep(0.1)
         if stop_event.is_set():
             return
+        
+    ToolsStore.init_available_tools(executor.services['ai_service']) # type: ignore
+
+    tools_representations = ToolsStore.refetch_tools()
 
     client.emit({
         'type': EventsType.EVENT.value,
         'topic': EventsTopic.JSON_TOOLS_DATA_SET.value,
         'payload': {
             'data': {
-                'tools': avaliable_tools
+                'tools': tools_representations
             }
         },
         'from': 'processing_module'
