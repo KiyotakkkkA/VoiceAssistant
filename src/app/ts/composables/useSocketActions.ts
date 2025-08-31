@@ -33,6 +33,10 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_AIMODEL_SET, '', { modelId });
   };
 
+  const setApiKeys = (apiKeys: { id: string; name: string; value: string }[]) => {
+    sendServiceAction(EventsTopic.ACTION_APIKEYS_SET, '', { apiKeys });
+  };
+
   const openApp = (key: string, path: string) => {
     sendServiceAction(EventsTopic.ACTION_APP_OPEN, '', { key, path });
   };
@@ -81,7 +85,13 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_TOOL_ON, '', { toolName });
   };
 
+  const accountDataSet = (accountData: Record<string, string>) => {
+    sendServiceAction(EventsTopic.ACTION_ACCOUNT_DATA_SET, '', { accountData });
+  };
+
   return {
+    setApiKeys,
+    accountDataSet,
     toolOff,
     toolOn,
     fileWrite,

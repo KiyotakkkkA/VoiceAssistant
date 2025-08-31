@@ -146,9 +146,6 @@ const AppContent = observer(() => {
         m.payload.data.additional.model_name || 'unknown'
       );
     }
-
-    console.log('AI Answer received:', m?.payload?.data?.additional?.external_ai_answer);
-
     setMode('waiting');
   };
 
@@ -173,12 +170,6 @@ const AppContent = observer(() => {
     },
     [EventsTopic.JSON_THEMES_DATA_SET]: (m: any) => {
       setThemesData(m);
-    },
-    [EventsTopic.JSON_EVENT_PANEL_STATE_SET]: (m: any) => {
-      setEventPanelState(m);
-    },
-    [EventsTopic.JSON_APIKEYS_DATA_SET]: (m: any) => {
-      setApikeysData(m);
     },
     [EventsTopic.SERVICE_WAS_DISABLED]: (m: any) => {
       setModulesStoppedData(m);

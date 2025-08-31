@@ -56,7 +56,7 @@ const SlidedCheckbox: React.FC<SlidedCheckboxProps> = ({
     >
       <span
         className={`
-          inline-block rounded-full bg-white transition-transform duration-200 ease-in-out shadow-sm
+          inline-block rounded-full bg-ui-text-primary/50 transition-transform duration-200 ease-in-out shadow-sm
           ${currentSize.toggle}
           ${currentSize.translate}
           ${disabled ? 'bg-gray-300' : ''}

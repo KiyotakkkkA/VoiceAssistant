@@ -4,24 +4,16 @@ import { CategoryItem } from '../../../atoms';
 import { CanOkModal } from '../../../molecules/modals';
 import { IconPen, IconCopy, IconTrash } from '../../../atoms/icons';
 import { useToast } from '../../../../composables';
-import { socketClient } from '../../../../clients';
-import { EventsTopic, EventsType } from '../../../../../js/enums/Events';
+import { observer } from 'mobx-react-lite';
 
-interface Props {
-    apikeys?: { id?: string; name: string; value: string }[];
-}
+import SettingsStore from '../../../../store/SettingsStore';
 
-type ApiKey = { id: string; name: string; value: string };
-
-const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
-    const isFirstRender = useRef(true);
-    const [keys, setKeys] = useState<ApiKey[]>([]);
+const ApiKeysField: React.FC = observer(() => {
     const [newName, setNewName] = useState('');
     const [newValue, setNewValue] = useState('');
     const [editId, setEditId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
     const [editValue, setEditValue] = useState('');
-    const [needRefetch, setNeedRefetch] = useState(false);
     const [deleteModal, setDeleteModal] = useState<{isOpen: boolean; keyId: string | null; keyName: string}>({
         isOpen: false,
         keyId: null,
@@ -30,40 +22,11 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
 
     const { addToast } = useToast();
 
-    useEffect(() => {
-        if (Array.isArray(apikeys)) {
-            const keysWithIds = apikeys.map(key => ({
-                id: key.id || Date.now().toString() + Math.random(),
-                name: key.name || '',
-                value: key.value || ''
-            }));
-            setKeys(keysWithIds);
-        }
-    }, [apikeys]);
-
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-        
-        try {
-            socketClient.send({
-                type: EventsType.SERVICE_ACTION,
-                topic: EventsTopic.ACTION_APIKEYS_SET,
-                payload: { 
-                    apikeys: keys.map(k => ({ id: k.id, name: k.name, value: k.value }))
-                }
-            });
-        } catch {}
-    }, [needRefetch]);
-
     const handleAdd = () => {
         if (!newName.trim() || !newValue.trim()) return;
-        setKeys(prev => [...prev, { id: Date.now().toString(), name: newName.trim(), value: newValue.trim() }]);
+        SettingsStore.setApiKey({ id: Date.now().toString(), name: newName.trim(), value: newValue.trim() });
         setNewName('');
         setNewValue('');
-        setNeedRefetch(!needRefetch);
     };
     
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -71,23 +34,22 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
             handleAdd();
         }
     };
-    
-    const handleEdit = (k: ApiKey) => {
+
+    const handleEdit = (k: { id: string; name: string; value: string }) => {
         setEditId(k.id);
         setEditName(k.name);
         setEditValue(k.value);
     };
     const handleSave = () => {
         if (!editName.trim() || !editValue.trim()) return;
-        setKeys(prev => prev.map(k => (k.id === editId ? { ...k, name: editName.trim(), value: editValue.trim() } : k)));
+        SettingsStore.setApiKey({ id: editId!, name: editName.trim(), value: editValue.trim() });
         setEditId(null);
         setEditName('');
         setEditValue('');
-        setNeedRefetch(!needRefetch);
     };
 
     const handleDelete = (id: string) => {
-        const keyToDelete = keys.find(k => k.id === id);
+        const keyToDelete = SettingsStore.data.settings['ui.current.apikeys']?.find(k => k.id === id);
         if (keyToDelete) {
             setDeleteModal({
                 isOpen: true,
@@ -99,11 +61,10 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
 
     const confirmDelete = () => {
         if (deleteModal.keyId) {
-            setKeys(prev => prev.filter(k => k.id !== deleteModal.keyId));
+            SettingsStore.deleteApiKey(deleteModal.keyId);
             if (editId === deleteModal.keyId) setEditId(null);
         }
         setDeleteModal({ isOpen: false, keyId: null, keyName: '' });
-        setNeedRefetch(!needRefetch);
     };
 
     return (
@@ -149,7 +110,7 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
                 </div>
             </CategoryItem>
 
-            {keys?.map(key => (
+            {SettingsStore.data.settings['ui.current.apikeys']?.map(key => (
                 <CategoryItem 
                     key={key.id} 
                     label={
@@ -234,7 +195,7 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
                 </CategoryItem>
             ))}
 
-            {keys?.length === 0 && (
+            {SettingsStore.data.settings['ui.current.apikeys']?.length === 0 && (
                 <div className="py-8 text-center">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-ui-text-secondary/50">
@@ -260,6 +221,6 @@ const ApiKeysField: React.FC<Props> = ({ apikeys = [] }) => {
             />
         </div>
     );
-};
+});
 
 export { ApiKeysField };

@@ -15,7 +15,7 @@ interface SectionConfig {
 }
 
 const SettingsPanel: React.FC = observer(() => {
-  const [activeTab, setActiveTab] = useState('general-themes');
+  const [activeTab, setActiveTab] = useState('user-accounts');
 
   const sections: Record<string, SectionConfig> = {
       "user-accounts": {
@@ -26,9 +26,7 @@ const SettingsPanel: React.FC = observer(() => {
       "models-apikeys": {
         title: "Ассистент / Ключи API",
         component: ApiKeysField,
-        props: {
-          apikeys: SettingsStore.data.settings?.['ui.current.apikeys'] || []
-        }
+        props: {}
       },
       "models-tools": {
         title: "Ассистент / Инструменты",

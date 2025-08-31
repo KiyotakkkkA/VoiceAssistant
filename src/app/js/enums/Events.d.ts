@@ -15,6 +15,7 @@ export const EventsTopic: {
     readonly JSON_APIKEYS_DATA_SET: 'json_apikeys_data_set';
     readonly JSON_EVENT_PANEL_STATE_SET: 'json_event_panel_state_set';
     readonly JSON_TOOLS_DATA_SET: 'json_tools_data_set';
+    readonly JSON_ACCOUNT_DATA_SET: 'json_account_data_set';
 
     readonly RAW_TEXT_DATA_RECOGNIZED: 'raw_text_data_recognized';
 
@@ -27,6 +28,7 @@ export const EventsTopic: {
     readonly ACTION_MODE_SET: 'action_mode_set';
     readonly ACTION_AIMODEL_SET: 'action_aimodel_set';
     readonly ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle';
+    readonly ACTION_ACCOUNT_DATA_SET: 'action_account_data_set';
     readonly ACTION_NOTES_REFETCH: 'action_notes_refetch';
 
     readonly ACTION_FOLDER_RENAME: 'action_folder_rename';

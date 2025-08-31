@@ -110,6 +110,7 @@ function createBaseFiles() {
     'ui.current.aimodel.id': '',
 
     "ui.current.apikeys": [],
+    "ui.current.account.data": {},
     "ui.current.tools": {}
   }
 
@@ -376,16 +377,33 @@ function startWebSocketServer() {
   });
 
   MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_ACCOUNT_DATA_SET],
+    handler: (ws, msg) => {
+      if (!msg.payload?.accountData) {
+        console.warn('[WS] ACTION_ACCOUNT_DATA_SET missing accountData');
+        return;
+      }
+      
+      updateSettings(
+        'ui.current.account.data',
+        msg.payload.accountData,
+        EventsType.EVENT,
+        EventsTopic.JSON_ACCOUNT_DATA_SET
+      );
+    }
+  });
+
+  MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APIKEYS_SET],
     handler: (ws, msg) => {
-      if (!msg.payload?.apikeys) {
+      if (!msg.payload?.apiKeys) {
         console.warn('[WS] ACTION_APIKEYS_SET missing keys');
         return;
       }
       
       updateSettings(
         'ui.current.apikeys', 
-        msg.payload.apikeys, 
+        msg.payload.apiKeys, 
         EventsType.EVENT, 
         EventsTopic.JSON_APIKEYS_DATA_SET
       );

@@ -33,12 +33,6 @@ const ToolsView: React.FC = observer(() => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-ui-text-muted">
-          Управляйте доступными инструментами ассистента по категориям
-        </p>
-      </div>
-
       <div className="space-y-6">
         {Object.entries(categories).map(([category, { enabled }]) => {          
           return (
@@ -54,7 +48,6 @@ const ToolsView: React.FC = observer(() => {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-ui-text-muted">Категория</span>
                   <SlidedCheckbox
                     checked={enabled}
                     onChange={() => toggleTool(category, enabled)}

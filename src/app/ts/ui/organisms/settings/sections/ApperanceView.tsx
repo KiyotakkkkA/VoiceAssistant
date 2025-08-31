@@ -1,10 +1,10 @@
 import React from 'react';
 import { CategoryItem } from '../../../atoms';
-import { socketClient } from '../../../../clients';
-import { EventsTopic, EventsType } from '../../../../../js/enums/Events';
 import { Dropdown, Checkbox } from '../../../atoms/input';
 import { observer } from 'mobx-react-lite';
 import { useSocketActions } from '../../../../composables';
+
+import SettingsStore from '../../../../store/SettingsStore';
 
 interface Props {
   themeNames: string[];
@@ -13,14 +13,14 @@ interface Props {
 }
 
 const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme, currentEventPanelState }) => {
-  const { themeSet, eventPanelToggle } = useSocketActions();
+  const { themeSet } = useSocketActions();
 
   const handleThemeChange = (newTheme: string) => {
     themeSet(newTheme);
   };
 
   const handleEventPanelToggle = (value: boolean) => {
-    eventPanelToggle(value);
+    SettingsStore.updateEventPanelState(value);
   };
 
   const themeOptions = themeNames?.map(theme => ({

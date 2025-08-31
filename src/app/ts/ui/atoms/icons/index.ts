@@ -18,3 +18,6 @@ export { IconCheck } from "./IconCheck";
 export { IconX } from "./IconX";
 export { IconChevronLeft } from "./IconChevronLeft";
 export { IconGithub } from "./IconGithub";
+export { IconInfo } from "./IconInfo";
+export { IconWarning } from "./IconWarning";
+export { IconError } from "./IconError";

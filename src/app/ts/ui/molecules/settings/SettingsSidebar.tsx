@@ -15,7 +15,7 @@ interface Props {
 
 const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(['general'])
+    new Set(['accounts'])
   );
 
   const settingsTabs: SettingsTab[] = [
