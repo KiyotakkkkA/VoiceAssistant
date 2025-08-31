@@ -4,6 +4,7 @@ from clients import ModuleClient
 from src.processing_module.services import Excecutor
 from enums.Events import EventsType, EventsTopic
 from store.ToolsStore import ToolsStore
+from store.RuntimeCacheStore import RuntimeCacheStore
 
 def run(stop_event):
 
@@ -68,7 +69,16 @@ def run(stop_event):
         time.sleep(0.1)
         if stop_event.is_set():
             return
-        
+
+    RuntimeCacheStore.from_settings_to_cache([
+        {
+            'key_from': 'ui.current.account.data',
+            'key_to': 'account_data',
+        }
+    ])
+
+    print(RuntimeCacheStore.get_cache('ui.current.account.data'))
+
     ToolsStore.init_available_tools(executor.services['ai_service']) # type: ignore
 
     tools_representations = ToolsStore.refetch_tools()

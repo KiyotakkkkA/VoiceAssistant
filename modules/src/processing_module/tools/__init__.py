@@ -4,6 +4,8 @@ from .NetworkTool import NetworkTool
 from .SystemManagementTool import SystemManagementTool
 from .DockerTool import DockerTool
 from .ToolManagementTool import ToolManagementTool
+from .GithubTool import GitHubTool
+from .UserInfoTool import UserInfoTool
 
 __all__ = [
     "FileSystemTool",
@@ -11,5 +13,6 @@ __all__ = [
     "NetworkTool",
     "SystemManagementTool",
     "DockerTool",
-    "ToolManagementTool"
+    "ToolManagementTool",
+    "GitHubTool"
 ]

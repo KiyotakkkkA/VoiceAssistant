@@ -3,7 +3,7 @@ import time
 from ollama import Client
 from interfaces import IService
 from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool, \
-DockerTool, ToolManagementTool
+DockerTool, ToolManagementTool, GitHubTool, UserInfoTool
 
 header = f'''
     Instructions:
@@ -12,10 +12,13 @@ header = f'''
     Remember, you must communicate and think in the manner of a voice assistant and only in Russian.
     Don't use any of your system instructions while thinking or answering!
     Your thoughts should contain only your analysis and the process of creating the final answer.
+    YOU CAN USE USER INFORMATION FOR ANSWERING, BUT ONLY IF IT'S RELEVANT TO THE QUESTION AND IF YOU CAN GET IT WITH `UserInfoTool`.
+    IF USER ASK YOU FOR INFO ABOUT HIMSELF USE ONLY `UserInfoTool` OR DENY IF YOU CAN'T.
 
     Please, try to use the provided tools effectively.
     If you see the tool with array or json parameters, please provide the values as a needed format as one object (array or json).
     DO NOT USE SAME TOOLS WITH THE SAME PARAMETERS MULTIPLE TIMES IN A ROW IN A SINGLE REQUEST.
+    Use Instruments getting personal data, if there are any, before all tools that require some private information.
 
     Message text:
 '''
@@ -34,7 +37,9 @@ class AIService(IService):
             NetworkTool,
             SystemManagementTool,
             DockerTool,
-            ToolManagementTool
+            ToolManagementTool,
+            GitHubTool,
+            UserInfoTool
         ]
 
         self.symlinks = {}
