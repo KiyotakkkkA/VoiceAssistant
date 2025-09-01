@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import StreamingAIStore from '../../../store/StreamingAIStore';
-import { AIResponse } from '../../../types/Global';
+import StreamingAIStore from '../../../../store/StreamingAIStore';
 
 interface StreamingAIMessageProps {
   userText: string;
@@ -40,8 +39,8 @@ const StreamingAIMessage: React.FC<StreamingAIMessageProps> = observer(({
   };
 
   return (
-    <div className="group relative p-4 rounded-xl border border-ui-border-primary bg-gradient-to-br from-ui-bg-secondary/30 to-ui-bg-secondary/10 transition-all duration-300 hover:border-ui-border-secondary">
-      <div className="mb-4 p-3 rounded-lg bg-ui-accent/10 border border-ui-accent/20">
+    <div className="group relative p-4 rounded-xl border border-ui-border-primary bg-gradient-to-br from-ui-bg-secondary/30 to-ui-bg-secondary/10 transition-all duration-300 hover:border-ui-border-primary">
+      <div className="mb-4 p-3 rounded-lg bg-ui-accent/10 border border-ui-border-primary/20">
         <div className="flex items-start gap-3">
           <div className="w-6 h-6 rounded-full bg-ui-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
             <span className="text-xs font-medium text-ui-accent">U</span>

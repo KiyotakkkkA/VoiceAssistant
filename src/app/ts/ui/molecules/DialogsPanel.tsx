@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AiMessageCard, StreamingAIMessage } from './widgets';
+import { AiMessageCard } from './widgets/cards';
+import { StreamingAIMessage } from './widgets/ai';
 import { observer } from 'mobx-react-lite';
 import { IconFile, IconTrash, IconMessage } from '../atoms/icons';
 import { useDragResize } from '../../composables';

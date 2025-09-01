@@ -91,6 +91,7 @@ class NetworkTool(ITool):
             }
             response = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"})
             data = response.json()
+            print(data)
 
             results = []
             if "organic_results" in data:

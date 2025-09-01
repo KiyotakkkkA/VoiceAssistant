@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModuleCard } from '../../../molecules/widgets';
+import { ModuleCard } from '../../../molecules/widgets/cards';
 import { Module } from '../../../../types/Global';
 
 import { observer } from 'mobx-react-lite';

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Dialog } from '../../types/Global';
 import { IconPlus, IconMessage } from '../atoms/icons';
-import { AiMsgPreviewCard } from './widgets';
+import { AiMsgPreviewCard } from './widgets/cards';
 
 import AIMessagesStore from '../../store/AIMessagesStore';
 

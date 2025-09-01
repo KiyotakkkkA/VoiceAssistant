@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { ToolCard } from '../../../molecules/widgets';
+import { ToolCard } from '../../../molecules/widgets/cards';
 import { SlidedCheckbox } from '../../../atoms/input';
 import { IconIdea } from '../../../atoms/icons';
 import { useSocketActions } from '../../../../composables';

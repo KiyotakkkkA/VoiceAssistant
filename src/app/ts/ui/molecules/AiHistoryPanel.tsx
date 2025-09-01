@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AiMessageCard } from '../molecules/widgets';
+import { AiMessageCard } from '../molecules/widgets/cards';
 import { observer } from 'mobx-react-lite';
 import { IconFile, IconTrash } from '../atoms/icons';
 import { useDragResize } from '../../composables';

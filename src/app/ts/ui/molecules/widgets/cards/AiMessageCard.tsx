@@ -1,7 +1,7 @@
 import React from 'react';
-import { useMarkdown, useTimeFormatter, useModuleHelpers, useExpandable } from '../../../composables';
-import { AIResponse, ToolCall } from '../../../types/Global';
-import { IconIdea, IconSettings } from '../../atoms/icons';
+import { useMarkdown, useTimeFormatter, useModuleHelpers, useExpandable } from '../../../../composables';
+import { AIResponse, ToolCall } from '../../../../types/Global';
+import { IconIdea, IconSettings } from '../../../atoms/icons';
 
 interface AiMessageProps {
   userText: string;

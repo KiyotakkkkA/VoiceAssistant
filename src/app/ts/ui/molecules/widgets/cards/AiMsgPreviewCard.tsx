@@ -1,9 +1,9 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Dialog } from '../../../types/Global';
-import { IconPen, IconCheck, IconX, IconTrash } from '../../atoms/icons';
+import { Dialog } from '../../../../types/Global';
+import { IconPen, IconCheck, IconX, IconTrash } from '../../../atoms/icons';
 
-import AIMessagesStore from '../../../store/AIMessagesStore';
+import AIMessagesStore from '../../../../store/AIMessagesStore';
 
 interface AiMsgPreviewCardProps {
   dialog: Dialog;

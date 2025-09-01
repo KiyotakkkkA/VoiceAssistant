@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppCard } from '../../molecules/widgets';
+import { AppCard } from '../../molecules/widgets/cards';
 import { TextInput } from '../../atoms/input';
 import { IconTrash } from '../../atoms/icons';
 

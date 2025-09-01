@@ -4,7 +4,7 @@ import { TextInput } from '../../atoms/input';
 import { ScrollArea, ContextMenu } from '../../atoms';
 import { NoteItem } from '../../../types/Global';
 import { RenderFolderTree } from '../../molecules/notes';
-import { NoteCard } from '../../molecules/widgets';
+import { NoteCard } from '../../molecules/widgets/cards';
 import { useMarkdown, useSocketActions, useToast } from '../../../composables';
 import { IconPen, IconPlus, IconTrash, IconSearch, IconRefetch} from '../../atoms/icons';
 
