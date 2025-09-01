@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AiMessageCard } from './widgets';
+import { AiMessageCard, StreamingAIMessage } from './widgets';
 import { observer } from 'mobx-react-lite';
 import { IconFile, IconTrash, IconMessage } from '../atoms/icons';
 import { useDragResize } from '../../composables';
@@ -7,6 +7,7 @@ import { DialogsSidebar } from './DialogsSidebar';
 import { Dialog } from '../../types/Global';
 
 import AIMessagesStore from '../../store/AIMessagesStore';
+import StreamingAIStore from '../../store/StreamingAIStore';
 
 interface DialogsPanelProps {
   isVisible: boolean;
@@ -42,6 +43,13 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
       }, 100);
     }
   }, [AIMessagesStore.getActiveDialog()?.messages.length, isVisible]);
+
+  useEffect(() => {
+    if (isVisible && StreamingAIStore.isStreaming() && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [StreamingAIStore.currentSession?.content, StreamingAIStore.currentSession?.thinking, isVisible]);
 
   const handleDragStart = (e: React.MouseEvent) => {
     if (!isVisible) return;
@@ -229,16 +237,26 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
                   </p>
                 </div>
               ) : (
-                messageHistory.map((conversation, index) => (
-                  <AiMessageCard
-                    key={index}
-                    userText={conversation.userText}
-                    aiResponse={conversation.aiResponse}
-                    modelName={conversation.modelName}
-                    timestamp={conversation.timestamp}
-                    isLatest={index === messageHistory.length - 1}
-                  />
-                ))
+                <>
+                  {messageHistory.map((conversation, index) => (
+                    <AiMessageCard
+                      key={index}
+                      userText={conversation.userText}
+                      aiResponse={conversation.aiResponse}
+                      modelName={conversation.modelName}
+                      timestamp={conversation.timestamp}
+                      isLatest={index === messageHistory.length - 1}
+                    />
+                  ))}
+                  
+                  {StreamingAIStore.isStreaming() && (
+                    <StreamingAIMessage
+                      userText={StreamingAIStore.currentSession?.originalText || ''}
+                      modelName={StreamingAIStore.currentSession?.modelName || 'Unknown'}
+                      timestamp={StreamingAIStore.currentSession?.startTime}
+                    />
+                  )}
+                </>
               )}
             </div>
           </div>

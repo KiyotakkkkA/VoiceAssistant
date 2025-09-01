@@ -12,6 +12,7 @@ import SettingsStore from './store/SettingsStore';
 import ModulesStore from './store/ModulesStore';
 import NotesStore from './store/NotesStore';
 import AIMessagesStore from './store/AIMessagesStore';
+import StreamingAIStore from './store/StreamingAIStore';
 
 interface IncomingMsg { type: string; topic: string; payload: any; from?: string }
 
@@ -119,34 +120,39 @@ const AppContent = observer(() => {
     SettingsStore.data.runtime['runtime.current.mode'] = m?.payload?.data?.additional?.mode_to;
   };
 
-  const setNewMsg = (m: any) => {
-    if (m?.payload?.original_text) {
-      AIMessagesStore.data.aiMsgHistory.push({
-        model_name: 'user',
-        text: m.payload.original_text,
-        timestamp: new Date()
-      });
+  const handleStreamStart = (m: any) => {
+    const { original_text, model_name } = m.payload?.data || {};
+    if (original_text && model_name) {
+      StreamingAIStore.startSession(original_text, model_name);
+      setMode('thinking');
       
-      AIMessagesStore.addMessageToActiveDialog(
-        m.payload.original_text,
-        'user'
+      AIMessagesStore.addMessageToActiveDialog(original_text, 'user');
+    }
+  };
+
+  const handleStreamChunk = (m: any) => {
+    const { type, content, accumulated_thinking, accumulated_content } = m.payload?.data || {};
+    if (type && content) {
+      StreamingAIStore.addChunk(
+        type, 
+        content, 
+        type === 'thinking' ? accumulated_thinking : accumulated_content
       );
     }
-    
-    if (m?.payload?.data?.additional?.external_ai_answer) {
-      AIMessagesStore.data.aiMsgHistory.push({
-        model_name: m.payload.data.additional.model_name || 'unknown',
-        text: m.payload.data.additional.external_ai_answer,
-        timestamp: new Date()
-      });
-      
-      AIMessagesStore.addMessageToActiveDialog(
-        m.payload.data.additional.external_ai_answer,
-        'assistant',
-        m.payload.data.additional.model_name || 'unknown'
-      );
-    }
+  };
+
+  const handleStreamEnd = (m: any) => {
+    const { model_name, final_response } = m.payload?.data || {};
+    StreamingAIStore.endSession();
     setMode('waiting');
+    
+    if (final_response && model_name) {
+      AIMessagesStore.addMessageToActiveDialog(
+        final_response,
+        'assistant',
+        model_name
+      );
+    }
   };
 
   const bindings = {
@@ -156,9 +162,9 @@ const AppContent = observer(() => {
     [EventsTopic.ACTION_MODE_SET]: (m: any) => {
       setGlobalMode(m);
     },
-    [EventsTopic.ACTION_ANSWERING_AI]: (m: any) => {
-      setNewMsg(m);
-    },
+    [EventsTopic.ACTION_AI_STREAM_START]: handleStreamStart,
+    [EventsTopic.ACTION_AI_STREAM_CHUNK]: handleStreamChunk,
+    [EventsTopic.ACTION_AI_STREAM_END]: handleStreamEnd,
     [EventsTopic.ACTION_WAKE]: handleWake,
     [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,
     [EventsTopic.RAW_TEXT_DATA_RECOGNIZED]: rawDataTextRecognized,

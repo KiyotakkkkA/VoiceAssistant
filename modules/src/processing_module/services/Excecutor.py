@@ -1,7 +1,6 @@
 import json
 import colorama
 from src.processing_module.services.AIService import AIService
-from enums.Events import EventsTopic
 from utils import AudioService
 from interfaces import IService
 from colorama import Fore, Style
@@ -33,6 +32,11 @@ class Excecutor:
 
         self.get_current_model_data_from_json()
 
+    def set_socket_client(self, socket_client):
+        ai_service = self.services["ai_service"]
+        if hasattr(ai_service, 'set_socket_client'):
+            ai_service.set_socket_client(socket_client)  # type: ignore
+
     def get_current_model_data_from_json(self, model_id = None):
         """
         Получение данных текущей модели из JSON
@@ -61,15 +65,4 @@ class Excecutor:
 
         data = self.services["ai_service"].execute(msg['payload']['text']) # type: ignore
 
-        yield {
-            'event': EventsTopic.ACTION_ANSWERING_AI.value,
-            'original_text': msg['payload']['text'],
-            'data': {
-                'status': True,
-                'message': f'Ответ модели: {self.current_model_name}',
-                'additional': {
-                    'model_name': self.current_model_name,
-                    'external_ai_answer': data
-                }
-            }
-        }
+        yield data

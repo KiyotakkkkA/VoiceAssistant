@@ -17,6 +17,8 @@ const ThinkingBlock: React.FC<{ thinking: string; isExpanded: boolean; onToggle:
   isExpanded, 
   onToggle 
 }) => {
+  const formattedThinking = useMarkdown(thinking || '');
+  
   if (!thinking || thinking.trim() === '') return null;
 
   return (
@@ -43,7 +45,7 @@ const ThinkingBlock: React.FC<{ thinking: string; isExpanded: boolean; onToggle:
       {isExpanded && (
         <div className="px-3 pb-3">
           <div className="bg-ui-bg-secondary/30 rounded p-3 text-sm text-ui-text-primary italic leading-relaxed">
-            <div dangerouslySetInnerHTML={{ __html: useMarkdown(thinking || '') }} />
+            <div dangerouslySetInnerHTML={{ __html: formattedThinking }} />
           </div>
         </div>
       )}
@@ -118,17 +120,9 @@ const AiMessageCard: React.FC<AiMessageProps> = ({
   const finalThinkingExpandable = useExpandable(false);
   
   const { formatTime } = useTimeFormatter();
-  const { getModelIcon } = useModuleHelpers();  const getModelColor = (model: string) => {
-    if (model.includes('gpt') || model.includes('openai')) {
-      return 'text-green-400 bg-green-500/10 border-green-500/20';
-    } else if (model.includes('claude')) {
-      return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
-    } else if (model.includes('gemini')) {
-      return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
-    }
-    return 'text-gray-400 bg-gray-500/10 border-gray-500/20';
-  };
+  const { getModelIcon } = useModuleHelpers();
 
+  // Всегда вызываем хуки в одном и том же порядке
   const isStructuredResponse = typeof aiResponse === 'object' && aiResponse !== null;
   const response = isStructuredResponse ? aiResponse as AIResponse : null;
   const simpleResponse = !isStructuredResponse ? aiResponse as string : null;
@@ -139,6 +133,20 @@ const AiMessageCard: React.FC<AiMessageProps> = ({
   } else {
     mainContent = simpleResponse || '';
   }
+
+  // Всегда вызываем useMarkdown для основного контента
+  const formattedMainContent = useMarkdown(mainContent || '');
+
+  const getModelColor = (model: string) => {
+    if (model.includes('gpt') || model.includes('openai')) {
+      return 'text-green-400 bg-green-500/10 border-green-500/20';
+    } else if (model.includes('claude')) {
+      return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
+    } else if (model.includes('gemini')) {
+      return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+    }
+    return 'text-gray-400 bg-gray-500/10 border-gray-500/20';
+  };
 
   return (
     <div className={`group relative p-4 rounded-xl border transition-all duration-300 ${
@@ -215,7 +223,7 @@ const AiMessageCard: React.FC<AiMessageProps> = ({
           {mainContent && (
             <div className="text-sm text-ui-text-primary leading-relaxed prose prose-sm max-w-none bg-ui-bg-secondary/10 rounded-lg p-3 border border-ui-border-primary/30">
               <div dangerouslySetInnerHTML={{ 
-                __html: `<p class="mb-3">${useMarkdown(mainContent || '')}</p>` 
+                __html: `<p class="mb-3">${formattedMainContent}</p>` 
               }} />
             </div>
           )}

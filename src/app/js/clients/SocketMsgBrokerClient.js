@@ -11,14 +11,30 @@ class SocketMsgBrokerClient {
     static clientMetadata = new Map();
     static messageIdCounter = 0;
 
-    static Logger = {
-        info: (message) => console.log(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[32mINFO:\x1b[0m ${message}`),
-        warn: (message) => console.warn(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[33mWARN:\x1b[0m ${message}`),
-        error: (message) => console.error(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[31mERROR:\x1b[0m ${message}`),
-        debug: (message) => console.debug(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[36mDEBUG:\x1b[0m ${message}`)
-    };
-
     static EnableLogger = true;
+
+    static Logger = {
+        info: (message) => {
+            if (SocketMsgBrokerClient.EnableLogger) {
+                console.log(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[32mINFO:\x1b[0m ${message}`);
+            }
+        },
+        warn: (message) => {
+            if (SocketMsgBrokerClient.EnableLogger) {
+                console.warn(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[33mWARN:\x1b[0m ${message}`);
+            }
+        },
+        error: (message) => {
+            if (SocketMsgBrokerClient.EnableLogger) {
+                console.error(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[31mERROR:\x1b[0m ${message}`);
+            }
+        },
+        debug: (message) => {
+            if (SocketMsgBrokerClient.EnableLogger) {
+                console.debug(`\x1b[35m[ELECTRON - WSBroker]\x1b[0m \x1b[36mDEBUG:\x1b[0m ${message}`);
+            }
+        }
+    };
 
     static cleanup() {
         for (const client of SocketMsgBrokerClient.ConnectedClients) {

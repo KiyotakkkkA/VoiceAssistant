@@ -4,6 +4,7 @@ from ollama import Client
 from interfaces import IService
 from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool, \
 DockerTool, ToolManagementTool, GitHubTool, UserInfoTool
+from enums.Events import EventsType, EventsTopic
 
 header = f'''
     Instructions:
@@ -28,6 +29,7 @@ class AIService(IService):
     def __init__(self):
         self.client: Client | None = None
         self.api_model: str | None = None
+        self._socket_client = None
 
         self.tools_classes = [
             FileSystemTool,
@@ -48,6 +50,19 @@ class AIService(IService):
         self.tools_representation = {}
 
         self.form_symlinks()
+
+    def set_socket_client(self, socket_client):
+        self._socket_client = socket_client
+
+    def _emit_streaming_message(self, msg_type: str, topic: str, data: dict):
+        if self._socket_client:
+            message = {
+                'type': msg_type,
+                'topic': topic,
+                'payload': {'data': data},
+                'from': 'processing_module'
+            }
+            self._socket_client.emit(message)
 
     def form_symlinks(self):
         for tool in self.tools_classes:
@@ -120,6 +135,15 @@ class AIService(IService):
         thinking_timer = 0
         tool_calls_timer = 0
 
+        self._emit_streaming_message(
+            EventsType.SERVICE_ACTION.value,
+            EventsTopic.ACTION_AI_STREAM_START.value,
+            {
+                'original_text': text,
+                'model_name': self.api_model
+            }
+        )
+
         while True:
             tool_calls_result = []
 
@@ -133,11 +157,33 @@ class AIService(IService):
             ):
                 if part.message.get('thinking'):
                     thinking_chunk_start = time.time()
-                    initial_accumulated_response['thinking'] += part.message['thinking']
+                    thinking_chunk = part.message['thinking']
+                    initial_accumulated_response['thinking'] += thinking_chunk
                     thinking_in_iteration += time.time() - thinking_chunk_start
                     
+                    self._emit_streaming_message(
+                        EventsType.SERVICE_ACTION.value,
+                        EventsTopic.ACTION_AI_STREAM_CHUNK.value,
+                        {
+                            'type': 'thinking',
+                            'content': thinking_chunk,
+                            'accumulated_thinking': initial_accumulated_response['thinking']
+                        }
+                    )
+                    
                 if part.message.get('content'):
-                    initial_accumulated_response['content'] += part.message['content']
+                    content_chunk = part.message['content']
+                    initial_accumulated_response['content'] += content_chunk
+                    
+                    self._emit_streaming_message(
+                        EventsType.SERVICE_ACTION.value,
+                        EventsTopic.ACTION_AI_STREAM_CHUNK.value,
+                        {
+                            'type': 'content',
+                            'content': content_chunk,
+                            'accumulated_content': initial_accumulated_response['content']
+                        }
+                    )
 
                 if part.message.get('tool_calls'):
                     for tool in part.message['tool_calls']:
@@ -192,16 +238,7 @@ class AIService(IService):
         
         total_time = time.time() - total_timer
 
-        if len(tools_results) == 0:
-            return {
-                "final_stage": final_accumulated_response,
-                "timing": {
-                    'total_time': f"{total_time:.2f}",
-                    "thinking_time": f"{thinking_timer:.2f}"
-                }
-            }
-
-        return {
+        result = {
             "initial_stage": initial_accumulated_response,
             "tools_calling_stage": tools_results,
             "final_stage": final_accumulated_response,
@@ -210,4 +247,22 @@ class AIService(IService):
                 'thinking_time': f"{thinking_timer:.2f}",
                 'tool_calls_time': f"{tool_calls_timer:.2f}"
             }
+        } if len(tools_results) > 0 else {
+            "final_stage": final_accumulated_response,
+            "timing": {
+                'total_time': f"{total_time:.2f}",
+                "thinking_time": f"{thinking_timer:.2f}"
+            }
         }
+
+        self._emit_streaming_message(
+            EventsType.SERVICE_ACTION.value,
+            EventsTopic.ACTION_AI_STREAM_END.value,
+            {
+                'original_text': text,
+                'model_name': self.api_model,
+                'final_response': result
+            }
+        )
+
+        return result

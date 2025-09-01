@@ -156,7 +156,7 @@ function startWebSocketServer() {
   if (wss) return;
   wss = new WebSocketServer({ port: WS_PORT });
 
-  MsgBroker.init(wss, true);
+  MsgBroker.init(wss, false);
   MsgBroker.onConnection((ws) => {
     const notesPath = paths.notes_path;
     const notesData = services.fsystem.buildNotesStructure(notesPath);

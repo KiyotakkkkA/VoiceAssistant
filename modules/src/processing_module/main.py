@@ -21,6 +21,8 @@ def run(stop_event):
         prediction_threshold=float(os.getenv('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', '0.85'))
     )
 
+    executor.set_socket_client(client)
+
     def handle_tool_off(msg):
         ToolsStore.update_tool_status(msg.get('payload', {}).get('toolName'), False)
         ToolsStore.refetch_tools()
