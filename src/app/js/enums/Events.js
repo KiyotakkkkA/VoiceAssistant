@@ -45,6 +45,8 @@ export const EventsTopic = {
     ACTION_SERVICE_DISABLE: 'action_service_disable',
     ACTION_SERVICE_ENABLE: 'action_service_enable',
 
+    ACTION_INIT_DOWNLOADING_VOICE_MODEL: 'action_init_downloading_voice_model',
+
     ACTION_TOOL_OFF: 'action_tool_off',
     ACTION_TOOL_ON: 'action_tool_on',
 

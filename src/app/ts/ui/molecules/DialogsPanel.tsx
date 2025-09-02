@@ -5,6 +5,7 @@ import { observer } from 'mobx-react-lite';
 import { IconFile, IconTrash, IconMessage } from '../atoms/icons';
 import { useDragResize } from '../../composables';
 import { DialogsSidebar } from './DialogsSidebar';
+import { HistoryContextModal } from './modals/HistoryContextModal';
 import { Dialog } from '../../types/Global';
 
 import AIMessagesStore from '../../store/AIMessagesStore';
@@ -25,6 +26,7 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
   const [panelWidth, setPanelWidth] = useState(960);
   const [dragging, setDragging] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [historyPanelVisible, setHistoryPanelVisible] = useState(false);
   
   const { onDragStart, didDragRef } = useDragResize(panelWidth, 400, 0.9, 'horizontal');
 
@@ -207,6 +209,19 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
                     </span>
                   )}
                   <button
+                    onClick={() => setHistoryPanelVisible(true)}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      AIMessagesStore.getHistoryContext()
+                        ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                        : 'bg-gray-500/10 text-gray-400 hover:bg-gray-500/20'
+                    }`}
+                    title="Настройки контекста истории"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
                     onClick={clearActiveDialog}
                     className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
                     title="Очистить диалог"
@@ -216,10 +231,20 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
                 </div>
               </div>
               {activeDialog && (
-                <p className="text-xs text-ui-text-muted">
-                  {activeDialog.messages.length} сообщени{activeDialog.messages.length !== 1 ? 'й' : 'е'} • 
-                  Создан {activeDialog.created_at.toLocaleDateString('ru-RU')}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-ui-text-muted">
+                    {activeDialog.messages.length} сообщени{activeDialog.messages.length !== 1 ? 'й' : 'е'} • 
+                    Создан {activeDialog.created_at.toLocaleDateString('ru-RU')}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      AIMessagesStore.getHistoryContext() ? 'bg-green-400' : 'bg-gray-400'
+                    }`} />
+                    <span className="text-xs text-ui-text-muted">
+                      Контекст {AIMessagesStore.getHistoryContext() ? 'вкл' : 'выкл'}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -274,6 +299,11 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
           }}
         />
       )}
+
+      <HistoryContextModal 
+        isVisible={historyPanelVisible}
+        onClose={() => setHistoryPanelVisible(false)}
+      />
     </>
   );
 });

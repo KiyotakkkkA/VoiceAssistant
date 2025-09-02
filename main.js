@@ -6,6 +6,8 @@ import { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
 import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
 import { FileSystemService } from './src/app/js/services/FileSystemService.js';
+import { InitDirectoriesService } from './src/app/js/services/InitDirectoriesService.js';
+import { DownloadService } from './src/app/js/services/DownloadService.js';
 import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
 import { MsgBroker } from "./src/app/js/clients/SocketMsgBrokerClient.js";
 import { paths } from './src/app/js/paths.js';
@@ -51,7 +53,9 @@ let wss = null;
 
 const services = {
   json: JsonParsingService.getInstance(),
-  fsystem: FileSystemService.getInstance()
+  fsystem: FileSystemService.getInstance(),
+  init: InitDirectoriesService.getInstance(),
+  download: DownloadService.getInstance()
 };
 
 function updateSettings(key, value, eventType, eventTopic) {
@@ -102,21 +106,8 @@ function loadTheme(themeName) {
   }
 }
 
-function createBaseFiles() {
-  const settingsPath = `${paths.global_path}/settings.json`;
-  const content = {
-    "ui.current.theme.id": "github-dark",
-    "ui.current.event.panel.state": true,
-    'ui.current.aimodel.id': '',
-
-    "ui.current.apikeys": [],
-    "ui.current.account.data": {},
-    "ui.current.tools": {}
-  }
-
-  if (!fs.existsSync(settingsPath)) {
-    fs.writeFileSync(settingsPath, JSON.stringify(content, null, 2));
-  }
+function createBaseDirStructure() {
+  services.init.buildTree(path.join(__dirname));
 }
 
 function loadInitialData() {
@@ -127,6 +118,11 @@ function loadInitialData() {
         {
           dir: paths.global_path,
           filename: 'settings',
+          ext: "json"
+        },
+        {
+          dir: paths.global_path,
+          filename: 'config',
           ext: "json"
         }
       ]
@@ -160,13 +156,20 @@ function startWebSocketServer() {
   MsgBroker.onConnection((ws) => {
     const notesPath = paths.notes_path;
     const notesData = services.fsystem.buildNotesStructure(notesPath);
+
     const jsonCfgsData = {
       notes: notesData ? notesData.children : {},
       themes: {
         themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
         currentThemeData: services.json.get('theme'),
       },
-      settings: services.json.get('settings')
+      settings: services.json.get('settings'),
+
+      initialState: {
+        voskModel: {
+          exists: fs.existsSync(path.join(paths.voice_model_path, '/', services.json.get('config')['path_to_voice_model']))
+        },
+      }
     };
 
     if (jsonCfgsData) {
@@ -176,6 +179,21 @@ function startWebSocketServer() {
         from: 'server', 
         payload: { data: jsonCfgsData } 
       }));
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_INIT_DOWNLOADING_VOICE_MODEL],
+    handler: (ws, msg) => {
+      services.download.download('https://drive.google.com/file/d/1rHix5tBOz4_13opmbDX1ZrOa_OKsxk5h/view?usp=sharing', path.join(paths.voice_model_path, 'voice_small.zip'), true).then(() => {
+
+        let current_config_data = services.json.get('config');
+        current_config_data['path_to_voice_model'] = 'voice_small';
+        
+        fs.writeFileSync(path.join(paths.global_path, 'config.json'), JSON.stringify(current_config_data, null, 2));
+
+        sendToAll(EventsType.SERVICE_ACTION, EventsTopic.ACTION_SERVICE_RELOAD, {}, 'speech_rec_module');
+      })
     }
   });
 
@@ -471,9 +489,9 @@ function stopPythonProcess() {
 }
 
 app.whenReady().then(() => {
-  startWebSocketServer();
-  createBaseFiles();
+  createBaseDirStructure();
   loadInitialData();
+  startWebSocketServer();
   startPythonProcess();
   createWindow();
   app.on('activate', () => {

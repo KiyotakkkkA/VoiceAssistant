@@ -45,6 +45,8 @@ export const EventsTopic: {
     readonly ACTION_SERVICE_DISABLE: 'action_service_disable';
     readonly ACTION_SERVICE_ENABLE: 'action_service_enable';
 
+    readonly ACTION_INIT_DOWNLOADING_VOICE_MODEL: 'action_init_downloading_voice_model';
+
     readonly ACTION_TOOL_OFF: 'action_tool_off';
     readonly ACTION_TOOL_ON: 'action_tool_on';
 

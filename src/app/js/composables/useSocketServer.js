@@ -1,7 +1,7 @@
 import { MsgBroker } from "../clients/SocketMsgBrokerClient.js";
 
 const useSocketServer = () => {
-  const sendToAll = (_type, _topic, _data) => {
+  const sendToAll = (_type, _topic, _data, _serviceId = null) => {
     try {
         for (const client of MsgBroker.getClients()) {
           if (client.readyState === 1) {
@@ -9,7 +9,8 @@ const useSocketServer = () => {
                 type: _type,
                 topic: _topic,
                 payload: {
-                    data: _data
+                  serviceId: _serviceId,
+                  data: _data
                 },
                 from: 'server',
             }));

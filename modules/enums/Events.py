@@ -44,6 +44,8 @@ class EventsTopic(enum.Enum):
     ACTION_SERVICE_ENABLE = 'action_service_enable'
     ACTION_FILE_REWRITED = 'action_file_rewrited'
 
+    ACTION_INIT_DOWNLOADING_VOICE_MODEL = 'action_init_downloading_voice_model'
+
     ACTION_TOOL_OFF = 'action_tool_off'
     ACTION_TOOL_ON = 'action_tool_on'
 

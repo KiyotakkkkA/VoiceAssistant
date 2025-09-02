@@ -1,4 +1,18 @@
-{
+export const BASE_CONFIG_CONTENT = {
+    'path_to_voice_model': '-',
+}
+
+export const BASE_SETTINGS_CONTENT = {
+    "ui.current.theme.id": "github-dark",
+    "ui.current.event.panel.state": true,
+    'ui.current.aimodel.id': '',
+
+    "ui.current.apikeys": [],
+    "ui.current.account.data": {},
+    "ui.current.tools": {}
+}
+
+export const BASE_GITHUB_THEME = {
     "appcard.border.hover": "#58a6ff",
     "appcard.accent": "#58a6ff",
 

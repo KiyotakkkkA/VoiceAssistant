@@ -13,6 +13,7 @@ import ModulesStore from './store/ModulesStore';
 import NotesStore from './store/NotesStore';
 import AIMessagesStore from './store/AIMessagesStore';
 import StreamingAIStore from './store/StreamingAIStore';
+import InitiationStore from './store/InitiationStore';
 
 interface IncomingMsg { type: string; topic: string; payload: any; from?: string }
 
@@ -71,6 +72,15 @@ const AppContent = observer(() => {
     }
   };
 
+  const setInitialState = (m: any) => {
+    if (m?.payload?.data?.initialState) {
+      InitiationStore.state = { 
+        ...InitiationStore.state, 
+        ...m.payload.data.initialState 
+      };
+    }
+  };
+
   const setThemesData = (m: any) => {
     SettingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themes?.themesList;
     SettingsStore.data.settings = { 
@@ -103,6 +113,11 @@ const AppContent = observer(() => {
         enabled: true,
       }
     };
+
+    if (InitiationStore.state.voskModel.isDownloading && m?.payload?.service === 'speech_rec_module') {
+      InitiationStore.state.voskModel.isDownloading = false
+      InitiationStore.state.voskModel.exists = true
+    }
   };
 
   const setModulesStoppedData = (m: any) => {
@@ -173,6 +188,7 @@ const AppContent = observer(() => {
       setApikeysData(m);
       setEventPanelState(m);
       setNotesData(m);
+      setInitialState(m);
     },
     [EventsTopic.JSON_THEMES_DATA_SET]: (m: any) => {
       setThemesData(m);

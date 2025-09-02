@@ -9,8 +9,12 @@ import { SettingsPanel } from '../organisms/settings';
 import { NotesView } from '../organisms/notes';
 import { EventLog, RightNav } from '../organisms/layout';
 import { observer } from 'mobx-react-lite';
-import SettingsStore from '../../store/SettingsStore';
 import { useDragResize } from '../../composables';
+import { IconError } from '../atoms/icons';
+import { useSocketActions } from '../../composables';
+
+import SettingsStore from '../../store/SettingsStore';
+import InitiationStore from '../../store/InitiationStore';
 
 declare const __SOCKET_PORT__: number;
 
@@ -27,6 +31,8 @@ interface Props {
 export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, transcript, messages, apps, toasts=[], systemReady=false }) => {
 
   const ctx = React.useContext(GContext);
+
+  const { initDownloadingVoiceModel } = useSocketActions();
 
   if (!ctx?.states) return null;
 
@@ -109,6 +115,27 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
           <div className='px-4 py-3 font-semibold text-ui-text-accent tracking-wide'>Состояния</div>
           <div className='px-4 pb-4 overflow-y-auto custom-scrollbar'>
             <StatePanel assistantName={assistantName} mode={mode} transcript={transcript} />
+          </div>
+          <hr className='border-ui-border-primary' />
+          <div>
+            {!InitiationStore.state.voskModel.exists && (
+              <div className='flex flex-col m-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-[11px] text-red-400 items-center gap-2'>
+                <div className='flex items-center gap-2'>
+                  <IconError size={36}/>
+                  <span>Модель распознавания голоса не загружена</span>
+                </div>
+                <hr className='border-red-500/20 w-full' />
+                <button
+                  disabled={InitiationStore.state.voskModel.isDownloading}
+                  onClick={() => {
+                    InitiationStore.state.voskModel.isDownloading = true;
+                    initDownloadingVoiceModel();
+                  }} 
+                  className={`py-2 px-4 rounded-md w-full bg-ui-bg-primary-light hover:bg-ui-bg-secondary-light border border-red-500/30 ${InitiationStore.state.voskModel.isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    {InitiationStore.state.voskModel.isDownloading ? 'Загрузка...' : 'Загрузить модель'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className='flex-1 relative flex'>

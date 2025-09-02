@@ -29,19 +29,19 @@ function clean(v) {
   return v.trim().replace(/^['"]|['"]$/g, '');
 }
 
-function resolvePath(val, defaultRel) {
-  const raw = clean(val);
-  let p = raw ? raw : defaultRel;
-  if (!path.isAbsolute(p)) p = path.join(BASE_ROOT, p);
-  return path.normalize(p);
+function resolvePath(val) {
+  let raw = clean(val);
+  if (!path.isAbsolute(raw)) raw = path.join(BASE_ROOT, raw);
+  return path.normalize(raw);
 }
 
 const resources = 'resources';
 
 export const paths = {
-  themes_path: resolvePath(process.env.PATH_TO_THEMES_CONFIGS_DIR, `${resources}/assets/themes`),
-  notes_path: resolvePath(process.env.PATH_TO_NOTES_DIR, `${resources}/assets/notes`),
-  global_path: resolvePath(process.env.PATH_TO_GLOBAL_DIR, `${resources}/global`)
+  themes_path: resolvePath(`${resources}/assets/themes`),
+  notes_path: resolvePath(`${resources}/assets/notes`),
+  global_path: resolvePath(`${resources}/global`),
+  voice_model_path: resolvePath(`${resources}/models`)
 };
 
 export default paths;

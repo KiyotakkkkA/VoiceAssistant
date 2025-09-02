@@ -11,6 +11,7 @@ type AIMessagesData = {
     aiMsgHistory: Msg[];
     dialogs: Dialog[];
     activeDialogId: string | null;
+    useHistoryContext: boolean;
 }
 
 class AIMessagesStore {
@@ -18,6 +19,7 @@ class AIMessagesStore {
         aiMsgHistory: [],
         dialogs: [],
         activeDialogId: null,
+        useHistoryContext: true,
     };
     
     constructor() {
@@ -115,6 +117,32 @@ class AIMessagesStore {
             activeDialog.messages = [];
             activeDialog.updated_at = new Date();
         }
+    }
+
+    toggleHistoryContext() {
+        this.data.useHistoryContext = !this.data.useHistoryContext;
+    }
+
+    setHistoryContext(enabled: boolean) {
+        this.data.useHistoryContext = enabled;
+    }
+
+    getHistoryContext(): boolean {
+        return this.data.useHistoryContext;
+    }
+
+    getContextMessages(): DialogMessage[] {
+        if (!this.data.useHistoryContext) {
+            return [];
+        }
+        
+        const activeDialog = this.getActiveDialog();
+        if (!activeDialog) {
+            return [];
+        }
+        
+        // Возвращаем последние 10 сообщений для контекста
+        return activeDialog.messages.slice(-10);
     }
 }
 

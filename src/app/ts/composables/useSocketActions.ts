@@ -89,10 +89,15 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_ACCOUNT_DATA_SET, '', { accountData });
   };
 
+  const initDownloadingVoiceModel = () => {
+    sendServiceAction(EventsTopic.ACTION_INIT_DOWNLOADING_VOICE_MODEL, '', {});
+  };
+
   return {
     setApiKeys,
     accountDataSet,
     toolOff,
+    initDownloadingVoiceModel,
     toolOn,
     fileWrite,
     fileDelete,
