@@ -23,8 +23,8 @@ class ToolsStore(ISingleton):
         
         with open(settings_path, 'r+') as f:
             settings = json.load(f)
-            if tool_name in settings['ui.current.tools']:
-                settings['ui.current.tools'][tool_name]['enabled'] = status
+            if tool_name in settings['current.ai.tools']:
+                settings['current.ai.tools'][tool_name]['enabled'] = status
                 f.seek(0)
                 json.dump(settings, f, indent=4, ensure_ascii=False)
                 f.truncate()
@@ -42,8 +42,7 @@ class ToolsStore(ISingleton):
         
         with open(settings_path, 'r+') as f:
             settings = json.load(f)
-            tools = settings['ui.current.tools']
-            
+            tools = settings['current.ai.tools']
             tools_start_len = len(tools)
 
             for tool_name, tool_info in ToolsStore._available_tools.items():
@@ -64,7 +63,7 @@ class ToolsStore(ISingleton):
             tools_end_len = len(tools)
             
             if tools_start_len != tools_end_len:
-                settings['ui.current.tools'] = tools
+                settings['current.ai.tools'] = tools
                 f.seek(0)
                 json.dump(settings, f, indent=4, ensure_ascii=False)
                 f.truncate()

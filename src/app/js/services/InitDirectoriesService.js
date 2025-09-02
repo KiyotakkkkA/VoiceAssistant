@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { BASE_SETTINGS_CONTENT, BASE_GITHUB_THEME, BASE_CONFIG_CONTENT } from '../base.js';
+import { BASE_SETTINGS_CONTENT, BASE_GITHUB_THEME, BASE_LIGHT_THEME, BASE_CONFIG_CONTENT } from '../base.js';
 
 export class InitDirectoriesService {
     static instance;
@@ -19,7 +19,8 @@ export class InitDirectoriesService {
                     { audio: [] },
                     { notes: [] },
                     { themes: [
-                        { 'github-dark.json': JSON.stringify(BASE_GITHUB_THEME, null, 2) }
+                        { 'github-dark.json': JSON.stringify(BASE_GITHUB_THEME, null, 2) },
+                        { 'light.json': JSON.stringify(BASE_LIGHT_THEME, null, 2) }
                     ] }
                 ],
                 models: [],

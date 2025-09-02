@@ -37,9 +37,9 @@ const SettingsPanel: React.FC = observer(() => {
         title: "Общее / Интерфейс",
         component: ApperanceView,
         props: {
-          themeNames: SettingsStore.data.appearance.themes.themeNames,
-          currentTheme: SettingsStore.data.settings?.['ui.current.theme.id'] || 'dark',
-          currentEventPanelState: SettingsStore.data.settings?.['ui.current.event.panel.state']
+          themeNames: SettingsStore.data.runtime['runtime.appearance.themesList'],
+          currentTheme: SettingsStore.data.settings?.['current.appearance.theme'],
+          currentEventPanelState: SettingsStore.data.settings?.['current.interface.event_panel.state']
         }
       },
       "general-modules": {

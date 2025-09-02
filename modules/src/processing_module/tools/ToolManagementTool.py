@@ -52,7 +52,9 @@ class ToolManagementTool(ITool):
             type=EventsType.EVENT.value,
             topic=EventsTopic.JSON_TOOLS_DATA_SET.value,
             data={
-                'tools': tools_representations
+                'settings': {
+                    'current.ai.tools': tools_representations
+                }
             }
         )
 
@@ -66,7 +68,9 @@ class ToolManagementTool(ITool):
             type=EventsType.EVENT.value,
             topic=EventsTopic.JSON_TOOLS_DATA_SET.value,
             data={
-                'tools': tools_representations
+                'settings': {
+                    'current.ai.tools': tools_representations
+                }
             }
         )
 

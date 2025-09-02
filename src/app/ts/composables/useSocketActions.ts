@@ -1,6 +1,7 @@
 import { socketClient } from '../clients';
 import { EventsTopic, EventsType } from '../../js/enums/Events';
 import type { TEventTopicValue } from '../../js/enums/Events';
+import { ApiData, AccountData, ToolsData } from '../types/Global';
 
 export const useSocketActions = () => {
   const sendServiceAction = (topic: TEventTopicValue, serviceId: string, additionalPayload: Record<string, any> = {}) => {
@@ -30,11 +31,11 @@ export const useSocketActions = () => {
   };
 
   const setAiModel = (modelId: string) => {
-    sendServiceAction(EventsTopic.ACTION_AIMODEL_SET, '', { modelId });
+    sendServiceAction(EventsTopic.ACTION_AIMODEL_SET, '', { ['current.ai.model.id']: modelId });
   };
 
-  const setApiKeys = (apiKeys: { id: string; name: string; value: string }[]) => {
-    sendServiceAction(EventsTopic.ACTION_APIKEYS_SET, '', { apiKeys });
+  const setApiKeys = (api: ApiData) => {
+    sendServiceAction(EventsTopic.ACTION_APIKEYS_SET, '', { ['current.ai.api']: api });
   };
 
   const openApp = (key: string, path: string) => {
@@ -42,11 +43,11 @@ export const useSocketActions = () => {
   };
 
   const themeSet = (theme: string) => {
-    sendServiceAction(EventsTopic.ACTION_THEME_SET, '', { theme });
+    sendServiceAction(EventsTopic.ACTION_THEME_SET, '', { ['current.appearance.theme']: theme });
   };
 
   const eventPanelToggle = (state: boolean) => {
-    sendServiceAction(EventsTopic.ACTION_EVENT_PANEL_TOGGLE, '', { state });
+    sendServiceAction(EventsTopic.ACTION_EVENT_PANEL_TOGGLE, '', { ['current.interface.event_panel.state']: state });
   };
 
   const folderRename = (path: string, newName: string) => {
@@ -85,8 +86,8 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_TOOL_ON, '', { toolName });
   };
 
-  const accountDataSet = (accountData: Record<string, string>) => {
-    sendServiceAction(EventsTopic.ACTION_ACCOUNT_DATA_SET, '', { accountData });
+  const accountDataSet = (accountData: AccountData) => {
+    sendServiceAction(EventsTopic.ACTION_ACCOUNT_DATA_SET, '', { ['current.account.data']: accountData });
   };
 
   const initDownloadingVoiceModel = () => {

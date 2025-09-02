@@ -3,13 +3,82 @@ export const BASE_CONFIG_CONTENT = {
 }
 
 export const BASE_SETTINGS_CONTENT = {
-    "ui.current.theme.id": "github-dark",
-    "ui.current.event.panel.state": true,
-    'ui.current.aimodel.id': '',
+    'current.ai.model.id': '',
+    'current.ai.api': {},
+    'current.ai.tools': {},
 
-    "ui.current.apikeys": [],
-    "ui.current.account.data": {},
-    "ui.current.tools": {}
+    'current.account.data': {},
+
+    'current.appearance.theme': 'github-dark',
+
+    'current.interface.event_panel.state': true
+}
+
+export const BASE_LIGHT_THEME = {
+    "setup.theme.title": "Light",
+
+    "appcard.border.hover": "#b0b0b0",
+    "appcard.accent": "#0066cc",
+
+    "widget.muted": "#9e9e9e",
+    "widget.accent.a": "#0066cc",
+    "widget.accent.b": "#00a652",
+    "widget.success": "#00a652",
+    "widget.danger": "#d32f2f",
+
+    "eventlog.json.key": "#d32f2f",
+    "eventlog.json.string": "#2e7d32",
+    "eventlog.json.keyword": "#1976d2",
+    "eventlog.json.number": "#7b1fa2",
+    "eventlog.button.border.hover": "#a0a0a0",
+    "eventlog.button.accent": "#0066cc",
+    "eventlog.button.accent.hover": "#0056b3",
+    "eventlog.from.text": "#757575",
+    "eventlog.button.text": "rgba(66, 66, 66, 0.8)",
+    "eventlog.button.text.hover": "#424242",
+
+    "badge.wake": "#0066cc",
+    "badge.listening": "#00a652",
+    "badge.initializing": "#d32f2f",
+    "badge.waiting": "#7b1fa2",
+    "badge.default": "#757575",
+    "badge.thinking": "#f39c12",
+
+    "input.focus": "#f5f5f5",
+
+    "draghandle.bg.active": "#0066cc",
+    "draghandle.bg.hover": "#424242",
+
+    "ui.text.primary": "#212121",
+    "ui.text.secondary": "#616161",
+    "ui.text.muted": "#9e9e9e",
+    "ui.text.accent": "#424242",
+    "ui.border.primary": "#e0e0e0",
+    "ui.bg.primary": "#ffffff",
+    "ui.bg.primary.light": "#f8f8f8",
+    "ui.bg.secondary": "#f4f4f4",
+    "ui.bg.secondary.light": "#f0f0f0",
+
+    "state.listening.bg": "#00a652",
+    "state.listening.gradient": "rgba(0,166,82,0.12)",
+    "state.waiting.bg": "#7b1fa2",
+    "state.waiting.gradient": "rgba(123,31,162,0.12)",
+    "state.initializing.bg": "#d32f2f",
+    "state.initializing.gradient": "rgba(211,47,47,0.12)",
+    "state.thinking.bg": "#fee75c",
+    "state.thinking.gradient": "rgba(254,231,92,0.12)",
+
+    "nav.text": "#9e9e9e",
+    "nav.text.hover": "#424242",
+    "nav.text.active": "#212121",
+    "nav.tooltip.text": "#ffffff",
+
+    "toast.accent": "#0066cc",
+    "toast.bar": "#0066cc",
+
+    "card.title": "#616161",
+    
+    "version.text": "#9e9e9e"
 }
 
 export const BASE_GITHUB_THEME = {

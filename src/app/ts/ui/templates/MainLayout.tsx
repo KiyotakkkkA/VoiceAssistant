@@ -105,7 +105,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
         </div>
         <div className='flex items-center gap-4 text-ui-text-secondary'>
           <span className='opacity-70'>ws:{__SOCKET_PORT__}</span>
-          { SettingsStore.data.settings['ui.current.event.panel.state'] && (
+          { SettingsStore.data.settings['current.interface.event_panel.state'] && (
             <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-ui-bg-primary-light hover:bg-ui-bg-secondary-light text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
           )}
         </div>
@@ -147,7 +147,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
           <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'apps')} />
         </div>
       </div>
-      { SettingsStore.data.settings['ui.current.event.panel.state'] && (
+      { SettingsStore.data.settings['current.interface.event_panel.state'] && (
         <div className={`absolute left-0 right-0 bottom-0 z-20 bg-ui-bg-primary/95 backdrop-blur-[2px] flex flex-col`} style={{height: logOpen ? logHeight : 32, transition: dragging ? 'none':'height 0.25s ease'}}>
           {logOpen && (
             <div

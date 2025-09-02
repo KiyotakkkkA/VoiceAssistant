@@ -58,7 +58,7 @@ def run(stop_event):
             service.clear_socket_messages_queue()
 
     def handle_model_change(msg):
-        executor.get_current_model_data_from_json(msg.get('payload', {}).get('modelId'))
+        executor.get_current_model_data_from_json(msg.get('payload', {}).get('data', {}).get('settings', {}).get('current.ai.model.id'))
 
     client.on(EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value, handle_raw_text)
     client.on(EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA.value, handle_model_change)
@@ -74,12 +74,12 @@ def run(stop_event):
 
     RuntimeCacheStore.from_settings_to_cache([
         {
-            'key_from': 'ui.current.account.data',
+            'key_from': 'current.account.data',
             'key_to': 'account_data',
         }
     ])
 
-    print(RuntimeCacheStore.get_cache('ui.current.account.data'))
+    print(RuntimeCacheStore.get_cache('current.account.data'))
 
     ToolsStore.init_available_tools(executor.services['ai_service']) # type: ignore
 
@@ -90,7 +90,9 @@ def run(stop_event):
         'topic': EventsTopic.JSON_TOOLS_DATA_SET.value,
         'payload': {
             'data': {
-                'tools': tools_representations
+                'settings': {
+                    'current.ai.tools': tools_representations
+                }
             }
         },
         'from': 'processing_module'

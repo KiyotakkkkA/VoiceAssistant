@@ -12,6 +12,7 @@ import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
 import { MsgBroker } from "./src/app/js/clients/SocketMsgBrokerClient.js";
 import { paths } from './src/app/js/paths.js';
 import { useSocketServer } from "./src/app/js/composables/useSocketServer.js";
+import { ref } from 'vue';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,7 +59,7 @@ const services = {
   download: DownloadService.getInstance()
 };
 
-function updateSettings(key, value, eventType, eventTopic) {
+function updateSettings(key, value) {
   try {
     const settings = services.json.get('settings') || {};
     settings[key] = value;
@@ -66,23 +67,6 @@ function updateSettings(key, value, eventType, eventTopic) {
     const settingsPath = `${paths.global_path}/settings.json`;
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
     services.json.load('settings', settingsPath);
-
-    const updatedData = {
-      settings: {
-        [key]: value
-      }
-    };
-
-    for (const client of MsgBroker.getClients()) {
-      if (client.readyState === 1) {
-        client.send(JSON.stringify({
-          type: eventType,
-          topic: eventTopic,
-          from: 'server',
-          payload: { data: updatedData }
-        }));
-      }
-    }
 
     return true;
   } catch (e) {
@@ -104,6 +88,27 @@ function loadTheme(themeName) {
     console.error(`[Theme] Error loading theme ${themeName}:`, e);
     return false;
   }
+}
+
+function refreshSettings(
+  type,
+  topic,
+  key,
+  data,
+  postRefreshingFn
+) {
+
+  if (data === undefined) {
+    console.warn(`[WS] ${type} ${topic} missing ${key}`);
+    return;
+  }
+
+  if (updateSettings(key, data)) {
+    if (postRefreshingFn) {
+      postRefreshingFn(type, topic, key, data);
+    }
+  }
+
 }
 
 function createBaseDirStructure() {
@@ -144,7 +149,7 @@ function loadInitialData() {
     }
   }
 
-  const selectedTheme = services.json.get('settings')['ui.current.theme.id'];
+  const selectedTheme = services.json.get('settings')['current.appearance.theme'];
   services.json.load('theme', `${paths.themes_path}/${selectedTheme}.json`);
 }
 
@@ -154,22 +159,28 @@ function startWebSocketServer() {
 
   MsgBroker.init(wss, false);
   MsgBroker.onConnection((ws) => {
-    const notesPath = paths.notes_path;
-    const notesData = services.fsystem.buildNotesStructure(notesPath);
 
-    const jsonCfgsData = {
-      notes: notesData ? notesData.children : {},
-      themes: {
+    const notedObject = services.fsystem.buildNotesStructure(paths.notes_path);
+    const settingsObject = services.json.get('settings');
+    const themesObject = () => {
+      return {
         themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
-        currentThemeData: services.json.get('theme'),
-      },
-      settings: services.json.get('settings'),
-
-      initialState: {
+        currentThemeData: services.json.get('theme')
+      }
+    }
+    const initialState = () => {
+      return {
         voskModel: {
           exists: fs.existsSync(path.join(paths.voice_model_path, '/', services.json.get('config')['path_to_voice_model']))
         },
       }
+    }
+
+    const jsonCfgsData = {
+      notes: notedObject,
+      themes: themesObject(),
+      settings: settingsObject,
+      initialState: initialState(),
     };
 
     if (jsonCfgsData) {
@@ -317,62 +328,33 @@ function startWebSocketServer() {
   });
 
   MsgBroker.onMessage({
-    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APP_OPEN],
-    handler: (ws, msg) => {
-      if (!msg.payload?.path) {
-        console.warn('[WS] ACTION_APP_OPEN missing path');
-        return;
-      }
-
-      try {
-        const appPath = msg.payload.path;
-        const folder = path.dirname(appPath);
-        if (process.platform === 'win32') {
-          exec(`explorer.exe /select,"${appPath}"`);
-        } else if (process.platform === 'darwin') {
-          exec(`open "${folder}"`);
-        } else {
-          exec(`xdg-open "${folder}"`);
-        }
-      } catch (e) {
-        console.error('[WS] opening app error', e);
-      }
-    }
-  });
-
-  MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_THEME_SET],
     handler: (ws, msg) => {
-      if (!msg.payload?.theme) {
-        console.warn('[WS] ACTION_THEME_SET missing theme');
-        return;
-      }
-      
-      const themeName = msg.payload.theme;
-      
+      const themeName = msg.payload['current.appearance.theme'];
+
       if (loadTheme(themeName)) {
 
-        if (updateSettings(
-          'ui.current.theme.id', 
-          themeName, 
-          EventsType.EVENT, 
-          EventsTopic.JSON_THEMES_DATA_SET
-        )) {
+        refreshSettings(
+          EventsType.EVENT,
+          EventsTopic.JSON_THEMES_DATA_SET,
+          'current.appearance.theme',
+          themeName,
+          (type, topic, key, data) => {
+            const updatedData = {
+              themes: {
+                themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
+                currentThemeData: services.json.get('theme'),
+              },
+              settings: {
+                [key]: data
+              }
+            };
 
-          const updatedData = {
-            themes: {
-              themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
-              currentThemeData: services.json.get('theme'),
-            },
-            settings: {
-              'ui.current.theme.id': themeName
-            }
-          };
-
-          sendToAll(EventsType.EVENT, EventsTopic.JSON_THEMES_DATA_SET, {
-            ...updatedData
-          });
-        }
+            sendToAll(type, topic, {
+              ...updatedData
+            });
+          }
+        );
       }
     }
   });
@@ -380,33 +362,25 @@ function startWebSocketServer() {
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_EVENT_PANEL_TOGGLE],
     handler: (ws, msg) => {
-      if (!msg.payload?.state && msg.payload?.state !== false) {
-        console.warn('[WS] ACTION_EVENT_PANEL_TOGGLE missing state');
-        return;
-      }
-      
-      updateSettings(
-        'ui.current.event.panel.state', 
-        msg.payload.state, 
-        EventsType.EVENT, 
-        EventsTopic.JSON_EVENT_PANEL_STATE_SET
-      );
+      refreshSettings(
+        null,
+        null,
+        'current.interface.event_panel.state',
+        msg.payload['current.interface.event_panel.state'],
+        null
+      )
     }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_ACCOUNT_DATA_SET],
     handler: (ws, msg) => {
-      if (!msg.payload?.accountData) {
-        console.warn('[WS] ACTION_ACCOUNT_DATA_SET missing accountData');
-        return;
-      }
-      
-      updateSettings(
-        'ui.current.account.data',
-        msg.payload.accountData,
-        EventsType.EVENT,
-        EventsTopic.JSON_ACCOUNT_DATA_SET
+      refreshSettings(
+        null,
+        null,
+        'current.account.data',
+        msg.payload['current.account.data'],
+        null
       );
     }
   });
@@ -414,16 +388,12 @@ function startWebSocketServer() {
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APIKEYS_SET],
     handler: (ws, msg) => {
-      if (!msg.payload?.apiKeys) {
-        console.warn('[WS] ACTION_APIKEYS_SET missing keys');
-        return;
-      }
-      
-      updateSettings(
-        'ui.current.apikeys', 
-        msg.payload.apiKeys, 
-        EventsType.EVENT, 
-        EventsTopic.JSON_APIKEYS_DATA_SET
+      refreshSettings(
+        null,
+        null,
+        'current.ai.api',
+        msg.payload['current.ai.api'],
+        null
       );
     }
   });
@@ -431,19 +401,19 @@ function startWebSocketServer() {
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_AIMODEL_SET],
     handler: (ws, msg) => {
-      if (!msg.payload?.modelId) {
-        console.warn('[WS] ACTION_AIMODEL_SET missing model');
-        return;
-      }
-      
-      if (updateSettings(
-        'ui.current.aimodel.id', 
-        msg.payload.modelId, 
-        EventsType.EVENT, 
-        EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA
-      )) {
-        sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA, {});
-      }
+      refreshSettings(
+        EventsType.EVENT,
+        EventsTopic.HAVE_TO_BE_REFETCHED_SETTINGS_DATA,
+        'current.ai.model.id',
+        msg.payload['current.ai.model.id'],
+        (type, topic, key, data) => {
+          sendToAll(type, topic, {
+            settings: {
+              [key]: data
+            }
+          });
+        }
+      );
     }
   });
 

@@ -112,3 +112,26 @@ export interface Dialog {
   updated_at: Date;
   is_active: boolean;
 }
+
+// Settings Account data structure
+export type AccountData = {
+    [key: string]: string;
+}
+
+// Settings API data structure
+export type ApiData = {
+    [key: string]: {
+        name: string;
+        value: string;
+    }
+}
+
+// Settings Tools data structure
+export type ToolsData = {
+    [key: string]: {
+        enabled: boolean;
+        functions: {
+            name: string;
+        }[];
+    };
+}

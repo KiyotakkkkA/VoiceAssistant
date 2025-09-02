@@ -186,7 +186,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
   const handleCurrentModelChange = (newModel: string) => {
       const { setAiModel } = useSocketActions();
       setAiModel(newModel);
-      SettingsStore.data.settings['ui.current.aimodel.id'] = newModel;
+      SettingsStore.data.settings['current.ai.model.id'] = newModel;
     };
 
   return (
@@ -194,8 +194,8 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
       <canvas ref={canvasRef} className='w-full h-full block' />
         <div className='absolute top-4 left-4'>
           <Dropdown
-            options={SettingsStore.data.settings['ui.current.apikeys']?.map((item) => ({ value: item.id || '', label: item.name })) || []}
-            value={SettingsStore.data.settings['ui.current.aimodel.id']}
+            options={Object.entries(SettingsStore.data.settings['current.ai.api'])?.map(([key, item]) => ({ value: key || '', label: item.name })) || []}
+            value={SettingsStore.data.settings['current.ai.model.id']}
             onChange={handleCurrentModelChange}
             placeholder="Выберите модель"
           />

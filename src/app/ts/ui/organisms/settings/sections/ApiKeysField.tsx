@@ -49,7 +49,7 @@ const ApiKeysField: React.FC = observer(() => {
     };
 
     const handleDelete = (id: string) => {
-        const keyToDelete = SettingsStore.data.settings['ui.current.apikeys']?.find(k => k.id === id);
+        const keyToDelete = SettingsStore.data.settings['current.ai.api']?.[id];
         if (keyToDelete) {
             setDeleteModal({
                 isOpen: true,
@@ -110,25 +110,25 @@ const ApiKeysField: React.FC = observer(() => {
                 </div>
             </CategoryItem>
 
-            {SettingsStore.data.settings['ui.current.apikeys']?.map(key => (
+            {Object.entries(SettingsStore.data.settings['current.ai.api'])?.map(([key, item]) => (
                 <CategoryItem 
-                    key={key.id} 
+                    key={key} 
                     label={
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"></div>
-                            <span className="text-ui-text-primary font-semibold">{key.name}</span>
+                            <span className="text-ui-text-primary font-semibold">{item.name}</span>
                         </div>
                     }
                     description={
                         <div className="flex items-center gap-2">
                             <span className="text-ui-text-secondary text-sm">API ключ:</span>
                             <span className="font-mono text-ui-text-primary bg-ui-text-secondary/10 px-2 py-1 rounded text-sm">
-                                {key.value.replace(/.(?=.{4})/g, '•')}
+                                {item.value.replace(/.(?=.{4})/g, '•')}
                             </span>
                         </div>
                     }
                 >
-                    {editId === key.id ? (
+                    {editId === key ? (
                         <div className="space-y-3 w-full">
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="relative group">
@@ -170,7 +170,7 @@ const ApiKeysField: React.FC = observer(() => {
                             <button
                                 className="w-[40px] h-[40px] flex items-center justify-center px-2 py-1 bg-ui-text-secondary/20 text-ui-text-secondary text-xs rounded hover:bg-cyan-500/20 hover:text-cyan-400 transition-colors"
                                 onClick={() => {
-                                    navigator.clipboard.writeText(key.value);
+                                    navigator.clipboard.writeText(item.value);
                                     addToast('Скопировано в буфер обмена', 'info', 3500);
                                 }}
                             >
@@ -178,14 +178,18 @@ const ApiKeysField: React.FC = observer(() => {
                             </button>
                             <button
                                 className="w-[40px] h-[40px] flex items-center justify-center px-2 py-1 bg-ui-text-secondary/20 text-ui-text-secondary text-xs rounded hover:bg-green-500/20 hover:text-green-400 transition-colors"
-                                onClick={() => handleEdit(key)}
+                                onClick={() => handleEdit({
+                                    id: key,
+                                    name: item.name,
+                                    value: item.value
+                                })}
                                 title="Редактировать"
                             >
                                 <IconPen size={18} />
                             </button>
                             <button
                                 className="w-[40px] h-[40px] flex items-center justify-center px-2 py-1 bg-ui-text-secondary/20 text-ui-text-secondary text-xs rounded hover:bg-red-500/20 hover:text-red-400 transition-colors"
-                                onClick={() => handleDelete(key.id)}
+                                onClick={() => handleDelete(key)}
                                 title="Удалить"
                             >
                                 <IconTrash size={18} />
@@ -195,7 +199,7 @@ const ApiKeysField: React.FC = observer(() => {
                 </CategoryItem>
             ))}
 
-            {SettingsStore.data.settings['ui.current.apikeys']?.length === 0 && (
+            {Object.keys(SettingsStore.data.settings['current.ai.api'] || {}).length === 0 && (
                 <div className="py-8 text-center">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-ui-text-secondary/50">

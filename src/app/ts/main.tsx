@@ -39,33 +39,6 @@ const AppContent = observer(() => {
     setMode('thinking');
   };
 
-  const setToolsData = (m: any) => {
-    if (m?.payload?.data?.tools) {
-      SettingsStore.data.tools = {
-        ...SettingsStore.data.tools,
-        ...m.payload.data.tools
-      };
-    }
-  };
-
-  const setApikeysData = (m: any) => {
-    if (m?.payload?.data?.settings) {
-      SettingsStore.data.settings = { 
-        ...SettingsStore.data.settings, 
-        ...m.payload.data.settings 
-      };
-    }
-  }
-
-  const setEventPanelState = (m: any) => {
-    if (m?.payload?.data?.settings) {
-      SettingsStore.data.settings = { 
-        ...SettingsStore.data.settings, 
-        ...m.payload.data.settings 
-      };
-    }
-  };
-
   const setNotesData = (m: any) => {
     if (m?.payload?.data?.notes) {
       NotesStore.notes = m.payload.data.notes;
@@ -82,11 +55,8 @@ const AppContent = observer(() => {
   };
 
   const setThemesData = (m: any) => {
-    SettingsStore.data.appearance.themes.themeNames = m?.payload?.data?.themes?.themesList;
-    SettingsStore.data.settings = { 
-          ...SettingsStore.data.settings, 
-          ...m.payload.data.settings 
-    };
+    SettingsStore.data.runtime['runtime.appearance.themesList'] = m?.payload?.data?.themes?.themesList;
+    SettingsStore.applySettings(m?.payload?.data?.settings);
     setTheme(m?.payload?.data?.themes?.currentThemeData || null);
   }
 
@@ -184,9 +154,8 @@ const AppContent = observer(() => {
     [EventsTopic.ACTION_TRANSCRIPT]: handleTranscript,
     [EventsTopic.RAW_TEXT_DATA_RECOGNIZED]: rawDataTextRecognized,
     [EventsTopic.JSON_INITAL_DATA_SET]: (m: any) => {
+      SettingsStore.applySettings(m?.payload?.data?.settings);
       setThemesData(m);
-      setApikeysData(m);
-      setEventPanelState(m);
       setNotesData(m);
       setInitialState(m);
     },
@@ -200,7 +169,7 @@ const AppContent = observer(() => {
       setNotesData(m);
     },
     [EventsTopic.JSON_TOOLS_DATA_SET]: (m: any) => {
-      setToolsData(m);
+      SettingsStore.applySettings(m?.payload?.data?.settings);
     }
   };
 

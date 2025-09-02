@@ -46,17 +46,16 @@ class Excecutor:
             if model_id:
                 self.current_model_id = model_id
             else:
-                self.current_model_id = data.get("ui.current.aimodel.id", None)
-            
+                self.current_model_id = data.get("current.ai.model.id", None)
+
             if (not self.current_model_id):
                 return
 
-            for key in data.get("ui.current.apikeys", []):
-                if key.get("id") == self.current_model_id:
-                    self.current_model_name = key.get("name")
-                    self.current_model_key = key.get("value")
-                    self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name) # type: ignore
-                    break
+            data = data.get("current.ai.api", {})
+            if data.get("id") == self.current_model_id:
+                self.current_model_name = data.get("name")
+                self.current_model_key = data.get("value")
+                self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name) # type: ignore
 
     def run(self, msg):
         """

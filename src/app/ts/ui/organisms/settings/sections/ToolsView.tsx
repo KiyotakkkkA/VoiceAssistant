@@ -12,7 +12,7 @@ const ToolsView: React.FC = observer(() => {
   const { toolOff, toolOn } = useSocketActions();
 
   const toggleTool = (category: string, enabled: boolean) => {
-    SettingsStore.data.tools[category].enabled = !enabled;
+    SettingsStore.data.settings['current.ai.tools'][category].enabled = !enabled;
     if (enabled) {
       toolOff(category);
     } else {
@@ -20,7 +20,7 @@ const ToolsView: React.FC = observer(() => {
     }
   }
 
-  const categories = Object.entries(SettingsStore.data.tools).reduce((acc, [key, value]) => {
+  const categories = Object.entries(SettingsStore.data.settings['current.ai.tools']).reduce((acc, [key, value]) => {
     acc[key] = {
       ...value,
       functions: value.functions.map(func => ({
@@ -58,7 +58,7 @@ const ToolsView: React.FC = observer(() => {
 
               <div className='pl-4'>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {SettingsStore.data.tools[category].functions.map(func => (
+                    {SettingsStore.data.settings['current.ai.tools'][category].functions.map(func => (
                     <ToolCard
                         key={func.name}
                         name={func.name}
