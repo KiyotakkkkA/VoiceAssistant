@@ -72,6 +72,8 @@ class AIService(IService):
 
             if not self.tools_representation.get(tool.name):
                 self.tools_representation[tool.name] = {
+                    "required_settings_fields": tool.required_settings_fields,
+                    "available": True,
                     "functions": []
                 }
 

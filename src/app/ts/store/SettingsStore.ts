@@ -1,8 +1,8 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import { useSocketActions } from '../composables';
 import { ApiData, AccountData, ToolsData } from '../types/Global';
 
-const { accountDataSet, eventPanelToggle, setApiKeys } = useSocketActions();
+const { accountDataSet, eventPanelToggle, setApiKeys, toolOff } = useSocketActions();
 
 type Settings = {
     runtime: {
@@ -43,9 +43,15 @@ class SettingsStore {
         makeAutoObservable(this);
     }
 
-    applySettings(newSettings: Partial<Settings>) {
-        console.log('Applying settings:', newSettings);
+    applySettings(newSettings: Partial<Settings['settings']>) {
         this.data.settings = { ...this.data.settings, ...newSettings };
+
+        const accountDataChangedFlag = Object.keys(newSettings['current.account.data'] || {}).length > 0;
+        const toolsDataChangedFlag = Object.keys(newSettings['current.ai.tools'] || {}).length > 0;
+
+        if (accountDataChangedFlag || toolsDataChangedFlag) {
+            this.checkAllToolsRequirements();
+        }
     }
 
     getAccountDataByID(id: string) {
@@ -76,13 +82,40 @@ class SettingsStore {
     }
 
     deleteApiKey(id: string) {
-        console.log('Deleting API key with id:', id);
         if (!this.data.settings['current.ai.api']) {
             this.data.settings['current.ai.api'] = {};
         }
         delete this.data.settings['current.ai.api'][id];
         setApiKeys(this.data.settings['current.ai.api']);
     }
+
+    checkAllToolsRequirements() {
+        runInAction(() => {
+            const tools = this.data.settings['current.ai.tools'];
+            for (const [tool, toolData] of Object.entries(tools)) {
+                const { required_settings_fields } = toolData;
+                let isAvailable = true;
+                
+                for (const field in required_settings_fields) {
+                    const fieldKey = required_settings_fields[field];
+                    const status = this.data.settings['current.account.data'][fieldKey];
+                    
+                    if (status === undefined || status === '' || status === null) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+                
+                this.data.settings['current.ai.tools'][tool].available = isAvailable;
+                
+                if (!isAvailable && this.data.settings['current.ai.tools'][tool].enabled) {
+                    this.data.settings['current.ai.tools'][tool].enabled = false;
+                    toolOff(tool);
+                }
+            }
+        });
+    }
+
 }
 
 export default new SettingsStore();

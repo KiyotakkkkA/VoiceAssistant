@@ -8,6 +8,10 @@ from store.RuntimeCacheStore import RuntimeCacheStore
 class GitHubTool(ITool):
     
     name = 'GitHub API Tools Pack'
+    required_settings_fields = [
+        'gh-public-key',
+        'gh-link'
+    ]
 
     _base_url: str = "https://api.github.com"
     _headers: Dict[str, str] = {

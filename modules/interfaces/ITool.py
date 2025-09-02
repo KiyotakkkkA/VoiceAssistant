@@ -9,6 +9,8 @@ class ITool(ISingleton):
 
     commands = []
 
+    required_settings_fields = []
+
     @classmethod
     def get_commands(cls):
         return cls.commands

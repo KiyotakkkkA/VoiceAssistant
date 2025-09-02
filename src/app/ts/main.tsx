@@ -170,6 +170,9 @@ const AppContent = observer(() => {
     },
     [EventsTopic.JSON_TOOLS_DATA_SET]: (m: any) => {
       SettingsStore.applySettings(m?.payload?.data?.settings);
+    },
+    [EventsTopic.JSON_ACCOUNT_DATA_SET]: (m: any) => {
+      SettingsStore.applySettings(m?.payload?.data?.settings);
     }
   };
 

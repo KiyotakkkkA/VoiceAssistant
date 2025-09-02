@@ -53,6 +53,8 @@ class ToolsStore(ISingleton):
 
                 tools_representations[tool_name] = {
                     'enabled': enabled_status,
+                    'available': tool_info['available'],
+                    'required_settings_fields': tool_info['required_settings_fields'],
                     'functions': tool_info['functions']
                 }
                 

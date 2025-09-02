@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { ToolCard } from '../../../molecules/widgets/cards';
 import { SlidedCheckbox } from '../../../atoms/input';
-import { IconIdea } from '../../../atoms/icons';
+import { IconIdea, IconWarning } from '../../../atoms/icons';
 import { useSocketActions } from '../../../../composables';
+import { ToolsData } from '../../../../types/Global';
+import { ToolTip } from '../../../atoms/feedback';
 
 import SettingsStore from '../../../../store/SettingsStore';
 
@@ -20,21 +22,10 @@ const ToolsView: React.FC = observer(() => {
     }
   }
 
-  const categories = Object.entries(SettingsStore.data.settings['current.ai.tools']).reduce((acc, [key, value]) => {
-    acc[key] = {
-      ...value,
-      functions: value.functions.map(func => ({
-        ...func,
-        enabled: true
-      }))
-    };
-    return acc;
-  }, {} as { [key: string]: { enabled: boolean; functions: { name: string }[] } });
-
   return (
     <div className="space-y-6">
       <div className="space-y-6">
-        {Object.entries(categories).map(([category, { enabled }]) => {          
+        {Object.entries(SettingsStore.data.settings?.['current.ai.tools'])?.map(([category, { enabled, required_settings_fields, available }]) => {
           return (
             <div key={category} className="space-y-4">
               <div className={`flex items-center justify-between p-3 ${enabled ? 'bg-ui-bg-secondary' : 'bg-ui-bg-primary-light'} rounded-xl border border-ui-border-primary`}>
@@ -43,12 +34,35 @@ const ToolsView: React.FC = observer(() => {
                     <IconIdea size={20} className={` ${enabled ? 'text-yellow-500' : ''}`} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-ui-text-primary">{category}</h3>
+                    <h3 className={`text-lg font-semibold ${available ? 'text-ui-text-primary' : 'text-ui-text-muted'}`}>{category}</h3>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
+                  <div>
+                    {!available && (
+                      <div>
+                        <div className='w-[40px] flex justify-center pt-2'>
+                            <ToolTip type="warning" content={
+                              <div className='space-y-1'>
+                                <span>Требует следующие заполненные поля в разделе "Учетные записи"</span>
+                                <div>
+                                  {required_settings_fields.map(field => (
+                                    <div key={field} className="text-xs text-ui-text-muted">
+                                      - {field}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            } position="bottom">
+                                <IconWarning size={26} className="text-yellow-500"/>
+                            </ToolTip>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <SlidedCheckbox
+                    disabled={!available}
                     checked={enabled}
                     onChange={() => toggleTool(category, enabled)}
                     size="lg"

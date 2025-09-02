@@ -77,7 +77,7 @@ const FieldSet = observer(({ dataObject, setDataObject }: { dataObject: DataObje
                     )}
                     {maybeRequired && (
                         <div className='w-[40px] flex justify-center pt-2'>
-                            <ToolTip type="warning" text="Поле может быть необходимым для некоторых инструментов (Tools)" position="bottom">
+                            <ToolTip type="warning" content="Поле может быть необходимым для некоторых инструментов (Tools)" position="bottom">
                                 <IconWarning size={26} className="text-yellow-500"/>
                             </ToolTip>
                         </div>

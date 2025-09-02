@@ -3,7 +3,7 @@ import { IconWarning, IconError, IconInfo } from '../icons';
 
 interface ToolTipProps {
   type?: 'info' | 'warning' | 'danger';
-  text: string;
+  content: string | React.ReactNode;
   children: React.ReactNode;
   position?: 'top' | 'bottom' | 'left' | 'right';
 }
@@ -18,7 +18,7 @@ const getArrowPosition = (position: 'top' | 'bottom' | 'left' | 'right') => {
   return arrowPositions[position];
 };
 
-const ToolTip: React.FC<ToolTipProps> = ({ type = 'info', text, children, position = 'top' }) => {
+const ToolTip: React.FC<ToolTipProps> = ({ type = 'info', content, children, position = 'top' }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const typeStyles = {
@@ -27,21 +27,24 @@ const ToolTip: React.FC<ToolTipProps> = ({ type = 'info', text, children, positi
         <IconInfo size={16} />
       ),
       bg: 'bg-blue-500',
-      text: 'text-blue-500'
+      text: 'text-blue-500',
+      border: 'border-blue-500'
     },
     warning: {
       icon: (
         <IconWarning size={16} />
       ),
       bg: 'bg-yellow-500',
-      text: 'text-yellow-500'
+      text: 'text-yellow-500',
+      border: 'border-yellow-500'
     },
     danger: {
       icon: (
         <IconError size={16} />
       ),
       bg: 'bg-red-500',
-      text: 'text-red-500'
+      text: 'text-red-500',
+      border: 'border-red-500'
     }
   };
 
@@ -66,7 +69,7 @@ const ToolTip: React.FC<ToolTipProps> = ({ type = 'info', text, children, positi
 
       {isVisible && (
         <div 
-          className={`absolute z-50 w-64 p-3 text-sm text-ui-text-primary bg-ui-bg-secondary border border-ui-border-primary rounded-lg shadow-lg ${positionClasses[position]}`}
+          className={`absolute z-50 w-64 p-3 text-sm text-ui-text-primary bg-ui-bg-secondary border ${currentType.border} rounded-lg shadow-lg ${positionClasses[position]}`}
           role="tooltip"
         >
           <div className="flex items-start">
@@ -74,7 +77,7 @@ const ToolTip: React.FC<ToolTipProps> = ({ type = 'info', text, children, positi
               {currentType.icon}
             </div>
             <div className="ml-2">
-              {text}
+              {content}
             </div>
           </div>
           <div className={`absolute w-3 h-3 bg-ui-bg-secondary border-l border-b border-ui-border-primary transform rotate-45 ${getArrowPosition(position)}`}></div>

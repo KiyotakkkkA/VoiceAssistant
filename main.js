@@ -376,11 +376,17 @@ function startWebSocketServer() {
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_ACCOUNT_DATA_SET],
     handler: (ws, msg) => {
       refreshSettings(
-        null,
-        null,
+        EventsType.EVENT,
+        EventsTopic.JSON_ACCOUNT_DATA_SET,
         'current.account.data',
         msg.payload['current.account.data'],
-        null
+        (type, topic, key, data) => {
+          sendToAll(type, topic, {
+            settings: {
+              [key]: data
+            }
+          });
+        }
       );
     }
   });

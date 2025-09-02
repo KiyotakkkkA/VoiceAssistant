@@ -38,9 +38,6 @@ class Excecutor:
             ai_service.set_socket_client(socket_client)  # type: ignore
 
     def get_current_model_data_from_json(self, model_id = None):
-        """
-        Получение данных текущей модели из JSON
-        """
         with open(f"{path_resolver['global_path']}/settings.json", 'r') as f:
             data = json.load(f)
             if model_id:
@@ -59,10 +56,6 @@ class Excecutor:
                 self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name) # type: ignore
 
     def run(self, msg):
-        """
-        Запуск ассистента
-        """
-
         data = self.services["ai_service"].execute(msg['payload']['text']) # type: ignore
 
         yield data

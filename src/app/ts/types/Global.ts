@@ -129,7 +129,9 @@ export type ApiData = {
 // Settings Tools data structure
 export type ToolsData = {
     [key: string]: {
+        required_settings_fields: string[];
         enabled: boolean;
+        available: boolean;
         functions: {
             name: string;
         }[];
