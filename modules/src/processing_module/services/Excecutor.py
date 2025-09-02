@@ -52,9 +52,10 @@ class Excecutor:
                 return
 
             data = data.get("current.ai.api", {})
-            if data.get("id") == self.current_model_id:
-                self.current_model_name = data.get("name")
-                self.current_model_key = data.get("value")
+            model = data.get(self.current_model_id, None)
+            if model:
+                self.current_model_name = model.get("name")
+                self.current_model_key = model.get("value")
                 self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name) # type: ignore
 
     def run(self, msg):
