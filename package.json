@@ -38,6 +38,8 @@
     "wait-on": "^7.2.0"
   },
   "dependencies": {
+    "@electron/rebuild": "^3.7.2",
+    "better-sqlite3": "^11.10.0",
     "dotenv": "^16.4.5",
     "fs-extra": "^11.3.1",
     "js-yaml": "^4.1.0",

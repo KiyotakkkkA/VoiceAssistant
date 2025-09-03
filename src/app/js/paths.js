@@ -41,7 +41,8 @@ export const paths = {
   themes_path: resolvePath(`${resources}/assets/themes`),
   notes_path: resolvePath(`${resources}/assets/notes`),
   global_path: resolvePath(`${resources}/global`),
-  voice_model_path: resolvePath(`${resources}/models`)
+  voice_model_path: resolvePath(`${resources}/models`),
+  db_path: resolvePath(`${resources}/databases`)
 };
 
 export default paths;

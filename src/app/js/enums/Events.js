@@ -17,6 +17,8 @@ export const EventsTopic = {
     JSON_TOOLS_DATA_SET: 'json_tools_data_set',
     JSON_ACCOUNT_DATA_SET: 'json_account_data_set',
 
+    DATABASE_APP_DATA_SET: 'database_app_data_set',
+
     RAW_TEXT_DATA_RECOGNIZED: 'raw_text_data_recognized',
 
     ACTION_APP_OPEN: 'action_app_open',
@@ -57,5 +59,11 @@ export const EventsTopic = {
     READY_ORCHESTRATOR: 'ready_orchestrator',
 
     HAVE_TO_BE_REFETCHED_SETTINGS_DATA: 'have_to_be_refetched_settings_data',
-    HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA: "have_to_be_refetched_notes_structure_data"
+    HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA: "have_to_be_refetched_notes_structure_data",
+
+    DATABASE_APPS_UPDATED: 'database_apps_updated',
+    DATABASE_PATH_ADDED: 'database_path_added',
+    DATABASE_APP_LAUNCHED: 'database_app_launched',
+    DATABASE_APP_FAVORITE_TOGGLED: 'database_app_favorite_toggled',
+    DATABASE_STATS_UPDATED: 'database_stats_updated'
 };

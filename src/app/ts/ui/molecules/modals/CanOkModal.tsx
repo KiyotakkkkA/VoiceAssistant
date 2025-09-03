@@ -1,9 +1,10 @@
+import { R } from 'framer-motion/dist/types.d-DDSxwf0n';
 import React, { useEffect } from 'react';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm?: () => void;
+  onConfirm?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   title: string;
   description?: string;
   confirmText?: string;
@@ -138,8 +139,8 @@ const CanOkModal: React.FC<Props> = ({
           </button>
           {onConfirm && (
             <button
-              onClick={() => {
-                onConfirm();
+              onClick={(e) => {
+                onConfirm(e);
                 onClose();
               }}
               className={`flex-1 px-4 py-2.5 bg-gradient-to-r ${currentStyle.gradient} hover:scale-105 ${currentStyle.shadow} text-white font-medium rounded-xl shadow-lg transition-all duration-200`}

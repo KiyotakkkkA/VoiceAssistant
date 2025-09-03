@@ -3,6 +3,7 @@ export interface PathsConfig {
   notes_path: string;
   global_path: string;
   voice_model_path: string;
+  db_path: string;
 }
 
 export const paths: PathsConfig;

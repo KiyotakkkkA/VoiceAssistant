@@ -3,16 +3,16 @@ import fs from 'fs';
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
-import { spawn, exec } from 'child_process';
+import { spawn } from 'child_process';
 import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
 import { FileSystemService } from './src/app/js/services/FileSystemService.js';
 import { InitDirectoriesService } from './src/app/js/services/InitDirectoriesService.js';
 import { DownloadService } from './src/app/js/services/DownloadService.js';
+import { DatabaseService } from './src/app/js/services/DatabaseService.js';
 import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
 import { MsgBroker } from "./src/app/js/clients/SocketMsgBrokerClient.js";
 import { paths } from './src/app/js/paths.js';
 import { useSocketServer } from "./src/app/js/composables/useSocketServer.js";
-import { ref } from 'vue';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +56,8 @@ const services = {
   json: JsonParsingService.getInstance(),
   fsystem: FileSystemService.getInstance(),
   init: InitDirectoriesService.getInstance(),
-  download: DownloadService.getInstance()
+  download: DownloadService.getInstance(),
+  database: DatabaseService.getInstance()
 };
 
 function updateSettings(key, value) {
@@ -423,6 +424,83 @@ function startWebSocketServer() {
     }
   });
 
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.DATABASE_APPS_UPDATED],
+    handler: (ws, msg) => {
+      try {
+        const { folderPath, folderName, apps } = msg.payload;
+        const success = services.database.saveApps(folderPath, folderName, apps);
+        
+        if (success) {
+          const appsData = services.database.getAppsForUI();
+          const stats = services.database.getStats();
+          
+          sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APPS_UPDATED, {
+            apps: appsData,
+            stats: stats
+          });
+        }
+      } catch (error) {
+        console.error('[Database] Ошибка сохранения приложений:', error);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.DATABASE_APP_LAUNCHED],
+    handler: (ws, msg) => {
+      try {
+        const { appId } = msg.payload;
+        const success = services.database.incrementLaunchCount(appId);
+        
+        if (success) {
+          const stats = services.database.getStats();
+          sendToAll(EventsType.EVENT, EventsTopic.DATABASE_STATS_UPDATED, {
+            stats: stats
+          });
+        }
+      } catch (error) {
+        console.error('[Database] Ошибка обновления счетчика запусков:', error);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.DATABASE_APP_FAVORITE_TOGGLED],
+    handler: (ws, msg) => {
+      try {
+        const { appId } = msg.payload;
+        const success = services.database.toggleFavorite(appId);
+        
+        if (success) {
+          const appsData = services.database.getAppsForUI();
+          sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APPS_UPDATED, {
+            apps: appsData
+          });
+        }
+      } catch (error) {
+        console.error('[Database] Ошибка переключения избранного:', error);
+      }
+    }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.DATABASE_APP_DATA_SET],
+    handler: (ws, msg) => {
+      try {
+        const appsData = services.database.getAppsForUI();
+        const stats = services.database.getStats();
+
+        sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APP_DATA_SET, {
+          apps: appsData,
+          stats: stats
+        });
+      } catch (error) {
+        console.error('[Database] Ошибка получения данных приложений:', error);
+      }
+    }
+  });
+
   MsgBroker.startListening();
 }
 
@@ -468,10 +546,22 @@ function setupIpcHandlers() {
   ipcMain.handle('scan-directory', async (event, dirPath) => {
     try {
       const results = services.fsystem.scanDir(dirPath);
-      return results;
+      return {
+        success: true,
+        apps: results.map(app => ({
+          name: app.name,
+          path: app.path,
+          type: app.type === '.exe' ? 'exe' : 'lnk',
+          icon: undefined
+        }))
+      };
     } catch (error) {
       console.error('Error scanning directory:', error);
-      throw error;
+      return {
+        success: false,
+        apps: [],
+        error: error.message
+      };
     }
   });
 
@@ -489,6 +579,167 @@ function setupIpcHandlers() {
       return null;
     } catch (error) {
       console.error('Error opening folder dialog:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('save-apps-to-database', async (event, folderPath, folderName, apps) => {
+    try {
+      const success = services.database.saveApps(folderPath, folderName, apps);
+      
+      if (success) {
+        const appsData = services.database.getAppsForUI();
+        const stats = services.database.getStats();
+        
+        sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APPS_UPDATED, {
+          apps: appsData,
+          stats: stats
+        });
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('Error saving apps to database:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('get-apps-from-database', async () => {
+    try {
+      const appsData = services.database.getAppsForUI();
+      const stats = services.database.getStats();
+      
+      return {
+        apps: appsData,
+        stats: stats
+      };
+    } catch (error) {
+      console.error('Error getting apps from database:', error);
+      return { apps: { paths: [], apps: {} }, stats: { total_apps: 0, total_paths: 0, total_launches: 0 } };
+    }
+  });
+
+  ipcMain.handle('delete-app', async (event, appId) => {
+    try {
+      const success = services.database.deleteApp(appId);
+      
+      if (success) {
+        const appsData = services.database.getAppsForUI();
+        const stats = services.database.getStats();
+        
+        sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APPS_UPDATED, {
+          apps: appsData,
+          stats: stats
+        });
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('Error deleting app:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('delete-folder', async (event, folderId) => {
+    try {
+      const success = services.database.deleteFolder(folderId);
+      
+      if (success) {
+        const appsData = services.database.getAppsForUI();
+        const stats = services.database.getStats();
+        
+        sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APPS_UPDATED, {
+          apps: appsData,
+          stats: stats
+        });
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('Error deleting folder:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('launch-app', async (event, appId, appPath) => {
+    try {
+      services.database.incrementLaunchCount(appId);
+      
+      if (appPath.endsWith('.lnk')) {
+        const getLinkTarget = () => {
+          return new Promise((resolve, reject) => {
+            const powershellScript = `
+              $shell = New-Object -ComObject WScript.Shell
+              $shortcut = $shell.CreateShortcut('${appPath.replace(/'/g, "''")}')
+              Write-Output $shortcut.TargetPath
+            `;
+            
+            const process = spawn('powershell', ['-Command', powershellScript], {
+              stdio: ['pipe', 'pipe', 'pipe']
+            });
+            
+            let output = '';
+            let error = '';
+            
+            process.stdout.on('data', (data) => {
+              output += data.toString();
+            });
+            
+            process.stderr.on('data', (data) => {
+              error += data.toString();
+            });
+            
+            process.on('close', (code) => {
+              if (code === 0 && output.trim()) {
+                resolve(output.trim());
+              } else {
+                reject(new Error(`PowerShell error: ${error || 'Unknown error'}`));
+              }
+            });
+          });
+        };
+        
+        try {
+          const targetPath = await getLinkTarget();
+          if (targetPath && fs.existsSync(targetPath)) {
+            const appDir = path.dirname(targetPath);
+            spawn(targetPath, [], {
+              detached: true,
+              stdio: 'ignore',
+              cwd: appDir
+            });
+          } else {
+            spawn('cmd', ['/c', 'start', '', `"${appPath}"`], {
+              detached: true,
+              stdio: 'ignore'
+            });
+          }
+        } catch (error) {
+          console.error('Error resolving .lnk target:', error);
+          spawn('cmd', ['/c', 'start', '', `"${appPath}"`], {
+            detached: true,
+            stdio: 'ignore'
+          });
+        }
+      } else if (appPath.endsWith('.exe')) {
+        const appDir = path.dirname(appPath);
+        spawn(appPath, [], {
+          detached: true,
+          stdio: 'ignore',
+          cwd: appDir
+        });
+      } else {
+        throw new Error('Unsupported file type');
+      }
+      
+      sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APP_LAUNCHED, {
+        appId: appId,
+        path: appPath
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error launching app:', error);
       throw error;
     }
   });

@@ -19,8 +19,57 @@ declare global {
       clearInterval: (id: NodeJS.Timeout) => void;
     };
     electronAPI?: {
-        scanDirectory?: (path: string) => Promise<App[]>;
+        scanDirectory?: (path: string) => Promise<{
+            success: boolean;
+            apps: Array<{
+                name: string;
+                path: string;
+                icon?: string;
+                type: 'exe' | 'lnk';
+            }>;
+            error?: string;
+        }>;
         openFolderDialog?: () => Promise<string | null>;
+        saveAppsToDatabase?: (
+            folderPath: string, 
+            folderName: string, 
+            apps: Array<{
+                name: string;
+                path: string;
+                icon?: string;
+                type: 'exe' | 'lnk';
+            }>
+        ) => Promise<boolean>;
+        getAppsFromDatabase?: () => Promise<{
+            apps: {
+                paths: Array<{
+                    id: number;
+                    path: string;
+                    name: string;
+                    created_at: string;
+                    app_count: number;
+                }>;
+                apps: Record<string, Array<{
+                    id: number;
+                    name: string;
+                    path: string;
+                    icon: string | null;
+                    type: string;
+                    launch_count: number;
+                    last_launched: string | null;
+                    is_favorite: boolean;
+                    folder_id: number;
+                }>>;
+            };
+            stats: {
+                total_apps: number;
+                total_paths: number;
+                total_launches: number;
+            };
+        }>;
+        deleteApp?: (appId: number) => Promise<boolean>;
+        deleteFolder?: (folderId: number) => Promise<boolean>;
+        launchApp?: (appId: number, appPath: string) => Promise<boolean>;
     };
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { App } from '../../../types/electron';
+import { App } from '../../../types/Global';
 
 interface AppScanModalProps {
     isOpen: boolean;
@@ -30,54 +30,20 @@ const AppScanModal: React.FC<AppScanModalProps> = ({
         try {
             if (window.electronAPI?.scanDirectory) {
                 const results = await window.electronAPI.scanDirectory(folderPath);
-                setScannedApps(results);
-            } else {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                const mockApps: App[] = [
-                    {
-                        id: 1,
-                        name: 'Visual Studio Code',
-                        path: `${folderPath}\\Microsoft VS Code\\Code.exe`,
-                        type: '.exe',
-                        size: 150000000,
-                        modified: new Date('2024-01-15')
-                    },
-                    {
-                        id: 2,
-                        name: 'Google Chrome',
-                        path: `${folderPath}\\Google\\Chrome\\Application\\chrome.exe`,
-                        type: '.exe',
-                        size: 120000000,
-                        modified: new Date('2024-02-10')
-                    },
-                    {
-                        id: 3,
-                        name: 'Discord',
-                        path: `${folderPath}\\Discord\\Discord.exe`,
-                        type: '.exe',
-                        size: 80000000,
-                        modified: new Date('2024-01-20')
-                    },
-                    {
-                        id: 4,
-                        name: 'Steam',
-                        path: `${folderPath}\\Steam\\steam.exe`,
-                        type: '.exe',
-                        size: 200000000,
-                        modified: new Date('2024-02-05')
-                    },
-                    {
-                        id: 5,
-                        name: 'Notepad++',
-                        path: `${folderPath}\\Notepad++\\notepad++.exe`,
-                        type: '.exe',
-                        size: 15000000,
-                        modified: new Date('2024-01-30')
-                    }
-                ];
-                
-                setScannedApps(mockApps);
+                if (results.success) {
+                    const apps: App[] = results.apps.map((app, index) => ({
+                        id: index + 1,
+                        name: app.name,
+                        path: app.path,
+                        type: app.type,
+                        size: 0,
+                        modified: new Date()
+                    }));
+                    setScannedApps(apps);
+                } else {
+                    console.error('Ошибка сканирования:', results.error);
+                    setScannedApps([]);
+                }
             }
         } catch (error) {
             console.error('Ошибка сканирования:', error);
@@ -119,8 +85,25 @@ const AppScanModal: React.FC<AppScanModalProps> = ({
         setSelectAll(!selectAll);
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         const selectedAppsList = scannedApps.filter(app => selectedApps.has(app.id));
+        
+        if (window.electronAPI?.saveAppsToDatabase) {
+            try {
+                const folderName = folderPath.split('\\').pop() || 'Unknown Folder';
+                const appsToSave = selectedAppsList.map(app => ({
+                    name: app.name,
+                    path: app.path,
+                    type: app.type === '.exe' ? 'exe' as const : 'lnk' as const,
+                    icon: undefined
+                }));
+                
+                await window.electronAPI.saveAppsToDatabase(folderPath, folderName, appsToSave);
+            } catch (error) {
+                console.error('Ошибка сохранения в базу данных:', error);
+            }
+        }
+        
         onConfirmApps(selectedAppsList, folderPath);
         onClose();
     };
