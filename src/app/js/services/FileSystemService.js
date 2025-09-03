@@ -176,4 +176,67 @@ export class FileSystemService {
             return null;
         }
     }
+
+    scanDir(dirPath) {
+        const results = [];
+        
+        if (!fs.existsSync(dirPath)) {
+            throw new Error(`Папка ${dirPath} не найдена`);
+        }
+
+        const scanRecursive = (currentPath, depth = 0) => {
+            if (depth > 3) return;
+
+            try {
+                const items = fs.readdirSync(currentPath);
+                
+                items.forEach(item => {
+                    const fullPath = path.join(currentPath, item);
+                    
+                    try {
+                        const stats = fs.statSync(fullPath);
+                        
+                        if (stats.isFile()) {
+                            const ext = path.extname(item).toLowerCase();
+                            
+                            if (ext === '.exe' || ext === '.lnk') {
+                                const name = path.basename(item, ext);
+                                
+                                const systemFiles = ['uninstall', 'setup', 'installer', 'updater', 'crash', 'error'];
+                                const isSystemFile = systemFiles.some(sysFile => 
+                                    name.toLowerCase().includes(sysFile)
+                                );
+                                
+                                if (!isSystemFile) {
+                                    results.push({
+                                        id: Date.now() + Math.random(),
+                                        name: name,
+                                        path: fullPath,
+                                        type: ext,
+                                        size: stats.size,
+                                        modified: stats.mtime
+                                    });
+                                }
+                            }
+                        } else if (stats.isDirectory()) {
+                            const systemFolders = ['$recycle.bin', 'system volume information', 'windows', 'perflogs'];
+                            const folderName = item.toLowerCase();
+                            
+                            if (!systemFolders.includes(folderName) && !folderName.startsWith('.')) {
+                                scanRecursive(fullPath, depth + 1);
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(`Cannot access ${fullPath}:`, error.message);
+                    }
+                });
+            } catch (error) {
+                console.warn(`Cannot read directory ${currentPath}:`, error.message);
+            }
+        };
+
+        scanRecursive(dirPath);
+        
+        return results.sort((a, b) => a.name.localeCompare(b.name));
+    }
 }

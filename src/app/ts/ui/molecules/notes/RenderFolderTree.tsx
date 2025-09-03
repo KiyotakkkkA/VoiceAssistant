@@ -2,6 +2,7 @@ import React, { memo, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import NotesStore from "../../../store/NotesStore";
 import { NoteItem, NoteFolderItem } from '../../../types/Global';
+import { IconFolder } from '../../atoms/icons';
 
 interface RenderFolderTreeProps {
     items: { [key: string]: NoteItem | NoteFolderItem };
@@ -124,9 +125,7 @@ const RenderFolderTree = observer(({
                                     >
                                         <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                                     </svg>
-                                    <svg className="h-3 w-3 text-ui-text-muted" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                                    </svg>
+                                    <IconFolder size={16} className='text-ui-text-primary'/>
                                     {isRenaming === fullPath ? (
                                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                                             <input

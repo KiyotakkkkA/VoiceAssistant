@@ -1,5 +1,14 @@
 import type { TEventTopicValue, TEventTypeValue } from '../../js/enums/Events.js';
 
+export interface App {
+    id: string | number;
+    name: string;
+    path: string;
+    type: string;
+    size: number;
+    modified: Date;
+}
+
 // Interface for safety timers integration in Electron
 declare global {
   interface Window {
@@ -8,6 +17,10 @@ declare global {
       setInterval: (callback: () => void, interval: number) => NodeJS.Timeout;
       clearTimeout: (id: NodeJS.Timeout) => void;
       clearInterval: (id: NodeJS.Timeout) => void;
+    };
+    electronAPI?: {
+        scanDirectory?: (path: string) => Promise<App[]>;
+        openFolderDialog?: () => Promise<string | null>;
     };
   }
 }

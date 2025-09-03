@@ -141,7 +141,6 @@ class AIMessagesStore {
             return [];
         }
         
-        // Возвращаем последние 10 сообщений для контекста
         return activeDialog.messages.slice(-10);
     }
 }

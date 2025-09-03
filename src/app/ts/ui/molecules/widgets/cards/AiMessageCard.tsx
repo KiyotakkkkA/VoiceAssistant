@@ -122,7 +122,6 @@ const AiMessageCard: React.FC<AiMessageProps> = ({
   const { formatTime } = useTimeFormatter();
   const { getModelIcon } = useModuleHelpers();
 
-  // Всегда вызываем хуки в одном и том же порядке
   const isStructuredResponse = typeof aiResponse === 'object' && aiResponse !== null;
   const response = isStructuredResponse ? aiResponse as AIResponse : null;
   const simpleResponse = !isStructuredResponse ? aiResponse as string : null;
@@ -134,7 +133,6 @@ const AiMessageCard: React.FC<AiMessageProps> = ({
     mainContent = simpleResponse || '';
   }
 
-  // Всегда вызываем useMarkdown для основного контента
   const formattedMainContent = useMarkdown(mainContent || '');
 
   const getModelColor = (model: string) => {

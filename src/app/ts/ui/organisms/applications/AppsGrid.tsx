@@ -1,38 +1,33 @@
 import React, { useState } from 'react';
 import { AppCard } from '../../molecules/widgets/cards';
 import { TextInput } from '../../atoms/input';
-import { IconTrash } from '../../atoms/icons';
-import { FolderChooseModal } from '../../molecules/modals';
+import { IconFolder, IconTrash } from '../../atoms/icons';
+import { FolderChooseModal, AppScanModal } from '../../molecules/modals';
 
 interface App {
     id: string;
     name: string;
     path: string;
+    pathId?: string;
 }
 
 interface AppsGridProps {
 	apps: Record<string, App>;
 }
 
-const mockPaths = [
-	{ id: '1', path: 'C:\\Program Files', name: 'Program Files' },
-	{ id: '2', path: 'C:\\Program Files (x86)', name: 'Program Files (x86)' },
-	{ id: '3', path: 'C:\\Users\\User\\Desktop', name: 'Desktop' }
-];
-
-const mockApps = [
-	{ id: '1', name: 'Visual Studio Code', path: 'C:\\Program Files\\Microsoft VS Code\\Code.exe', pathId: '1' },
-	{ id: '2', name: 'Google Chrome', path: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', pathId: '1' },
-	{ id: '3', name: 'Discord', path: 'C:\\Program Files (x86)\\Discord\\Discord.exe', pathId: '2' },
-	{ id: '4', name: 'Steam', path: 'C:\\Program Files (x86)\\Steam\\steam.exe', pathId: '2' },
-	{ id: '5', name: 'MyApp', path: 'C:\\Users\\User\\Desktop\\MyApp.exe', pathId: '3' }
-];
+interface PathInfo {
+    id: string;
+    path: string; 
+    name: string;
+}
 
 const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
-	const [isFolderModalOpen, setFolderModalOpen] = useState(false);
-	const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
-
-	const groupedApps = mockApps.reduce((acc, app) => {
+    const [isFolderModalOpen, setFolderModalOpen] = useState(false);
+    const [isAppScanModalOpen, setAppScanModalOpen] = useState(false);
+    const [selectedScanFolder, setSelectedScanFolder] = useState<string>('');
+    const [mockPaths, setMockPaths] = useState<PathInfo[]>([]);
+    const [mockApps, setMockApps] = useState<App[]>([]);
+    const groupedApps = mockApps.reduce((acc, app) => {
 		const pathInfo = mockPaths.find(p => p.id === app.pathId);
 		if (pathInfo) {
 			if (!acc[pathInfo.id]) {
@@ -43,16 +38,38 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 		return acc;
 	}, {} as Record<string, { path: typeof mockPaths[0], apps: typeof mockApps }>);
 
-	const handleAddClick = () => {
-		setFolderModalOpen(true);
-	};
+    const handleAddClick = () => {
+        setFolderModalOpen(true);
+    };
 
-	const handleFolderSelect = (folderPath: string) => {
-		setSelectedFolder(folderPath);
-		// Здесь можно добавить логику добавления пути
-	};
+    const handleFolderSelect = (folderPath: string) => {
+        setSelectedScanFolder(folderPath);
+        setFolderModalOpen(false);
+        setAppScanModalOpen(true);
+    };
 
-	return (
+    const handleAppsConfirm = (selectedApps: any[], folderPath: string) => {
+        let pathId = mockPaths.find(p => p.path === folderPath)?.id;
+        
+        if (!pathId) {
+            pathId = (mockPaths.length + 1).toString();
+            const pathName = folderPath.split('\\').pop() || folderPath;
+            setMockPaths(prev => [...prev, { 
+                id: pathId!, 
+                path: folderPath, 
+                name: pathName 
+            }]);
+        }
+
+        const newApps = selectedApps.map(app => ({
+            id: `${Date.now()}_${app.id}`,
+            name: app.name,
+            path: app.path,
+            pathId: pathId!
+        }));
+
+        setMockApps(prev => [...prev, ...newApps]);
+    };	return (
 		<div className='w-full h-full p-4 overflow-auto custom-scrollbar'>
 			<div className='max-w-6xl mx-auto'>
 				<div className='mb-6'>
@@ -118,23 +135,28 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 				{mockPaths.length === 0 && (
 					<div className='flex flex-col items-center justify-center py-16 text-center'>
 						<div className='w-16 h-16 rounded-full bg-ui-text-secondary/10 flex items-center justify-center mb-4'>
-							<svg width='24' height='24' viewBox='0 0 24 24' fill='currentColor' className='text-ui-text-secondary'>
-								<path d='M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z'/>
-							</svg>
+							<IconFolder size={32} className='text-ui-text-secondary' />
 						</div>
 						<h3 className='text-lg font-semibold text-ui-text-primary mb-2'>Нет путей</h3>
 						<p className='text-ui-text-muted max-w-md'>Добавьте пути для поиска приложений в системе</p>
 					</div>
 				)}
-			</div>
-			{/* Модал выбора папки */}
-			<FolderChooseModal
-				isOpen={isFolderModalOpen}
-				onClose={() => setFolderModalOpen(false)}
-				onSelectFolder={handleFolderSelect}
-			/>
-		</div>
-	);
+            </div>
+            
+            <FolderChooseModal
+                isOpen={isFolderModalOpen}
+                onClose={() => setFolderModalOpen(false)}
+                onSelectFolder={handleFolderSelect}
+            />
+            
+            <AppScanModal
+                isOpen={isAppScanModalOpen}
+                onClose={() => setAppScanModalOpen(false)}
+                onConfirmApps={handleAppsConfirm}
+                folderPath={selectedScanFolder}
+            />
+        </div>
+    );
 };
 
 export { AppsGrid };

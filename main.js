@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
@@ -464,12 +464,44 @@ function stopPythonProcess() {
   }
 }
 
+function setupIpcHandlers() {
+  ipcMain.handle('scan-directory', async (event, dirPath) => {
+    try {
+      const results = services.fsystem.scanDir(dirPath);
+      return results;
+    } catch (error) {
+      console.error('Error scanning directory:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('open-folder-dialog', async () => {
+    try {
+      const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory'],
+        title: 'Выберите папку для сканирования'
+      });
+      
+      if (!result.canceled && result.filePaths.length > 0) {
+        return result.filePaths[0];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error opening folder dialog:', error);
+      throw error;
+    }
+  });
+}
+
 app.whenReady().then(() => {
   createBaseDirStructure();
   loadInitialData();
+  setupIpcHandlers();
   startWebSocketServer();
   startPythonProcess();
   createWindow();
+  
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();

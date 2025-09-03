@@ -132,7 +132,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
           particleMultiplier = 1.3;
         }
         else if (m === 'thinking') {
-          basePalette = [255, 140, 0]; // Оранжевый (#FF8C00)
+          basePalette = [255, 140, 0];
           particleMultiplier = 1.5;
         }
 
@@ -164,7 +164,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
     rgbacolor = 'rgba(20,220,160,0.25)';
   }
   else if (m === 'thinking') {
-    rgbacolor = 'rgba(255,140,0,0.25)'; // Оранжевый
+    rgbacolor = 'rgba(255,140,0,0.25)';
   }
   
   const gradient = ctx.createRadialGradient(0,0,12,0,0, Math.min(width,height)/3);
