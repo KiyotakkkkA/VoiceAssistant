@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppCard } from '../../molecules/widgets/cards';
 import { TextInput } from '../../atoms/input';
 import { IconTrash } from '../../atoms/icons';
+import { FolderChooseModal } from '../../molecules/modals';
 
 interface App {
     id: string;
@@ -28,6 +29,9 @@ const mockApps = [
 ];
 
 const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
+	const [isFolderModalOpen, setFolderModalOpen] = useState(false);
+	const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+
 	const groupedApps = mockApps.reduce((acc, app) => {
 		const pathInfo = mockPaths.find(p => p.id === app.pathId);
 		if (pathInfo) {
@@ -38,6 +42,15 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 		}
 		return acc;
 	}, {} as Record<string, { path: typeof mockPaths[0], apps: typeof mockApps }>);
+
+	const handleAddClick = () => {
+		setFolderModalOpen(true);
+	};
+
+	const handleFolderSelect = (folderPath: string) => {
+		setSelectedFolder(folderPath);
+		// Здесь можно добавить логику добавления пути
+	};
 
 	return (
 		<div className='w-full h-full p-4 overflow-auto custom-scrollbar'>
@@ -58,7 +71,10 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 								placeholder='Добавить путь для поиска приложений (например: C:\Program Files)'
 							/>
 						</div>
-						<button className='px-4 py-2 bg-ui-bg-secondary text-white rounded-md hover:bg-ui-bg-secondary-light transition-colors font-medium'>
+						<button
+							className='px-4 py-2 bg-ui-bg-secondary text-white rounded-md hover:bg-ui-bg-secondary-light transition-colors font-medium'
+							onClick={handleAddClick}
+						>
 							Добавить
 						</button>
 					</div>
@@ -111,6 +127,12 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 					</div>
 				)}
 			</div>
+			{/* Модал выбора папки */}
+			<FolderChooseModal
+				isOpen={isFolderModalOpen}
+				onClose={() => setFolderModalOpen(false)}
+				onSelectFolder={handleFolderSelect}
+			/>
 		</div>
 	);
 };
