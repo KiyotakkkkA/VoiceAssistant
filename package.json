@@ -16,6 +16,7 @@
     "lint": "eslint . --ext .js,.ts,.tsx"
   },
   "devDependencies": {
+    "@types/highlight.js": "^9.12.4",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
@@ -42,6 +43,7 @@
     "better-sqlite3": "^11.10.0",
     "dotenv": "^16.4.5",
     "fs-extra": "^11.3.1",
+    "highlight.js": "^11.11.1",
     "js-yaml": "^4.1.0",
     "mobx-react-lite": "^4.1.0",
     "react": "^18.3.1",

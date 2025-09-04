@@ -22,3 +22,4 @@ export { IconInfo } from "./IconInfo";
 export { IconWarning } from "./IconWarning";
 export { IconError } from "./IconError";
 export { IconFolder } from "./IconFolder";
+export { IconKey } from "./IconKey";

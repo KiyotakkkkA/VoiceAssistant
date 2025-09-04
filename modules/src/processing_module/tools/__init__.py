@@ -1,6 +1,7 @@
 from .FileSystemTool import FileSystemTool
 from .ModuleManagementTool import ModuleManagementTool
 from .NetworkTool import NetworkTool
+from .WebTool import WebTool
 from .SystemManagementTool import SystemManagementTool
 from .DockerTool import DockerTool
 from .ToolManagementTool import ToolManagementTool
@@ -10,9 +11,11 @@ from .UserInfoTool import UserInfoTool
 __all__ = [
     "FileSystemTool",
     "ModuleManagementTool",
-    "NetworkTool",
+    "WebTool",
     "SystemManagementTool",
+    "NetworkTool",
     "DockerTool",
     "ToolManagementTool",
-    "GitHubTool"
+    "GitHubTool",
+    "UserInfoTool"
 ]

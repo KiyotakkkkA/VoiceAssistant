@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { FloatingTextInput } from '../../../atoms/input';
 import { useState } from 'react';
-import { IconWarning, IconGithub, IconPen, IconCheck, IconX } from '../../../atoms/icons';
+import { IconWarning, IconGithub, IconPen, IconCheck, IconX, IconKey } from '../../../atoms/icons';
 import { ToolTip } from '../../../atoms/feedback';
 
 import SettingsStore from '../../../../store/SettingsStore';
@@ -109,6 +109,15 @@ const AccountsView: React.FC = observer(() => {
             isChanging: false,
             beforeCommitValue: ''
         },
+        searchApiKey: {
+            id: 'search-api-key',
+            icon: <IconKey size={32} className="text-ui-text-primary" />,
+            value: SettingsStore.getAccountDataByID('search-api-key') || '',
+            label: 'Search API Key',
+            maybeRequired: true,
+            isChanging: false,
+            beforeCommitValue: ''
+        }
     });
 
     return (

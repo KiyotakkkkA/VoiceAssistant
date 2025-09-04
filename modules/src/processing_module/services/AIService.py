@@ -3,7 +3,7 @@ import time
 from ollama import Client
 from interfaces import IService
 from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool, \
-DockerTool, ToolManagementTool, GitHubTool, UserInfoTool
+DockerTool, ToolManagementTool, GitHubTool, UserInfoTool, WebTool
 from enums.Events import EventsType, EventsTopic
 
 header = f'''
@@ -39,7 +39,8 @@ class AIService(IService):
             DockerTool,
             ToolManagementTool,
             GitHubTool,
-            UserInfoTool
+            UserInfoTool,
+            WebTool
         ]
 
         self.symlinks = {}
