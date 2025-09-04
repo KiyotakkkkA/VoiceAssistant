@@ -2,6 +2,8 @@ import os
 from src.processing_module.facades import ToolBuilder
 from interfaces import ITool
 from paths import path_resolver
+from utils import DatabaseService
+from enums.Events import EventsType, EventsTopic
 
 class FileSystemTool(ITool):
 
@@ -116,20 +118,134 @@ class FileSystemTool(ITool):
         return {
             "name": "get_apps_tool",
             'handler': FileSystemTool.get_apps_handler,
-            "tool": ToolBuilder().set_name("get_apps_tool").set_description('Tool that can retrieve a list of installed applications; Use it in case of getting installed application names').build()
+            "tool": ToolBuilder().set_name("get_apps_tool").set_description('Tool that can retrieve a list of installed applications from database; Use it in case of getting installed application names with their details').build()
         }
 
     @staticmethod
     def get_apps_handler(**kwargs):
+        """Получить список всех приложений из базы данных"""
+        try:
+            db_service = DatabaseService.getInstance()
+            apps = db_service.get_all_apps()
+            
+            if not apps:
+                return {"message": "No applications found in database"}
+            
+            result = []
+            for app in apps:
+                result.append({
+                    "name": app["name"],
+                    "path": app["executable_path"], 
+                    "launch_count": app["launch_count"],
+                    "is_favorite": app["is_favorite"],
+                    "folder": app["folder_name"]
+                })
+            
+            return {
+                "apps": result,
+                "total_count": len(result)
+            }
+            
+        except Exception as e:
+            return {"error": f"Failed to retrieve apps: {str(e)}"}
 
-        return """
-            'Google',
-            "Visual Studio Code",
-            'Genshin Impact'
-        """
+    @staticmethod
+    def setup_search_apps_tool():
+        return {
+            "name": "search_apps_tool",
+            'handler': FileSystemTool.search_apps_handler,
+            "tool": ToolBuilder().set_name("search_apps_tool")
+            .set_description('Tool that can search for applications by name; Use it when user asks to find specific applications')
+            .add_property("app_name", "Name or part of the application name to search for")
+            .add_requirements(["app_name"])
+            .build()
+        }
+
+    @staticmethod
+    def search_apps_handler(**kwargs):
+        """Поиск приложений по имени"""
+        app_name = kwargs.get("app_name")
+        if not app_name:
+            return {"error": "app_name is required"}
+            
+        try:
+            db_service = DatabaseService.getInstance()
+            apps = db_service.get_apps_by_name(app_name)
+            
+            if not apps:
+                return {"message": f"No applications found matching '{app_name}'"}
+            
+            result = []
+            for app in apps:
+                result.append({
+                    "name": app["name"],
+                    "path": app["executable_path"],
+                    "launch_count": app["launch_count"],
+                    "is_favorite": app["is_favorite"],
+                    "folder": app["folder_name"]
+                })
+            
+            return {
+                "apps": result,
+                "search_query": app_name,
+                "found_count": len(result)
+            }
+            
+        except Exception as e:
+            return {"error": f"Failed to search apps: {str(e)}"}
+
+    @staticmethod
+    def setup_open_app_tool():
+        return {
+            "name": "open_app_tool",
+            'handler': FileSystemTool.open_app_handler,
+            "tool": ToolBuilder().set_name("open_app_tool")
+            .set_description('Tool that can launch/open an application; Use it when user asks to open, launch, start or run an application')
+            .add_property("app_name", "Name of the application to launch")
+            .add_requirements(["app_name"])
+            .build()
+        }
+
+    @staticmethod
+    def open_app_handler(**kwargs):
+        """Открыть приложение и отправить событие в главный процесс"""
+        app_name = kwargs.get("app_name")
+        if not app_name:
+            return {"error": "app_name is required"}
+            
+        try:
+            db_service = DatabaseService.getInstance()
+            apps = db_service.get_apps_by_name(app_name)
+            
+            if not apps:
+                return {"error": f"Application '{app_name}' not found in database"}
+            
+            app = apps[0]
+            app_path = app["executable_path"]
+            
+            FileSystemTool.add_socket_message_to_queue(
+                type=EventsType.SERVICE_ACTION.value,
+                topic=EventsTopic.ACTION_APP_OPEN.value,
+                data={
+                    'key': app["name"],
+                    'path': app_path
+                }
+            )
+            
+            return {
+                "success": True,
+                "message": f"Application '{app['name']}' launch request sent",
+                "app_name": app["name"],
+                "app_path": app_path
+            }
+            
+        except Exception as e:
+            return {"error": f"Failed to open app: {str(e)}"}
 
 FileSystemTool.commands = [
     FileSystemTool.setup_get_apps_tool(),
+    FileSystemTool.setup_search_apps_tool(),
+    FileSystemTool.setup_open_app_tool(),
     FileSystemTool.setup_get_notes_tool(),
     FileSystemTool.setup_read_file_content_tool(),
     FileSystemTool.setup_write_file_content_tool()

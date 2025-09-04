@@ -341,6 +341,16 @@ export class DatabaseService {
         }
     }
 
+    getAppByPath(executablePath) {
+        try {
+            const result = this.statements.getAllApps.all().find(app => app.executable_path === executablePath);
+            return result || null;
+        } catch (error) {
+            console.error('[DatabaseService] Ошибка поиска приложения по пути:', error);
+            return null;
+        }
+    }
+
     close() {
         if (this.db) {
             this.db.close();

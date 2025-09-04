@@ -26,4 +26,5 @@ path_resolver = {
     'notes_path': _as_str(resolve_path(_as_str(resources / 'assets' / 'notes'))),
     'global_path': _as_str(resolve_path(_as_str(resources / 'global'))),
     'temp_path': _as_str(resolve_path(_as_str(resources / 'temp'))),
+    'database_path': _as_str(resolve_path(_as_str(resources / 'databases')))
 }

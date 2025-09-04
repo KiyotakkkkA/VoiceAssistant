@@ -22,7 +22,7 @@ class DockerTool(ITool):
             "handler": DockerTool.get_all_images_handler,
             "tool": ToolBuilder()
                 .set_name("get_all_images_tool")
-                .set_description("Tool that retrieves information about all Docker images on the system")
+                .set_description("Tool that retrieves information about all Docker images on the system | If Docker client is not available, try to open Docker Desktop app")
                 .build()
         }
     
@@ -71,7 +71,7 @@ class DockerTool(ITool):
             "handler": DockerTool.get_all_containers_handler,
             "tool": ToolBuilder()
                 .set_name("get_all_containers_tool")
-                .set_description("Tool that retrieves information about all Docker containers (running and stopped)")
+                .set_description("Tool that retrieves information about all Docker containers (running and stopped) | If Docker client is not available, try to open Docker Desktop app")
                 .add_property("show_all", "boolean", description="Show all containers including stopped ones (default: true)")
                 .build()
         }
@@ -139,7 +139,7 @@ class DockerTool(ITool):
             "handler": DockerTool.run_container_handler,
             "tool": ToolBuilder()
                 .set_name("run_container_tool")
-                .set_description("Tool that runs a Docker container from an image")
+                .set_description("Tool that runs a Docker container from an image | If Docker client is not available, try to open Docker Desktop app")
                 .add_property("image", "string", description="Docker image name or ID to run")
                 .add_property("name", "string", description="Optional container name")
                 .add_property("command", "string", description="Optional command to run in container")
@@ -220,7 +220,7 @@ class DockerTool(ITool):
             "handler": DockerTool.start_container_handler,
             "tool": ToolBuilder()
                 .set_name("start_container_tool")
-                .set_description("Tool that starts a stopped Docker container")
+                .set_description("Tool that starts a stopped Docker container | If Docker client is not available, try to open Docker Desktop app")
                 .add_property("container_id", "string", description="Container ID or name to start")
                 .add_requirements(['container_id'])
                 .build()
@@ -259,7 +259,7 @@ class DockerTool(ITool):
             "handler": DockerTool.stop_container_handler,
             "tool": ToolBuilder()
                 .set_name("stop_container_tool")
-                .set_description("Tool that stops a running Docker container")
+                .set_description("Tool that stops a running Docker container | If Docker client is not available, try to open Docker Desktop app")
                 .add_property("container_id", "string", description="Container ID or name to stop")
                 .add_property("timeout", "integer", description="Seconds to wait for stop before killing (default: 10)")
                 .add_requirements(['container_id'])

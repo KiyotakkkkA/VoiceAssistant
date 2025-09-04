@@ -501,6 +501,47 @@ function startWebSocketServer() {
     }
   });
 
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APP_OPEN],
+    handler: (ws, msg) => {
+      try {
+        const { key, path } = msg.payload.data;
+        if (!key || !path) {
+          console.warn('[WS] ACTION_APP_OPEN missing key or path', msg.payload);
+          return;
+        }
+        
+        let spawnCommand, spawnArgs;
+        
+        if (process.platform === 'win32' && path.endsWith('.lnk')) {
+          spawnCommand = 'explorer';
+          spawnArgs = [path];
+        } else {
+          spawnCommand = path;
+          spawnArgs = [];
+        }
+        
+        const childProcess = spawn(spawnCommand, spawnArgs, {
+          detached: true,
+          stdio: 'ignore'
+        });
+        childProcess.unref();
+
+        const app = services.database.getAppByPath(path);
+        if (app) {
+          services.database.incrementLaunchCount(app.id);
+          const stats = services.database.getStats();
+          sendToAll(EventsType.EVENT, EventsTopic.DATABASE_STATS_UPDATED, {
+            stats: stats
+          });
+        }
+
+      } catch (error) {
+        console.error('[Apps] Ошибка запуска приложения:', error);
+      }
+    }
+  });
+
   MsgBroker.startListening();
 }
 

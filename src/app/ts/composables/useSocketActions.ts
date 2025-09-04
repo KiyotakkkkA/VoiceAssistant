@@ -38,10 +38,6 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_APIKEYS_SET, '', { ['current.ai.api']: api });
   };
 
-  const openApp = (key: string, path: string) => {
-    sendServiceAction(EventsTopic.ACTION_APP_OPEN, '', { key, path });
-  };
-
   const themeSet = (theme: string) => {
     sendServiceAction(EventsTopic.ACTION_THEME_SET, '', { ['current.appearance.theme']: theme });
   };
@@ -114,6 +110,5 @@ export const useSocketActions = () => {
     enableService,
     disableService,
     setAiModel,
-    openApp
   };
 };
