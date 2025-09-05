@@ -64,7 +64,6 @@ export class DatabaseService {
                 last_modified DATETIME,
                 launch_count INTEGER DEFAULT 0,
                 last_launched DATETIME,
-                is_favorite BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (path_id) REFERENCES app_paths(id) ON DELETE CASCADE
             );
@@ -139,12 +138,6 @@ export class DatabaseService {
                 UPDATE apps 
                 SET launch_count = launch_count + 1,
                     last_launched = CURRENT_TIMESTAMP
-                WHERE id = ?
-            `),
-            
-            toggleFavorite: this.db.prepare(`
-                UPDATE apps 
-                SET is_favorite = NOT is_favorite
                 WHERE id = ?
             `),
             
@@ -286,16 +279,6 @@ export class DatabaseService {
             return result.changes > 0;
         } catch (error) {
             console.error('[DatabaseService] Ошибка обновления счетчика запусков:', error);
-            return false;
-        }
-    }
-
-    toggleFavorite(appId) {
-        try {
-            const result = this.statements.toggleFavorite.run(appId);
-            return result.changes > 0;
-        } catch (error) {
-            console.error('[DatabaseService] Ошибка переключения избранного:', error);
             return false;
         }
     }

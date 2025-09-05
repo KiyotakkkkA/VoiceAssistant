@@ -45,7 +45,6 @@ export class DatabaseService {
         deleteAppById: any;
         deletePathById: any;
         incrementLaunchCount: any;
-        toggleFavorite: any;
         getStats: any;
         searchApps: any;
     };
@@ -65,8 +64,6 @@ export class DatabaseService {
     getAppsForUI(): DatabaseData;
     
     incrementLaunchCount(appId: number): boolean;
-    
-    toggleFavorite(appId: number): boolean;
     
     getStats(): DatabaseStats;
     

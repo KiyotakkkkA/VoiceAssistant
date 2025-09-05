@@ -17,8 +17,6 @@ export const EventsTopic: {
     readonly JSON_TOOLS_DATA_SET: 'json_tools_data_set';
     readonly JSON_ACCOUNT_DATA_SET: 'json_account_data_set';
 
-    readonly DATABASE_APP_DATA_SET: 'database_app_data_set';
-
     readonly RAW_TEXT_DATA_RECOGNIZED: 'raw_text_data_recognized';
 
     readonly ACTION_APP_OPEN: 'action_app_open';
@@ -64,7 +62,6 @@ export const EventsTopic: {
     readonly DATABASE_APPS_UPDATED: 'database_apps_updated';
     readonly DATABASE_PATH_ADDED: 'database_path_added';
     readonly DATABASE_APP_LAUNCHED: 'database_app_launched';
-    readonly DATABASE_APP_FAVORITE_TOGGLED: 'database_app_favorite_toggled';
     readonly DATABASE_STATS_UPDATED: 'database_stats_updated';
 
 };

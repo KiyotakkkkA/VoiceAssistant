@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveAppsToDatabase: (folderPath, folderName, apps) => 
     ipcRenderer.invoke('save-apps-to-database', folderPath, folderName, apps),
   getAppsFromDatabase: () => ipcRenderer.invoke('get-apps-from-database'),
-  deleteApp: (appId) => ipcRenderer.invoke('delete-app', appId),
-  deleteFolder: (folderId) => ipcRenderer.invoke('delete-folder', folderId),
+  deleteApp: (appId) => ipcRenderer.invoke('delete-app-from-database', appId),
+  deleteFolder: (folderId) => ipcRenderer.invoke('delete-folder-from-database', folderId),
   launchApp: (appId, appPath) => ipcRenderer.invoke('launch-app', appId, appPath)
 });
