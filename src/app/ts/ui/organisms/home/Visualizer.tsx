@@ -194,7 +194,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
       <canvas ref={canvasRef} className='w-full h-full block' />
         <div className='absolute top-4 left-4'>
           <Dropdown
-            options={Object.entries(SettingsStore.data.settings['current.ai.api'])?.map(([key, item]) => ({ value: key || '', label: item.name })) || []}
+            options={Object.entries(SettingsStore.data.settings['current.ai.api'])?.map(([key, item]) => ({ value: key || '', label: item.name, description: item.provider })) || []}
             value={SettingsStore.data.settings['current.ai.model.id']}
             onChange={handleCurrentModelChange}
             placeholder="Выберите модель"

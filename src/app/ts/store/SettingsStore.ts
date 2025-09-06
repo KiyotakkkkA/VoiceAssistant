@@ -73,7 +73,7 @@ class SettingsStore {
         eventPanelToggle(state);
     }
 
-    setApiKey(key: { id: string; name: string; value: string }) {
+    setApiKey(key: { id: string; name: string; value: string, provider: string }) {
         if (!this.data.settings['current.ai.api']) {
             this.data.settings['current.ai.api'] = {};
         }

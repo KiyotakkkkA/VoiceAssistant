@@ -22,6 +22,7 @@ class Excecutor:
         self.current_model_id = None
         self.current_model_name = None
         self.current_model_key = None
+        self.current_model_provider = None
         
         self.prediction_threshold = prediction_threshold
 
@@ -53,7 +54,8 @@ class Excecutor:
             if model:
                 self.current_model_name = model.get("name")
                 self.current_model_key = model.get("value")
-                self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name) # type: ignore
+                self.current_model_provider = model.get("provider")
+                self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name, self.current_model_provider) # type: ignore
 
     def run(self, msg):
         data = self.services["ai_service"].execute(msg['payload']['text']) # type: ignore

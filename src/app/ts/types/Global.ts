@@ -183,8 +183,10 @@ export type AccountData = {
 // Settings API data structure
 export type ApiData = {
     [key: string]: {
+        id: string;
         name: string;
         value: string;
+        provider: string;
     }
 }
 

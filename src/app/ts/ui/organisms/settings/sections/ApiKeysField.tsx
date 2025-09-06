@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { TextInput } from '../../../atoms/input';
+import { TextInput, Dropdown } from '../../../atoms/input';
 import { CategoryItem } from '../../../atoms';
 import { CanOkModal } from '../../../molecules/modals';
 import { IconPen, IconCopy, IconTrash } from '../../../atoms/icons';
@@ -8,12 +8,19 @@ import { observer } from 'mobx-react-lite';
 
 import SettingsStore from '../../../../store/SettingsStore';
 
+const providers = [
+    { value: 'router', label: 'OpenRouter', description: 'Сервис-агрегатор для работы с AI моделями посредством API, разработанный компанией OpenAI' },
+    { value: 'ollama', label: 'Ollama', description: 'Сервис-агрегатор для работы с AI моделями посредством API, разработанный компанией Ollama' },
+];
+
 const ApiKeysField: React.FC = observer(() => {
     const [newName, setNewName] = useState('');
     const [newValue, setNewValue] = useState('');
+    const [newProvider, setNewProvider] = useState(providers[1].value);
     const [editId, setEditId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
     const [editValue, setEditValue] = useState('');
+    const [editProvider, setEditProvider] = useState('');
     const [deleteModal, setDeleteModal] = useState<{isOpen: boolean; keyId: string | null; keyName: string}>({
         isOpen: false,
         keyId: null,
@@ -24,7 +31,7 @@ const ApiKeysField: React.FC = observer(() => {
 
     const handleAdd = () => {
         if (!newName.trim() || !newValue.trim()) return;
-        SettingsStore.setApiKey({ id: Date.now().toString(), name: newName.trim(), value: newValue.trim() });
+        SettingsStore.setApiKey({ id: Date.now().toString(), name: newName.trim(), value: newValue.trim(), provider: newProvider });
         setNewName('');
         setNewValue('');
     };
@@ -35,17 +42,19 @@ const ApiKeysField: React.FC = observer(() => {
         }
     };
 
-    const handleEdit = (k: { id: string; name: string; value: string }) => {
+    const handleEdit = (k: { id: string; name: string; value: string, provider: string }) => {
         setEditId(k.id);
         setEditName(k.name);
         setEditValue(k.value);
+        setEditProvider(k.provider);
     };
     const handleSave = () => {
         if (!editName.trim() || !editValue.trim()) return;
-        SettingsStore.setApiKey({ id: editId!, name: editName.trim(), value: editValue.trim() });
+        SettingsStore.setApiKey({ id: editId!, name: editName.trim(), value: editValue.trim(), provider: editProvider });
         setEditId(null);
         setEditName('');
         setEditValue('');
+        setEditProvider('');
     };
 
     const handleDelete = (id: string) => {
@@ -95,6 +104,11 @@ const ApiKeysField: React.FC = observer(() => {
                             />
                         </div>
                     </div>
+                    <Dropdown
+                        value={newProvider}
+                        options={providers}
+                        onChange={selected => setNewProvider(selected)}
+                    />
                     <button
                         className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-lg"
                         onClick={handleAdd}
@@ -117,6 +131,11 @@ const ApiKeysField: React.FC = observer(() => {
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"></div>
                             <span className="text-ui-text-primary font-semibold">{item.name}</span>
+                            <span 
+                                className={`text-ui-text-secondary text-xs px-2 py-1 bg-ui-bg-secondary/50 rounded`}
+                            >
+                                {providers.find(p => p.value === item.provider)?.label || item.provider}
+                            </span>
                         </div>
                     }
                     description={
@@ -149,6 +168,11 @@ const ApiKeysField: React.FC = observer(() => {
                                     />
                                 </div>
                             </div>
+                            <Dropdown
+                                value={editProvider}
+                                options={providers}
+                                onChange={selected => setEditProvider(selected)}
+                            />
                             <div className="flex gap-2">
                                 <button
                                     className="flex-1 px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white text-sm font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:transform-none"
@@ -181,7 +205,8 @@ const ApiKeysField: React.FC = observer(() => {
                                 onClick={() => handleEdit({
                                     id: key,
                                     name: item.name,
-                                    value: item.value
+                                    value: item.value,
+                                    provider: item.provider,
                                 })}
                                 title="Редактировать"
                             >

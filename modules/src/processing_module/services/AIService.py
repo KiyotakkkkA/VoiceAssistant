@@ -1,10 +1,11 @@
 import os
 import time
-from ollama import Client
-from interfaces import IService
+from typing import Optional, List, Dict, Any
+from interfaces import IService, IProvider
 from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool, \
 DockerTool, ToolManagementTool, GitHubTool, UserInfoTool, WebTool
 from enums.Events import EventsType, EventsTopic
+from src.processing_module.providers.ai.ProviderFactory import ProviderFactory
 
 header = f'''
     Instructions:
@@ -27,9 +28,9 @@ class AIService(IService):
     SERVICE_NAME = "AIService"
 
     def __init__(self):
-        self.client: Client | None = None
-        self.api_model: str | None = None
+        self.provider: Optional[IProvider] = None
         self._socket_client = None
+        self._socket_messages_queue: List[Dict[str, Any]] = []
 
         self.tools_classes = [
             FileSystemTool,
@@ -44,17 +45,12 @@ class AIService(IService):
         ]
 
         self.symlinks = {}
-
         self.tools = []
         self.tool_aliases = {}
-
         self.tools_representation = {}
 
         self.form_symlinks()
-
-    def set_socket_client(self, socket_client):
-        self._socket_client = socket_client
-
+    
     def _emit_streaming_message(self, msg_type: str, topic: str, data: dict):
         if self._socket_client:
             message = {
@@ -64,6 +60,9 @@ class AIService(IService):
                 'from': 'processing_module'
             }
             self._socket_client.emit(message)
+
+    def set_socket_client(self, socket_client):
+        self._socket_client = socket_client
 
     def form_symlinks(self):
         for tool in self.tools_classes:
@@ -103,27 +102,24 @@ class AIService(IService):
                     "class": (self.symlinks[tool_class])
                 }
 
-    def set_client_data(self, api_key: str, api_model: str):
-        self.client = Client(
-            host="https://ollama.com",
-            headers={'Authorization': api_key},
-        )
-        self.api_model = api_model
+    def set_client_data(self, api_key: str, api_model: str, provider: str):
+        try:
+            self.provider = ProviderFactory.get_provider(provider, api_key, api_model)
+            if not self.provider:
+                raise ValueError(f"Failed to initialize provider '{provider}'")
+        except Exception as e:
+            print(f"Error setting client data: {e}")
+            raise
 
-    def create_completion(self, messages: list[dict[str, str]]):
-        if not self.client or not self.api_model:
-            raise ValueError("Client or API model is not set. Please set them before creating a completion.")
-
-        return self.client.chat(
-            model=self.api_model,   # type: ignore
-            tools=self.tools,       # type: ignore
-            stream=True,
-            messages=messages
-        )
+    def create_completion(self, messages: List[Dict[str, str]]):
+        if not self.provider:
+            raise ValueError("Provider is not set. Please set it before creating a completion.")
+        
+        return self.provider.chat_stream(messages, self.tools)
 
     def execute(self, text: str):  # type: ignore
-        if not self.client or not self.api_model:
-            raise ValueError("Client or API model is not set. Please set them before executing.")
+        if not self.provider:
+            raise ValueError("Provider is not set. Please set it before executing.")
 
         messages = [{
             "role": "assistant",
@@ -132,7 +128,7 @@ class AIService(IService):
 
         initial_accumulated_response = {'thinking': '', 'content': ''}
         final_accumulated_response = {'thinking': '', 'content': ''}
-        tools_results: list[dict] = []
+        tools_results: List[Dict[str, Any]] = []
 
         total_timer = time.time()
         thinking_timer = 0
@@ -143,102 +139,105 @@ class AIService(IService):
             EventsTopic.ACTION_AI_STREAM_START.value,
             {
                 'original_text': text,
-                'model_name': self.api_model
+                'model_name': self.provider.model
             }
         )
 
         while True:
             tool_calls_result = []
-
             thinking_in_iteration = 0
             
-            for part in self.client.chat(
-                model=self.api_model,
-                tools=self.tools,
-                stream=True,
-                messages=messages
-            ):
-                if part.message.get('thinking'):
-                    thinking_chunk_start = time.time()
-                    thinking_chunk = part.message['thinking']
-                    initial_accumulated_response['thinking'] += thinking_chunk
-                    thinking_in_iteration += time.time() - thinking_chunk_start
+            try:
+                for part in self.provider.chat_stream(messages, self.tools):
+                    thinking_chunk = self.provider.extract_thinking(part)
+                    if thinking_chunk:
+                        thinking_chunk_start = time.time()
+                        initial_accumulated_response['thinking'] += thinking_chunk
+                        thinking_in_iteration += time.time() - thinking_chunk_start
+                        
+                        self._emit_streaming_message(
+                            EventsType.SERVICE_ACTION.value,
+                            EventsTopic.ACTION_AI_STREAM_CHUNK.value,
+                            {
+                                'type': 'thinking',
+                                'content': thinking_chunk,
+                                'accumulated_thinking': initial_accumulated_response['thinking']
+                            }
+                        )
                     
-                    self._emit_streaming_message(
-                        EventsType.SERVICE_ACTION.value,
-                        EventsTopic.ACTION_AI_STREAM_CHUNK.value,
-                        {
-                            'type': 'thinking',
-                            'content': thinking_chunk,
-                            'accumulated_thinking': initial_accumulated_response['thinking']
-                        }
-                    )
-                    
-                if part.message.get('content'):
-                    content_chunk = part.message['content']
-                    initial_accumulated_response['content'] += content_chunk
-                    
-                    self._emit_streaming_message(
-                        EventsType.SERVICE_ACTION.value,
-                        EventsTopic.ACTION_AI_STREAM_CHUNK.value,
-                        {
-                            'type': 'content',
-                            'content': content_chunk,
-                            'accumulated_content': initial_accumulated_response['content']
-                        }
-                    )
+                    content_chunk = self.provider.extract_content(part)
+                    if content_chunk:
+                        initial_accumulated_response['content'] += content_chunk
+                        
+                        self._emit_streaming_message(
+                            EventsType.SERVICE_ACTION.value,
+                            EventsTopic.ACTION_AI_STREAM_CHUNK.value,
+                            {
+                                'type': 'content',
+                                'content': content_chunk,
+                                'accumulated_content': initial_accumulated_response['content']
+                            }
+                        )
 
-                if part.message.get('tool_calls'):
-                    for tool in part.message['tool_calls']:
-                        call = {
-                            "name": tool['function'].name,
-                            "args": tool['function'].arguments,
-                        }
+                    tool_calls = self.provider.extract_tool_calls(part)
+                    for tool_call in tool_calls:
+                        call_name = tool_call.get('name')
+                        call_args = tool_call.get('args', {})
 
-                        if call['name'] in self.tool_aliases:
-                            handler = self.tool_aliases[call['name']]['handler']
-                            args = call['args'] if isinstance(call['args'], dict) else {}
+                        if call_name in self.tool_aliases:
+                            handler = self.tool_aliases[call_name]['handler']
+                            args = call_args if isinstance(call_args, dict) else {}
 
                             tool_execution_start = time.time()
-                            response = handler(**args)
+                            try:
+                                response = handler(**args)
+                            except Exception as e:
+                                response = {"error": f"Tool execution failed: {str(e)}"}
                             tool_execution_time = time.time() - tool_execution_start
 
-                            queue = self.tool_aliases[call['name']]['class'].get_socket_messages_queue()
-                            self.tool_aliases[call['name']]['class'].clear_socket_messages_queue()
-
-                            self.extend_socket_messages_queue(queue)
+                            try:
+                                queue = self.tool_aliases[call_name]['class'].get_socket_messages_queue()
+                                self.tool_aliases[call_name]['class'].clear_socket_messages_queue()
+                                self.extend_socket_messages_queue(queue)
+                            except Exception as e:
+                                print(f"Error processing tool queue: {e}")
 
                             tool_calls_result.append({
-                                "name": call['name'],
-                                "args": call['args'],
+                                "name": call_name,
+                                "args": call_args,
                                 "response": response,
                                 "execution_time": f"{tool_execution_time:.2f}"
                             })
-            
-            thinking_timer += thinking_in_iteration
-            
-            if tool_calls_result:
-                iteration_tool_time = sum(float(tool['execution_time']) for tool in tool_calls_result)
-                tool_calls_timer += iteration_tool_time
+                
+                thinking_timer += thinking_in_iteration
+                
+                if tool_calls_result:
+                    iteration_tool_time = sum(float(tool['execution_time']) for tool in tool_calls_result)
+                    tool_calls_timer += iteration_tool_time
 
-            if not tool_calls_result:
-                final_accumulated_response = initial_accumulated_response
-                break
+                if not tool_calls_result:
+                    final_accumulated_response = initial_accumulated_response
+                    break
 
-            for tool_result in tool_calls_result:
+                for tool_result in tool_calls_result:
+                    messages.append({
+                        "role": "assistant",
+                        "content": f"Result of {tool_result['name']}: {tool_result['response']}"
+                    })
+
                 messages.append({
-                    "role": "assistant",
-                    "content": f"Result of {tool_result['name']}: {tool_result['response']}"
+                    "role": "user",
+                    "content": "Please continue using these results if needed for the next step. "
+                            "Answer finally in Russian when all tool calls are done."
                 })
 
-            messages.append({
-                "role": "user",
-                "content": "Please continue using these results if needed for the next step. "
-                        "Answer finally in Russian when all tool calls are done."
-            })
-
-            tools_results.extend(tool_calls_result)
-        
+                tools_results.extend(tool_calls_result)
+                
+            except Exception as e:
+                print(f"Error during execution: {e}")
+                final_accumulated_response = initial_accumulated_response
+                break
+            
         total_time = time.time() - total_timer
 
         result = {
@@ -263,7 +262,7 @@ class AIService(IService):
             EventsTopic.ACTION_AI_STREAM_END.value,
             {
                 'original_text': text,
-                'model_name': self.api_model,
+                'model_name': self.provider.model,
                 'final_response': result
             }
         )
