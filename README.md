@@ -18,6 +18,7 @@
 ![Vosk](https://img.shields.io/badge/Vosk-ASR-orange?style=flat-square)
 
 ### Прочее:
+![SQLite](https://img.shields.io/badge/SQLite-0000bb?style=flat-square&logo=sqlite)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white&style=flat-square)
 ![Node.js](https://img.shields.io/badge/Node.js-5FA04E?logo=nodedotjs&logoColor=white&style=flat-square)
 ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white&style=flat-square)
