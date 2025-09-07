@@ -51,7 +51,7 @@
 ## 📦 Установка
 ```bash
 git clone https://github.com/KiyotakkkkA/VoiceAssistant.git
-cd ElectronApp
+cd VoiceAssistant
 # Windows
 .\start --install
 ```
