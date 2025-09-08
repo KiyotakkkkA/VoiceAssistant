@@ -110,7 +110,7 @@ const ApiKeysField: React.FC = observer(() => {
                         onChange={selected => setNewProvider(selected)}
                     />
                     <button
-                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-lg"
+                        className="w-full px-4 py-3 bg-widget-accent-a hover:bg-widget-accent-a/80 text-ui-text-primary text-sm font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-lg"
                         onClick={handleAdd}
                         disabled={!newName.trim() || !newValue.trim()}
                     >
@@ -175,7 +175,7 @@ const ApiKeysField: React.FC = observer(() => {
                             />
                             <div className="flex gap-2">
                                 <button
-                                    className="flex-1 px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white text-sm font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:transform-none"
+                                    className="flex-1 px-3 py-2 bg-widget-accent-a hover:bg-widget-accent-a/80 text-white text-sm font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:transform-none"
                                     onClick={handleSave}
                                     disabled={!editName.trim() || !editValue.trim()}
                                 >

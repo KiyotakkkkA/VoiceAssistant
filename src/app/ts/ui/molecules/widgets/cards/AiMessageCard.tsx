@@ -68,7 +68,7 @@ const ToolCallsBlock: React.FC<{ toolCalls: ToolCall[]; isExpanded: boolean; onT
         className="w-full flex items-center justify-between p-3 hover:bg-ui-bg-secondary/20 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <IconSettings size={18} className='text-blue-500'/>
+          <IconSettings size={18} className='text-widget-accent-a'/>
           <span className="text-sm font-medium text-ui-text-secondary">Используемые инструменты</span>
           <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">
             {toolCalls.length}

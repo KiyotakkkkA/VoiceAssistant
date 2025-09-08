@@ -14,7 +14,7 @@ const ToolCard: React.FC<ToolCardProps> = ({
       hover:shadow-md hover:-translate-y-0.5
     `}>
       <div className="flex items-center gap-4">
-        <IconSettings size={16} className='text-blue-500'/>
+        <IconSettings size={16} className='text-widget-accent-a'/>
         <span className="text-md text-ui-text-muted font-mono px-2 py-0.5 rounded">
         {name}
         </span>

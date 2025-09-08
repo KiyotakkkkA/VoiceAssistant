@@ -417,7 +417,7 @@ const NotesView = observer(() => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSave}
-              className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-widget-accent-b hover:bg-widget-accent-b/80 text-white text-xs font-medium rounded transition-colors flex items-center gap-1"
             >
               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -428,7 +428,7 @@ const NotesView = observer(() => {
               <button
                 onClick={() => setViewMode('editor')}
                 className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                  viewMode === 'editor' ? 'bg-blue-600 text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
+                  viewMode === 'editor' ? 'bg-widget-accent-a text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
                 }`}
               >
                 Изменить
@@ -436,7 +436,7 @@ const NotesView = observer(() => {
               <button
                 onClick={() => setViewMode('preview')}
                 className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                  viewMode === 'preview' ? 'bg-blue-600 text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
+                  viewMode === 'preview' ? 'bg-widget-accent-a text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
                 }`}
               >
                 Просмотр
@@ -444,7 +444,7 @@ const NotesView = observer(() => {
               <button
                 onClick={() => setViewMode('split')}
                 className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                  viewMode === 'split' ? 'bg-blue-600 text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
+                  viewMode === 'split' ? 'bg-widget-accent-a text-white' : 'text-ui-text-muted hover:text-ui-text-primary'
                 }`}
               >
                 Разделить
