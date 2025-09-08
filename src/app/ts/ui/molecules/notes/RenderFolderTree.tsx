@@ -106,7 +106,7 @@ const RenderFolderTree = observer(({
                         <div key={fullPath}>
                             <div
                                 className={`flex items-center justify-between py-1 px-2 rounded cursor-pointer text-sm transition-colors ${
-                                    isSelected ? 'bg-blue-600 bg-opacity-20' : 'hover:bg-ui-bg-secondary-light'
+                                    isSelected ? 'bg-widget-accent-a bg-opacity-20' : 'hover:bg-ui-bg-secondary-light'
                                 }`}
                                 style={{ marginLeft: `${level * 12}px` }}
                                 onClick={() => {

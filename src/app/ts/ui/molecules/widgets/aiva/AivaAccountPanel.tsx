@@ -30,7 +30,7 @@ export const AivaAccountPanel: React.FC<AivaAccountPanelProps> = ({
   }, [onDisconnect]);
 
   return (
-    <div className="bg-ui-bg-primary-light border border-ui-border-primary rounded-xl p-6 m-6">
+    <div className="bg-ui-bg-primary-light p-6">
       <h3 className="text-xl font-semibold text-ui-text-primary mb-4">
         Информация об аккаунте
       </h3>
@@ -76,7 +76,7 @@ export const AivaAccountPanel: React.FC<AivaAccountPanelProps> = ({
             <div className="space-y-4">
               <p className="text-ui-text-secondary leading-relaxed">
                 Аккаунт Aiva не подключен. Подключите свой аккаунт для получения
-                доступа к расширенным функциям ИИ.
+                доступа к расширенным функциям.
               </p>
               <button
                 onClick={handleConnectClick}

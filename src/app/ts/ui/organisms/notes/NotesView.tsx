@@ -330,7 +330,7 @@ const NotesView = observer(() => {
               placeholder="Поиск заметок..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-ui-bg-secondary-light text-ui-text-primary px-3 pr-8 py-2 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-ui-text-muted"
+              className="w-full bg-ui-bg-secondary-light text-ui-text-primary px-3 pr-8 py-2 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-widget-accent-a placeholder-ui-text-muted"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-2">
               <IconSearch size={20} />
@@ -354,7 +354,7 @@ const NotesView = observer(() => {
             {selectedFolder && (
               <button
                 onClick={() => setSelectedFolder(null)}
-                className="text-xs text-blue-400 hover:text-blue-300"
+                className="text-xs text-ui-text-accent hover:underline flex items-center gap-1"
               >
                 Показать всё
               </button>
