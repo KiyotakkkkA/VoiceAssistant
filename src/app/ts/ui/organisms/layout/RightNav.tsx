@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavItem } from '../../molecules';
-import { IconApp, IconHome, IconSettings, IconNotes } from '../../atoms/icons';
+import { IconApp, IconHome, IconSettings, IconNotes, IconAiva } from '../../atoms/icons';
 
 interface Props {
   active: string;
@@ -9,6 +9,7 @@ interface Props {
 
 const RightNav: React.FC<Props> = ({ active, onChange }) => {
   const items = [
+    { icon: <IconAiva />, label: 'Aiva', active: active === 'aiva', onClick: () => onChange('aiva') },
     { icon: <IconSettings />, label: 'Настройки', active: active === 'settings', onClick: () => onChange('settings') },
     { icon: <IconHome />, label: 'Главная', active: active === 'home', onClick: () => onChange('home') },
     { icon: <IconApp />, label: 'Приложения', active: active === 'apps', onClick: () => onChange('apps') },
