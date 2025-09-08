@@ -7,7 +7,7 @@ import { Visualizer } from '../organisms/home';
 import { AppsGrid } from '../organisms/applications';
 import { SettingsPanel } from '../organisms/settings';
 import { NotesView } from '../organisms/notes';
-import { AivaView } from '../organisms/aiva';
+import { ZixView } from '../organisms/zix';
 import { EventLog, RightNav } from '../organisms/layout';
 import { observer } from 'mobx-react-lite';
 import { useDragResize } from '../../composables';
@@ -54,8 +54,8 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
       component: <Visualizer mode={mode} systemReady={systemReady} />,
       fullmode: false
     },
-    aiva: {
-      component: <AivaView />,
+    zix: {
+      component: <ZixView />,
       fullmode: true
     },
     apps: {
@@ -88,7 +88,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
     onDragStart(e, setLogHeight, setDragging);
   };
   const [activeTab, setActiveTab] = useState<
-    'home' | 'aiva' | 'apps' | 'settings' | 'notes'
+    'home' | 'zix' | 'apps' | 'settings' | 'notes'
   >('home');
   const modeClass: Record<string,string> = {
     'waiting': 'bg-badge-waiting text-white',
@@ -149,7 +149,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
               {pages[activeTab].component}
             </div>
           </div>
-          <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'aiva' | 'apps' | 'settings' | 'notes')} />
+          <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'zix' | 'apps' | 'settings' | 'notes')} />
         </div>
       </div>
       { SettingsStore.data.settings['current.interface.event_panel.state'] && (

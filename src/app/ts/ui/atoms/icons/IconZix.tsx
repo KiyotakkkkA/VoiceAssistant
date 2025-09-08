@@ -5,7 +5,7 @@ interface IconProps {
   className?: string;
 }
 
-const IconAiva: React.FC<IconProps> = ({ size = 24, className = "" }) => {
+const IconZix: React.FC<IconProps> = ({ size = 24, className = "" }) => {
   return (
     <svg
       width={size}
@@ -21,4 +21,4 @@ const IconAiva: React.FC<IconProps> = ({ size = 24, className = "" }) => {
   );
 };
 
-export { IconAiva };
+export { IconZix };
