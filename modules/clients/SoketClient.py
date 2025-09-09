@@ -1,17 +1,13 @@
-import os
 import threading
 import time
 import json
+import websocket
 from typing import Callable, Any, Optional, Dict, List
-
-try:
-	import websocket
-except ImportError as e:
-	raise SystemExit("Install dependency first: pip install websocket-client") from e
+from utils.EnvHelper import getenv
 
 class SocketClient:
 	def __init__(self,
-			 url: str = f"ws://{os.getenv('SOCKET_HOST', 'localhost')}:{os.getenv('SOCKET_PORT', 8765)}",
+			 url: str = f"ws://{getenv('SOCKET_HOST', 'localhost')}:{getenv('SOCKET_PORT', '8765')}",
 			 reconnect_delay: float = 1.5,
 			 log: bool = True,
 			 auto_heartbeat: bool = True,

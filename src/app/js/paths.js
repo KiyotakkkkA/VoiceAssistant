@@ -17,10 +17,11 @@ try {
 }
 
 try {
-  const dotenvPath = path.join(APP_ROOT, '.env');
-  if (fs.existsSync(dotenvPath)) {
-    const dotenv = await import('dotenv');
-    dotenv.config({ path: dotenvPath });
+  const propertiesPath = path.join(APP_ROOT, 'init.properties');
+  if (fs.existsSync(propertiesPath)) {
+    const { PropertiesService } = await import('./services/PropertiesService.js');
+    const propertiesService = PropertiesService.getInstance();
+    propertiesService.loadFromFile(propertiesPath);
   }
 } catch {}
 

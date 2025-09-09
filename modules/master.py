@@ -9,6 +9,7 @@ from clients import SocketClient
 from paths import path_resolver
 from enums.Events import EventsType, EventsTopic
 from store.ModulesStore import ModulesStore
+from utils.LogService import get_logger, log_crash, log_error, log_info, log_warning
 
 class Logger:
 
@@ -18,21 +19,25 @@ class Logger:
 	def info(message: str):
 		if Logger._DEBUG:
 			print(f"\033[38;5;208m[PYTHON - Orchestrator]\x1b[0m \x1b[32mINFO:\x1b[0m {message}")
+		get_logger().info(message, "Orchestrator")
 
 	@staticmethod
 	def warn(message: str):
 		if Logger._DEBUG:
 			print(f"\033[38;5;208m[PYTHON - Orchestrator]\x1b[0m \x1b[33mWARN:\x1b[0m {message}")
+		get_logger().warning(message, "Orchestrator")
 
 	@staticmethod
 	def error(message: str):
 		if Logger._DEBUG:
 			print(f"\033[38;5;208m[PYTHON - Orchestrator]\x1b[0m \x1b[31mERROR:\x1b[0m {message}")
+		get_logger().error(message, "Orchestrator")
 
 	@staticmethod
 	def debug(message: str):
 		if Logger._DEBUG:
 			print(f"\033[38;5;208m[PYTHON - Orchestrator]\x1b[0m \x1b[36mDEBUG:\x1b[0m {message}")
+		get_logger().debug(message, "Orchestrator")
 
 class Orchestrator:
 	def __init__(self):

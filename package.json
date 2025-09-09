@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "main": "main.js",
-  "description": "Electron + React + TypeScript + Tailwind starter",
+  "description": "VoiceAssisnant",
+  "author": "KiyotakkkkA",
+  "homepage": "https://github.com/KiyotakkkkA/VoiceAssistant",
   "scripts": {
     "dev": "cross-env NODE_ENV=development concurrently \"npm:dev:services\" \"npm:dev:renderer\" \"npm:dev:electron\"",
     "dev:services": "tsc -p tsconfig.services.json -w",
@@ -12,8 +14,11 @@
     "build": "rimraf dist && vite build && npm run build:services",
     "build:services": "tsc -p tsconfig.services.json",
     "start": "electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:dir": "npm run build && electron-builder --dir",
     "start:prod": "cross-env NODE_ENV=production electron .",
-    "lint": "eslint . --ext .js,.ts,.tsx"
+    "lint": "eslint . --ext .js,.ts,.tsx",
+    "postinstall": "electron-builder install-app-deps"
   },
   "devDependencies": {
     "@types/highlight.js": "^9.12.4",
@@ -41,7 +46,6 @@
   "dependencies": {
     "@electron/rebuild": "^3.7.2",
     "better-sqlite3": "^11.10.0",
-    "dotenv": "^16.4.5",
     "fs-extra": "^11.3.1",
     "highlight.js": "^11.11.1",
     "js-yaml": "^4.1.0",
@@ -60,47 +64,43 @@
     "files": [
       "dist/**/*",
       "main.js",
+      "preload.js",
       "src/app/js/**/*",
-      "!resources/**",
-      "package.json"
+      "package.json",
+      "!src/app/ts/**/*" 
     ],
     "extraResources": [
-      {
-        "from": "resources",
-        "to": "resources"
-      }
+      { "from": "init.properties", "to": "init.properties" },
+      { "from": "modules",   "to": "modules" },
+      { "from": "resources", "to": "." }
     ],
+    "asar": true,
+    "asarUnpack": [
+      "**/better-sqlite3/**/*",
+      "**/*.node",
+      "modules/**",
+      "init.properties"
+    ],
+    "npmRebuild": true,
     "win": {
       "target": [
         {
           "target": "portable",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
       ],
       "forceCodeSigning": false,
-      "verifyUpdateCodeSignature": false
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "asInvoker"
     },
     "mac": {
       "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
+        { "target": "dmg", "arch": ["x64", "arm64"] }
       ]
     },
     "linux": {
       "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64"
-          ]
-        }
+        { "target": "AppImage", "arch": ["x64"] }
       ]
     },
     "nsis": {

@@ -1,14 +1,11 @@
 import os
+import websocket
 import json
 import time
 import threading
 from typing import Callable, Optional, Dict, Any, List
 from enums.Events import EventsType, EventsTopic
-
-try:
-    import websocket
-except ImportError:
-    raise SystemExit("Install dependency first: pip install websocket-client")
+from utils.EnvHelper import getenv
 
 
 class ModuleClient:
@@ -17,8 +14,8 @@ class ModuleClient:
         service_name: str,
         manifest_file: str,
         subscribes: Optional[List[str]] = None,
-        socket_host: str = os.getenv('SOCKET_HOST', 'localhost'),
-        socket_port: str = os.getenv('SOCKET_PORT', '8765'),
+        socket_host: str = getenv('SOCKET_HOST', 'localhost'),
+        socket_port: str = getenv('SOCKET_PORT', '8765'),
         heartbeat_interval: float = 5.0,
         max_reconnect_attempts: int = 10,
         log_prefix: Optional[str] = None,

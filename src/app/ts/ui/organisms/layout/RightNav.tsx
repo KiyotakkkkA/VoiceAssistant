@@ -10,8 +10,8 @@ interface Props {
 const RightNav: React.FC<Props> = ({ active, onChange }) => {
   const items = [
     { icon: <IconZix />, label: 'Zix', active: active === 'zix', onClick: () => onChange('zix') },
-    { icon: <IconSettings />, label: 'Настройки', active: active === 'settings', onClick: () => onChange('settings') },
     { icon: <IconHome />, label: 'Главная', active: active === 'home', onClick: () => onChange('home') },
+    { icon: <IconSettings />, label: 'Настройки', active: active === 'settings', onClick: () => onChange('settings') },
     { icon: <IconApp />, label: 'Приложения', active: active === 'apps', onClick: () => onChange('apps') },
     { icon: <IconNotes />, label: 'Заметки', active: active === 'notes', onClick: () => onChange('notes') },
   ];

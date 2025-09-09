@@ -20,7 +20,7 @@ const NoteCard: React.FC<Props> = ({ note, onSelect }) => {
             onClick={handleClick}
         className={`p-3 rounded-lg cursor-pointer transition-colors ${
         NotesStore.selectedNoteId === note.id
-            ? 'bg-blue-600 bg-opacity-20 border border-blue-500'
+            ? 'bg-widget-accent-a/20 border border-widget-accent-a'
             : 'hover:bg-ui-bg-secondary-light'
         }`}
     >

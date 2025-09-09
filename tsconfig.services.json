@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "outDir": "dist/services",
+    "rootDir": "src/app",
+    "declaration": false,
+    "noEmit": true
+  },
+  "include": [
+    "src/app/js/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/app/ts/**/*"
+  ]
+}

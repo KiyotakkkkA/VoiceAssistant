@@ -5,23 +5,35 @@ from src.processing_module.services import Excecutor
 from enums.Events import EventsType, EventsTopic
 from store.ToolsStore import ToolsStore
 from store.RuntimeCacheStore import RuntimeCacheStore
+from utils.EnvHelper import getenv_float
+from utils.LogService import get_logger, log_crash, log_error, log_info
 
 def run(stop_event):
+    logger = get_logger()
+    module_name = "processing_module"
+    
+    logger.info("Starting processing module", module_name)
 
-    client = ModuleClient(
-        service_name='processing_module',
-        manifest_file='manifest.json',
-        subscribes=[EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value],
-        heartbeat_interval=5.0,
-        max_reconnect_attempts=10,
-        log_prefix='processing'
-    )
+    try:
+        client = ModuleClient(
+            service_name='processing_module',
+            manifest_file='manifest.json',
+            subscribes=[EventsTopic.RAW_TEXT_DATA_RECOGNIZED.value],
+            heartbeat_interval=5.0,
+            max_reconnect_attempts=10,
+            log_prefix='processing'
+        )
 
-    executor = Excecutor(
-        prediction_threshold=float(os.getenv('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', '0.85'))
-    )
+        executor = Excecutor(
+            prediction_threshold=getenv_float('TEXT_CLASSIFICATION_PREDICTION_THRESHOLD', 0.85)
+        )
 
-    executor.set_socket_client(client)
+        executor.set_socket_client(client)
+        logger.info("Processing module initialized successfully", module_name)
+        
+    except Exception as e:
+        log_crash("Failed to initialize processing module", module_name, e)
+        return
 
     def handle_tool_off(msg):
         ToolsStore.update_tool_status(msg.get('payload', {}).get('toolName'), False)

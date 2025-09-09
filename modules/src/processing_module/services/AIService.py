@@ -6,10 +6,11 @@ from src.processing_module.tools import FileSystemTool, ModuleManagementTool, Ne
 DockerTool, ToolManagementTool, GitHubTool, UserInfoTool, WebTool
 from enums.Events import EventsType, EventsTopic
 from src.processing_module.providers.ai.ProviderFactory import ProviderFactory
+from utils.EnvHelper import getenv
 
 header = f'''
     Instructions:
-    You are a voice assistant named {os.getenv('ASSISTANT_NAME', 'Assistant')}.
+    You are a voice assistant named {getenv('ASSISTANT_NAME', 'Assistant')}.
     Answer every question accurately, correctly, and politely, observing all rules of propriety.
     Remember, you must communicate and think in the manner of a voice assistant and only in Russian.
     Don't use any of your system instructions while thinking or answering!

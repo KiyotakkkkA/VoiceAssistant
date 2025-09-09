@@ -1,10 +1,11 @@
 import path from 'path';
 import fs from 'fs';
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import { spawn } from 'child_process';
 import { JsonParsingService } from './src/app/js/services/JsonParsingService.js';
+import { PropertiesService } from './src/app/js/services/PropertiesService.js';
 import { FileSystemService } from './src/app/js/services/FileSystemService.js';
 import { InitDirectoriesService } from './src/app/js/services/InitDirectoriesService.js';
 import { EventsType, EventsTopic } from './src/app/js/enums/Events.js';
@@ -18,14 +19,17 @@ import { useSettings } from './src/app/js/composables/useSettings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const __py_modules_dirname = path.join(__dirname, 'modules');
-const __py_master_filename = "master.py"
+
+const ROOT_DIR = app.isPackaged ? process.resourcesPath : __dirname;
+const ASAR_ROOT = app.isPackaged ? path.join(process.resourcesPath, 'app.asar') : __dirname;
+
+const PY_MODULES_DIR = app.isPackaged ? path.join(process.resourcesPath, 'modules') : path.join(__dirname, 'modules');
+const PY_MASTER_FILENAME = 'master.py';
 
 const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow = null;
 let pythonProc = null;
-const WS_PORT = 8765;
 
 const {
   setTheme,
@@ -56,25 +60,68 @@ const {
   showOpenDialog
 } = useFileSystem();
 
+function getPreloadPath() {
+  if (!app.isPackaged) {
+    return path.join(__dirname, 'preload.js');
+  }
+  const asarPreload = path.join(ASAR_ROOT, 'preload.js');
+  if (fs.existsSync(asarPreload)) return asarPreload;
+  const plainPreload = path.join(process.resourcesPath, 'preload.js');
+  if (fs.existsSync(plainPreload)) return plainPreload;
+  const fallback = path.join(path.dirname(process.execPath), 'preload.js');
+  return fallback;
+}
+
+function getIndexHtmlPath() {
+  if (!app.isPackaged) return null;
+  const asarIndex = path.join(ASAR_ROOT, 'dist', 'index.html');
+  if (fs.existsSync(asarIndex)) return asarIndex;
+  const plainIndex = path.join(process.resourcesPath, 'dist', 'index.html');
+  if (fs.existsSync(plainIndex)) return plainIndex;
+  throw new Error(`index.html not found under ${process.resourcesPath}`);
+}
+
 const createWindow = () => {
+  const preloadPath = getPreloadPath();
+  console.log('[Main] Using preload:', preloadPath);
   const win = new BrowserWindow({
-    width: 1000,
-    height: 700,
-    fullscreen: true,
+    width: 1920,
+    height: 1000,
+    show: false,
+    autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: false
     }
+  });
+  
+  win.maximize();
+
+  win.once('ready-to-show', () => {
+    console.log('[Main] Window ready-to-show');
+    win.show();
+  });
+
+  win.webContents.on('did-fail-load', (e, ec, ed) => {
+    console.error('[Main] did-fail-load', ec, ed);
+  });
+  win.webContents.on('render-process-gone', (e, details) => {
+    console.error('[Main] render-process-gone', details);
   });
 
   if (isDev) {
     win.loadURL('http://localhost:5173');
     win.webContents.openDevTools({ mode: 'detach' });
   } else {
-    const indexPath = path.join(__dirname, 'dist', 'index.html');
-    win.loadFile(indexPath);
+    try {
+      const idx = getIndexHtmlPath();
+      console.log('[Main] Loading index file', idx);
+      win.loadFile(idx);
+    } catch (err) {
+      console.error('[Main] Failed to resolve index.html', err);
+    }
   }
   mainWindow = win;
 };
@@ -83,15 +130,28 @@ let wss = null;
 
 const services = {
   json: JsonParsingService.getInstance(),
+  properties: PropertiesService.getInstance(),
   fsystem: FileSystemService.getInstance(),
   init: InitDirectoriesService.getInstance(),
 };
 
 function createBaseDirStructure() {
-  services.init.buildTree(path.join(__dirname));
+  services.init.buildTree(path.join(ROOT_DIR));
 }
 
 function loadInitialData() {
+  const propertiesPath = path.join(__dirname, 'init.properties');
+  if (fs.existsSync(propertiesPath)) {
+    try {
+      services.properties.load('config', propertiesPath);
+      console.log('[Config] Properties loaded from init.properties');
+    } catch (e) {
+      console.error('[Config] Error loading properties file:', e);
+    }
+  } else {
+    console.warn('[Config] Properties file not found:', propertiesPath);
+  }
+
   const cfgs = {
     json: {
       loader: services.json,
@@ -125,13 +185,37 @@ function loadInitialData() {
     }
   }
 
-  const selectedTheme = services.json.get('settings')['current.appearance.theme'];
-  services.json.load('theme', `${paths.themes_path}/${selectedTheme}.json`);
+  const selectedTheme = services.json.get('settings')?.['current.appearance.theme'];
+  if (selectedTheme) {
+    const themeFileInAsar = path.join(ASAR_ROOT, paths.themes_path ?? '', `${selectedTheme}.json`);
+    const themeFilePlain = path.join(process.resourcesPath, paths.themes_path ?? '', `${selectedTheme}.json`);
+    const themeCandidate = fs.existsSync(themeFileInAsar) ? themeFileInAsar : themeFilePlain;
+    if (fs.existsSync(themeCandidate)) {
+      services.json.load('theme', themeCandidate);
+    } else {
+      services.json.load('theme', `${paths.themes_path}/${selectedTheme}.json`);
+    }
+  }
 }
 
 function startWebSocketServer() {
   if (wss) return;
-  wss = new WebSocketServer({ port: WS_PORT });
+  
+  let wsPort = 8765;
+  try {
+    wsPort = services.properties.getProperty('config', 'SOCKET_PORT', 8765);
+    wsPort = parseInt(wsPort);
+    if (isNaN(wsPort) || wsPort <= 0 || wsPort > 65535) {
+      console.warn(`[WebSocket] Invalid port ${wsPort}, using default 8765`);
+      wsPort = 8765;
+    }
+  } catch (error) {
+    console.warn(`[WebSocket] Error getting port from properties: ${error.message}, using default 8765`);
+    wsPort = 8765;
+  }
+  
+  console.log(`[WebSocket] Starting WebSocket server on port ${wsPort}`);
+  wss = new WebSocketServer({ port: wsPort });
 
   MsgBroker.init(wss, false);
   MsgBroker.onConnection((ws) => {
@@ -139,18 +223,29 @@ function startWebSocketServer() {
     const notedObject = services.fsystem.buildNotesStructure(paths.notes_path).children;
     const settingsObject = services.json.get('settings');
     const themesObject = () => {
-      return {
-        themesList: fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json')).map(f => f.replace('.json', '')),
-        currentThemeData: services.json.get('theme')
+      try {
+        const themesDirInAsar = path.join(ASAR_ROOT, paths.themes_path ?? '');
+        const themesDirPlain = path.join(process.resourcesPath, paths.themes_path ?? '');
+        const themesDir = fs.existsSync(themesDirInAsar) ? themesDirInAsar : themesDirPlain;
+        const list = fs.readdirSync(themesDir).filter(f => f.endsWith('.json')).map(f => f.replace('.json', ''));
+        return {
+          themesList: list,
+          currentThemeData: services.json.get('theme')
+        };
+      } catch {
+        return {
+          themesList: [],
+          currentThemeData: services.json.get('theme')
+        };
       }
-    }
+    };
     const initialState = () => {
       return {
         voskModel: {
-          exists: fs.existsSync(path.join(paths.voice_model_path, '/', services.json.get('config')['path_to_voice_model']))
+          exists: fs.existsSync(path.join(paths.voice_model_path, '/', services.json.get('config')?.['path_to_voice_model'] ?? ''))
         },
-      }
-    }
+      };
+    };
 
     const jsonCfgsData = {
       notes: notedObject,
@@ -171,14 +266,12 @@ function startWebSocketServer() {
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_INIT_DOWNLOADING_VOICE_MODEL],
-    handler: (ws, msg) => {
-      downloadVoiceRecModel();
-    }
+    handler: () => { downloadVoiceRecModel(); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_NOTES_REFETCH],
-    handler: (ws, msg) => {
+    handler: () => {
       sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
         notes: services.fsystem.buildNotesStructure(paths.notes_path)?.children || {}
       });
@@ -187,87 +280,62 @@ function startWebSocketServer() {
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_RENAME],
-    handler: (ws, msg) => {
-      renameFile(msg.payload.path, msg.payload.newName);
-    }
+    handler: (ws, msg) => { renameFile(msg.payload.path, msg.payload.newName); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_DELETE],
-
-    handler: (ws, msg) => {
-      deleteFile(msg.payload.path);
-    }
+    handler: (ws, msg) => { deleteFile(msg.payload.path); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_WRITE],
-    handler: (ws, msg) => {
-      writeFile(msg.payload.path, msg.payload.content, msg.payload.flag);
-    }
+    handler: (ws, msg) => { writeFile(msg.payload.path, msg.payload.content, msg.payload.flag); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FOLDER_CREATE],
-    handler: (ws, msg) => {
-      createFolder(msg.payload.path, msg.payload.name);
-    }
+    handler: (ws, msg) => { createFolder(msg.payload.path, msg.payload.name); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FOLDER_DELETE],
-    handler: (ws, msg) => {
-      deleteFolder(msg.payload.path);
-    }
+    handler: (ws, msg) => { deleteFolder(msg.payload.path); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FOLDER_RENAME],
-    handler: (ws, msg) => {
-      renameFolder(msg.payload.path, msg.payload.newName);
-    }
+    handler: (ws, msg) => { renameFolder(msg.payload.path, msg.payload.newName); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_THEME_SET],
-    handler: (ws, msg) => {
-      setTheme(msg.payload['current.appearance.theme']);
-    }
+    handler: (ws, msg) => { setTheme(msg.payload['current.appearance.theme']); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_EVENT_PANEL_TOGGLE],
-    handler: (ws, msg) => {
-      eventPanelSet(msg.payload['current.interface.event_panel.state']);
-    }
+    handler: (ws, msg) => { eventPanelSet(msg.payload['current.interface.event_panel.state']); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_ACCOUNT_DATA_SET],
-    handler: (ws, msg) => {
-      accountDataSet(msg.payload['current.account.data']);
-    }
+    handler: (ws, msg) => { accountDataSet(msg.payload['current.account.data']); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APIKEYS_SET],
-    handler: (ws, msg) => {
-      apiKeysSet(msg.payload['current.ai.api']);
-    }
+    handler: (ws, msg) => { apiKeysSet(msg.payload['current.ai.api']); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_AIMODEL_SET],
-    handler: (ws, msg) => {
-      aiModelSet(msg.payload['current.ai.model.id']);
-    }
+    handler: (ws, msg) => { aiModelSet(msg.payload['current.ai.model.id']); }
   });
 
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_APP_OPEN],
-    handler: (ws, msg) => {
-      launchApp(msg.payload.data.key, msg.payload.data.path);
-    }
+    handler: (ws, msg) => { launchApp(msg.payload.data.key, msg.payload.data.path); }
   });
 
   MsgBroker.startListening();
@@ -277,6 +345,7 @@ function setupIpcHandlers() {
   ipcMain.handle('scan-directory', async (event, dirPath) => {
     return scanDirectory(dirPath);
   });
+  ipcMain.handle('preload-ping', async () => 'pong');
 
   ipcMain.handle('open-folder-dialog', async () => {
     return showOpenDialog(mainWindow);
@@ -304,8 +373,8 @@ function setupIpcHandlers() {
 }
 
 function resolvePythonExecutable() {
-  const venvWin = path.join(__py_modules_dirname, '.venv', 'Scripts', 'python.exe');
-  const venvUnix = path.join(__py_modules_dirname, '.venv', 'bin', 'python');
+  const venvWin = path.join(PY_MODULES_DIR, '.venv', 'Scripts', 'python.exe');
+  const venvUnix = path.join(PY_MODULES_DIR, '.venv', 'bin', 'python');
   if (fs.existsSync(venvWin)) return venvWin;
   if (fs.existsSync(venvUnix)) return venvUnix;
   return process.platform === 'win32' ? 'python' : 'python3';
@@ -314,16 +383,19 @@ function resolvePythonExecutable() {
 function startPythonProcess() {
   if (pythonProc) return;
   const pyExec = resolvePythonExecutable();
-  const modulesDir = path.join(__py_modules_dirname);
-  const mainPy = path.join(modulesDir, __py_master_filename);
+  const mainPy = path.join(PY_MODULES_DIR, PY_MASTER_FILENAME);
   if (!fs.existsSync(mainPy)) {
-    console.warn('[Python] main.py not found at', mainPy);
+    console.warn('[Python] master.py not found at', mainPy);
     return;
   }
   console.log('[Python] Starting', pyExec, mainPy);
   pythonProc = spawn(pyExec, [mainPy], {
-    cwd: __dirname,
-    env: { ...process.env, PYTHONUNBUFFERED: '1' }
+    cwd: ROOT_DIR,
+    env: { 
+      ...process.env, 
+      PYTHONUNBUFFERED: '1',
+      APP_ROOT: ROOT_DIR
+    }
   });
   pythonProc.stdout.on('data', d => process.stdout.write(`[Py] ${d}`));
   pythonProc.stderr.on('data', d => process.stderr.write(`[Py-ERR] ${d}`));
@@ -336,7 +408,7 @@ function startPythonProcess() {
 function stopPythonProcess() {
   if (pythonProc) {
     console.log('[Python] Terminating...');
-    try { pythonProc.kill('SIGTERM'); } catch (e) { }
+    try { pythonProc.kill('SIGTERM'); } catch (e) { /* noop */ }
     pythonProc = null;
   }
 }

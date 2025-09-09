@@ -1,4 +1,6 @@
-const { contextBridge, ipcRenderer } = require('electron');
+import { contextBridge, ipcRenderer } from 'electron';
+
+try { console.log('[Preload] Script loaded (ESM).'); } catch (_) {}
 
 contextBridge.exposeInMainWorld('safeTimers', {
   setTimeout: (callback, delay) => setTimeout(callback, delay),
@@ -10,10 +12,11 @@ contextBridge.exposeInMainWorld('safeTimers', {
 contextBridge.exposeInMainWorld('electronAPI', {
   scanDirectory: (dirPath) => ipcRenderer.invoke('scan-directory', dirPath),
   openFolderDialog: () => ipcRenderer.invoke('open-folder-dialog'),
-  saveAppsToDatabase: (folderPath, folderName, apps) => 
-    ipcRenderer.invoke('save-apps-to-database', folderPath, folderName, apps),
+  saveAppsToDatabase: (folderPath, folderName, apps) => ipcRenderer.invoke('save-apps-to-database', folderPath, folderName, apps),
   getAppsFromDatabase: () => ipcRenderer.invoke('get-apps-from-database'),
   deleteApp: (appId) => ipcRenderer.invoke('delete-app-from-database', appId),
   deleteFolder: (folderId) => ipcRenderer.invoke('delete-folder-from-database', folderId),
   launchApp: (appId, appPath) => ipcRenderer.invoke('launch-app', appId, appPath)
 });
+
+try { ipcRenderer.invoke('preload-ping').catch(()=>{}); } catch(_) {}

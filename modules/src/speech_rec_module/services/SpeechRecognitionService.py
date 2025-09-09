@@ -1,15 +1,16 @@
+import pyaudio
+import time, json
 from vosk import Model, KaldiRecognizer
-from colorama import Fore, Style
+from colorama import Fore, Style, init
 from interfaces import IService
 from utils import AudioService
+from utils.EnvHelper import getenv_int, getenv
+from utils.LogService import get_logger
 from enums.Events import EventsType, EventsTopic
 from mtypes.Global import Message
 from typing import Generator, override, Optional
-import pyaudio
-import os
-import time, colorama, json
 
-colorama.init()
+init()
 
 class SpeechRecognitionService(IService):
     SERVICE_NAME = "SpeechRecognitionService"
@@ -22,15 +23,28 @@ class SpeechRecognitionService(IService):
             name (str): Имя, которое будет распознаваться
             model_path (str): Путь к директории с моделью
         """
+        self.logger = get_logger()
         self.name = name
         self._name_lower = name.lower()
-        self.model = Model(model_path)
+        
+        try:
+            self.logger.info(f"Loading Vosk model from: {model_path}", self.SERVICE_NAME)
+            self.model = Model(model_path)
+            self.logger.info("Vosk model loaded successfully", self.SERVICE_NAME)
+        except Exception as e:
+            self.logger.critical(f"Failed to load Vosk model from {model_path}", self.SERVICE_NAME, e)
+            raise
 
-        self.name_recognizer = KaldiRecognizer(self.model, int(os.getenv("VOICE_RECOGNITION_DISCRETIZATION_RATE", 16000)))
-        self.full_recognizer = KaldiRecognizer(self.model, int(os.getenv("VOICE_RECOGNITION_DISCRETIZATION_RATE", 16000)))
+        try:
+            self.name_recognizer = KaldiRecognizer(self.model, getenv_int("VOICE_RECOGNITION_DISCRETIZATION_RATE", 16000))
+            self.full_recognizer = KaldiRecognizer(self.model, getenv_int("VOICE_RECOGNITION_DISCRETIZATION_RATE", 16000))
+            self.logger.info("Kaldi recognizers initialized", self.SERVICE_NAME)
+        except Exception as e:
+            self.logger.critical("Failed to initialize Kaldi recognizers", self.SERVICE_NAME, e)
+            raise
 
-        self.name_detection_buffer = int(os.getenv("VOICE_RECOGNITION_NAME_DETECTION_BUFFER", 1024))
-        self.full_detection_buffer = int(os.getenv("VOICE_RECOGNITION_FULL_DETECTION_BUFFER", 8192))
+        self.name_detection_buffer = getenv_int("VOICE_RECOGNITION_NAME_DETECTION_BUFFER", 1024)
+        self.full_detection_buffer = getenv_int("VOICE_RECOGNITION_FULL_DETECTION_BUFFER", 8192)
 
         self.name_in_partial = False
         self.is_name_listening_state = True
@@ -50,37 +64,32 @@ class SpeechRecognitionService(IService):
                 self.stream.close()
             if self.p:
                 self.p.terminate()
-        except:
-            pass
+        except Exception as e:
+            self.logger.warning(f"Error during audio stream cleanup: {e}", self.SERVICE_NAME, e)
             
-        self.p = pyaudio.PyAudio()
-        self.stream = self.p.open(
-            format=pyaudio.paInt16,
-            channels=int(os.getenv("VOICE_RECOGNITION_CHANNELS", 1)),
-            rate=int(os.getenv("VOICE_RECOGNITION_DISCRETIZATION_RATE", 16000)),
-            input=True,
-            frames_per_buffer=self.full_detection_buffer
-        )
-        self.stream.start_stream()
+        try:
+            self.logger.info("Initializing PyAudio stream", self.SERVICE_NAME)
+            self.p = pyaudio.PyAudio()
+            self.stream = self.p.open(
+                format=pyaudio.paInt16,
+                channels=getenv_int("VOICE_RECOGNITION_CHANNELS", 1),
+                rate=getenv_int("VOICE_RECOGNITION_DISCRETIZATION_RATE", 16000),
+                input=True,
+                frames_per_buffer=self.full_detection_buffer
+            )
+            self.stream.start_stream()
+            self.logger.info("PyAudio stream initialized successfully", self.SERVICE_NAME)
+        except Exception as e:
+            self.logger.critical("Failed to initialize PyAudio stream", self.SERVICE_NAME, e)
+            raise
 
     def _is_stream_active(self):
-        """Проверка активности аудио потока"""
         try:
             return self.stream is not None and self.stream.is_active() and not self.stream.is_stopped()
         except:
             return False
 
     def _wait_for_name(self, timeout=None, stop_event=None):
-        """
-        Ожидание распознавания имени
-        
-        Args:
-            timeout (float): Время ожидания в секундах
-            stop_event: threading.Event для проверки сигнала остановки
-        
-        Returns:
-            bool: True, если имя распознано, False в противном случае
-        """
         start_time = time.time()
         
         self.name_recognizer.Reset()
@@ -144,12 +153,6 @@ class SpeechRecognitionService(IService):
 
     @override
     def execute(self, stop_event=None, **args) -> Generator[Message, None, None]:
-        """
-        Запуск потока распознавания речи
-        
-        Args:
-            stop_event: threading.Event для корректного завершения
-        """
         try:
             while True:
                 if stop_event and stop_event.is_set():
