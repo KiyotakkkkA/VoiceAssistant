@@ -99,7 +99,22 @@ export class FileSystemService {
     }
 
     buildNotesStructure(start_path, idCounter = { value: 0 }) {
-        const stats = fs.statSync(start_path);
+        try {
+            if (!fs.existsSync(start_path)) {
+                fs.mkdirSync(start_path, { recursive: true });
+            }
+        } catch (e) {
+            console.warn('[FileSystemService] Failed to ensure notes directory exists:', e.message);
+            return { name: path.basename(start_path), type: 'folder', path: start_path, children: {} };
+        }
+
+        let stats;
+        try {
+            stats = fs.statSync(start_path);
+        } catch (e) {
+            console.warn('[FileSystemService] statSync failed for', start_path, e.message);
+            return { name: path.basename(start_path), type: 'folder', path: start_path, children: {} };
+        }
         const baseName = path.basename(start_path);
         const relativePath = path.relative(process.cwd(), start_path);
 

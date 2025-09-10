@@ -35,11 +35,11 @@ def _first_existing(*candidates: Path) -> Path:
     return candidates[0]
 
 
-_res_candidates = [
-    APP_ROOT / 'resources',
-    APP_ROOT,
-]
 
+_res_candidates = [
+    APP_ROOT / 'resources',            # deployment via extraFiles (nested)
+    APP_ROOT                            # direct (assets placed directly beside init.properties)
+]
 RESOURCES_DIR = _first_existing(*_res_candidates)
 
 def _r(*parts: str) -> Path:

@@ -11,10 +11,9 @@ let BASE_ROOT = APP_ROOT;
 try {
   const { app } = await import('electron');
   if (app && app.isPackaged) {
-    BASE_ROOT = process.resourcesPath;
+    BASE_ROOT = path.dirname(process.execPath);
   }
-} catch {
-}
+} catch {}
 
 try {
   const propertiesPath = path.join(APP_ROOT, 'init.properties');

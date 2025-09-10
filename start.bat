@@ -58,12 +58,15 @@ if "%~1"=="" (
     echo %BRIGHT_YELLOW% Список команд: %RESET%
     echo %BLUE%  --dev      %RESET%- Запуск режима разработки
     echo %BLUE%  --install  %RESET%- Установка зависимостей Python и Node.js
+    echo %BLUE%  --build    %RESET%- Сборка приложения
     echo.
     exit /b
 )
 
 if "%1"=="--dev" (
     npm run dev
+) else if "%1"=="--build" (
+    npm run dist:dir
 ) else if "%1"=="--install" (
     echo %BRIGHT_YELLOW%[ШАГ 1]%RESET% Создание виртуального окружения...%RESET%
     python -m venv "%PY_VENV_PATH%"

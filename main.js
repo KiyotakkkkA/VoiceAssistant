@@ -20,10 +20,11 @@ import { useSettings } from './src/app/js/composables/useSettings.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const ROOT_DIR = app.isPackaged ? process.resourcesPath : __dirname;
+const PACKAGED_BASE = app.isPackaged ? path.dirname(process.execPath) : __dirname;
+const ROOT_DIR = PACKAGED_BASE;
 const ASAR_ROOT = app.isPackaged ? path.join(process.resourcesPath, 'app.asar') : __dirname;
 
-const PY_MODULES_DIR = app.isPackaged ? path.join(process.resourcesPath, 'modules') : path.join(__dirname, 'modules');
+const PY_MODULES_DIR = app.isPackaged ? path.join(PACKAGED_BASE, 'modules') : path.join(__dirname, 'modules');
 const PY_MASTER_FILENAME = 'master.py';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -136,11 +137,12 @@ const services = {
 };
 
 function createBaseDirStructure() {
-  services.init.buildTree(path.join(ROOT_DIR));
+  services.init.buildTree(path.join(ROOT_DIR), { packaged: app.isPackaged });
 }
 
 function loadInitialData() {
-  const propertiesPath = path.join(__dirname, 'init.properties');
+  // In dev __dirname root has init.properties; in packaged it resides next to executable (ROOT_DIR)
+  const propertiesPath = path.join(ROOT_DIR, 'init.properties');
   if (fs.existsSync(propertiesPath)) {
     try {
       services.properties.load('config', propertiesPath);
@@ -187,13 +189,21 @@ function loadInitialData() {
 
   const selectedTheme = services.json.get('settings')?.['current.appearance.theme'];
   if (selectedTheme) {
-    const themeFileInAsar = path.join(ASAR_ROOT, paths.themes_path ?? '', `${selectedTheme}.json`);
-    const themeFilePlain = path.join(process.resourcesPath, paths.themes_path ?? '', `${selectedTheme}.json`);
-    const themeCandidate = fs.existsSync(themeFileInAsar) ? themeFileInAsar : themeFilePlain;
-    if (fs.existsSync(themeCandidate)) {
-      services.json.load('theme', themeCandidate);
-    } else {
-      services.json.load('theme', `${paths.themes_path}/${selectedTheme}.json`);
+    try {
+      const themeFile = path.join(paths.themes_path, `${selectedTheme}.json`);
+      if (fs.existsSync(themeFile)) {
+        services.json.load('theme', themeFile);
+      } else {
+        console.warn('[Theme] Selected theme file not found, falling back to first available. Looking at', themeFile);
+        if (fs.existsSync(paths.themes_path)) {
+          const list = fs.readdirSync(paths.themes_path).filter(f => f.endsWith('.json'));
+          if (list.length) {
+            services.json.load('theme', path.join(paths.themes_path, list[0]));
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[Theme] Failed to load selected theme:', e.message);
     }
   }
 }
@@ -219,15 +229,25 @@ function startWebSocketServer() {
 
   MsgBroker.init(wss, false);
   MsgBroker.onConnection((ws) => {
-
+    // Ensure notes directory exists before building structure (packaged builds may miss it if resources copied without subfolders)
+    try {
+      if (!fs.existsSync(paths.notes_path)) {
+        fs.mkdirSync(paths.notes_path, { recursive: true });
+      }
+    } catch (e) {
+      console.warn('[Main] Failed to ensure notes directory:', paths.notes_path, e.message);
+    }
     const notedObject = services.fsystem.buildNotesStructure(paths.notes_path).children;
     const settingsObject = services.json.get('settings');
     const themesObject = () => {
       try {
-        const themesDirInAsar = path.join(ASAR_ROOT, paths.themes_path ?? '');
-        const themesDirPlain = path.join(process.resourcesPath, paths.themes_path ?? '');
-        const themesDir = fs.existsSync(themesDirInAsar) ? themesDirInAsar : themesDirPlain;
-        const list = fs.readdirSync(themesDir).filter(f => f.endsWith('.json')).map(f => f.replace('.json', ''));
+        const themesDir = paths.themes_path; // already absolute
+        if (!fs.existsSync(themesDir)) {
+          fs.mkdirSync(themesDir, { recursive: true });
+        }
+        const list = fs.readdirSync(themesDir)
+          .filter(f => f.endsWith('.json'))
+          .map(f => f.replace('.json', ''));
         return {
           themesList: list,
           currentThemeData: services.json.get('theme')
