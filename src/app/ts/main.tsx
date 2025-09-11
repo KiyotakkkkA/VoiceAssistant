@@ -140,6 +140,24 @@ const AppContent = observer(() => {
     }
   };
 
+  const setActiveDialog = (m: any) => {
+    const dialogId = m?.payload?.dialog_id;
+    if (dialogId) {
+      const existing = AIMessagesStore.data.dialogs.find(d => d.id === dialogId);
+      if (!existing) {
+        AIMessagesStore.data.dialogs.push({
+          id: dialogId,
+          title: 'Диалог',
+          messages: [],
+          created_at: new Date(),
+          updated_at: new Date(),
+          is_active: false
+        });
+      }
+      AIMessagesStore.setActiveDialog(dialogId);
+    }
+  }
+
   const bindings = {
     [EventsTopic.SERVICE_WAS_REGISTERED]: (m: any) => {
       setModulesRegisteredData(m);
@@ -173,6 +191,11 @@ const AppContent = observer(() => {
     },
     [EventsTopic.JSON_ACCOUNT_DATA_SET]: (m: any) => {
       SettingsStore.applySettings(m?.payload?.data?.settings);
+      setSystemReady(true);
+      setMode('waiting');
+    },
+    [EventsTopic.JSON_ACTIVE_DIALOG_SET]: (m: any) => {
+      setActiveDialog(m);
     }
   };
 

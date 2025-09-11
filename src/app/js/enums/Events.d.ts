@@ -14,8 +14,10 @@ export const EventsTopic: {
     readonly JSON_THEMES_DATA_SET: 'json_themes_data_set';
     readonly JSON_APIKEYS_DATA_SET: 'json_apikeys_data_set';
     readonly JSON_EVENT_PANEL_STATE_SET: 'json_event_panel_state_set';
+    readonly JSON_DIALOGS_DATA_SET: 'json_dialogs_data_set';
     readonly JSON_TOOLS_DATA_SET: 'json_tools_data_set';
     readonly JSON_ACCOUNT_DATA_SET: 'json_account_data_set';
+    readonly JSON_ACTIVE_DIALOG_SET: 'json_active_dialog_set';
 
     readonly RAW_TEXT_DATA_RECOGNIZED: 'raw_text_data_recognized';
 
@@ -31,6 +33,7 @@ export const EventsTopic: {
     readonly ACTION_AIMODEL_SET: 'action_aimodel_set';
     readonly ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle';
     readonly ACTION_ACCOUNT_DATA_SET: 'action_account_data_set';
+    readonly ACTION_ACTIVE_DIALOG_SET: 'action_active_dialog_set';
     readonly ACTION_NOTES_REFETCH: 'action_notes_refetch';
 
     readonly ACTION_FOLDER_RENAME: 'action_folder_rename';
@@ -58,6 +61,8 @@ export const EventsTopic: {
 
     readonly HAVE_TO_BE_REFETCHED_SETTINGS_DATA: 'have_to_be_refetched_settings_data';
     readonly HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA: 'have_to_be_refetched_notes_structure_data';
+    readonly ACTION_DIALOGS_REFETCH: 'action_dialogs_refetch';
+    readonly HAVE_TO_BE_REFETCHED_DIALOGS_DATA: 'have_to_be_refetched_dialogs_data';
 
     readonly DATABASE_APPS_UPDATED: 'database_apps_updated';
     readonly DATABASE_PATH_ADDED: 'database_path_added';

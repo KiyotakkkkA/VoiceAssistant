@@ -5,6 +5,8 @@ import { IconPlus, IconMessage } from '../atoms/icons';
 import { AiMsgPreviewCard } from './widgets/cards';
 
 import AIMessagesStore from '../../store/AIMessagesStore';
+import { useSocketActions } from '../../composables/useSocketActions';
+import { EventsTopic } from '../../../js/enums/Events';
 
 interface DialogsSidebarProps {
   isVisible: boolean;
@@ -15,12 +17,14 @@ const DialogsSidebar: React.FC<DialogsSidebarProps> = observer(({
   isVisible, 
   onDialogSelect 
 }) => {
+  const { emitActiveDialog } = useSocketActions();
   const [editingDialogId, setEditingDialogId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
 
   const handleCreateDialog = () => {
     const newDialogId = AIMessagesStore.createDialog();
     onDialogSelect(newDialogId);
+    emitActiveDialog(newDialogId);
   };
 
   const handleEditStart = (dialog: Dialog, e: React.MouseEvent) => {
@@ -122,7 +126,7 @@ const DialogsSidebar: React.FC<DialogsSidebarProps> = observer(({
                 dialog={dialog}
                 editingDialogId={editingDialogId}
                 editingTitle={editingTitle}
-                onDialogSelect={onDialogSelect}
+                onDialogSelect={(id) => { onDialogSelect(id); emitActiveDialog(id); }}
                 onEditStart={handleEditStart}
                 onEditSave={handleEditSave}
                 onEditCancel={handleEditCancel}

@@ -16,6 +16,7 @@ class EventsTopic(enum.Enum):
     JSON_EVENT_PANEL_STATE_SET = 'json_event_panel_state_set'
     JSON_TOOLS_DATA_SET = 'json_tools_data_set'
     JSON_ACCOUNT_DATA_SET = 'json_account_data_set'
+    JSON_ACTIVE_DIALOG_SET = 'json_active_dialog_set'
 
     RAW_TEXT_DATA_RECOGNIZED = 'raw_text_data_recognized'
 
@@ -30,6 +31,7 @@ class EventsTopic(enum.Enum):
     ACTION_AIMODEL_SET = 'action_aimodel_set'
     ACTION_EVENT_PANEL_TOGGLE = 'action_event_panel_toggle'
     ACTION_ACCOUNT_DATA_SET = 'action_account_data_set'
+    ACTION_ACTIVE_DIALOG_SET = 'action_active_dialog_set'
     ACTION_NOTES_REFETCH = 'action_notes_refetch'
 
     ACTION_FOLDER_RENAME = 'action_folder_rename'
@@ -57,8 +59,10 @@ class EventsTopic(enum.Enum):
 
     HAVE_TO_BE_REFETCHED_SETTINGS_DATA = "have_to_be_refetched_settings_data"
     HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA = "have_to_be_refetched_notes_structure_data"
+    ACTION_DIALOGS_REFETCH = 'action_dialogs_refetch'
+    HAVE_TO_BE_REFETCHED_DIALOGS_DATA = 'have_to_be_refetched_dialogs_data'
 
-    DATABASE_APPS_UPDATED = 'database_apps_updated',
-    DATABASE_PATH_ADDED = 'database_path_added',
-    DATABASE_APP_LAUNCHED = 'database_app_launched',
+    DATABASE_APPS_UPDATED = 'database_apps_updated'
+    DATABASE_PATH_ADDED = 'database_path_added'
+    DATABASE_APP_LAUNCHED = 'database_app_launched'
     DATABASE_STATS_UPDATED = 'database_stats_updated'

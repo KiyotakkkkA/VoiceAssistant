@@ -37,8 +37,8 @@ def _first_existing(*candidates: Path) -> Path:
 
 
 _res_candidates = [
-    APP_ROOT / 'resources',            # deployment via extraFiles (nested)
-    APP_ROOT                            # direct (assets placed directly beside init.properties)
+    APP_ROOT / 'resources',
+    APP_ROOT
 ]
 RESOURCES_DIR = _first_existing(*_res_candidates)
 

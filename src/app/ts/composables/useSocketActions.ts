@@ -90,11 +90,16 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_INIT_DOWNLOADING_VOICE_MODEL, '', {});
   };
 
+  const emitActiveDialog = (dialogId: string) => {
+    sendServiceAction(EventsTopic.ACTION_ACTIVE_DIALOG_SET, '', { dialog_id: dialogId });
+  };
+
   return {
+    emitActiveDialog,
     setApiKeys,
     accountDataSet,
-    toolOff,
     initDownloadingVoiceModel,
+    toolOff,
     toolOn,
     fileWrite,
     fileDelete,

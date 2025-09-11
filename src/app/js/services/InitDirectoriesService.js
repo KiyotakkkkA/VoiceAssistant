@@ -23,6 +23,7 @@ export class InitDirectoriesService {
                 ] }
             ],
             models: [],
+            cache: [],
             temp: [],
             global: [
                 { 'settings.json': JSON.stringify(BASE_SETTINGS_CONTENT, null, 2) },
