@@ -3,6 +3,10 @@ import { ToolsData, ApiData, AccountData } from "../ts/types/Global";
 export interface BaseSettings {
   'current.ai.model.id': string;
   'current.ai.api': ApiData;
+  'current.ai.context': {
+    enabled: boolean;
+    max_messages: number;
+  };
   'current.ai.tools': ToolsData;
 
   'current.account.data': AccountData;

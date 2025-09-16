@@ -137,7 +137,24 @@ const useSettings = () => {
         );
     }
 
+    const contextSettingsSet = (updates) => {
+        refreshSettings(
+            EventsType.EVENT,
+            EventsTopic.ACTION_CONTEXT_SETTINGS_SET,
+            'current.ai.context',
+            updates,
+            (type, topic, key, data) => {
+                sendToAll(type, topic, {
+                    settings: {
+                        [key]: data
+                    }
+                });
+            }
+        );
+    }
+
     return {
+        contextSettingsSet,
         setTheme,
         accountDataSet,
         eventPanelSet,

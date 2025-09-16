@@ -10,6 +10,12 @@ class NotesStore {
         makeAutoObservable(this);
     }
 
+    applyNotesData(notesData: NotesStructure) {
+        if (notesData) {
+            this.notes = notesData;
+        }
+    }
+
     getNoteById(id: number): NoteItem | null {
         const findNote = (structure: NotesStructure): NoteItem | null => {
             for (const key in structure) {

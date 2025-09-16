@@ -37,7 +37,8 @@ const {
   accountDataSet,
   eventPanelSet,
   apiKeysSet,
-  aiModelSet
+  aiModelSet,
+  contextSettingsSet
 } = useSettings();
 const {
   launchApp,
@@ -334,6 +335,11 @@ function startWebSocketServer() {
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_EVENT_PANEL_TOGGLE],
     handler: (ws, msg) => { eventPanelSet(msg.payload['current.interface.event_panel.state']); }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_CONTEXT_SETTINGS_SET],
+    handler: (ws, msg) => { contextSettingsSet(msg.payload.updates); }
   });
 
   MsgBroker.onMessage({

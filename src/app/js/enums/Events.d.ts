@@ -27,18 +27,21 @@ export const EventsTopic: {
     readonly ACTION_APIKEYS_SET: 'action_apikeys_set';
     readonly ACTION_WAKE: 'action_wake';
     readonly ACTION_TRANSCRIPT: 'action_transcript';
-    readonly ACTION_AI_STREAM_CHUNK: 'action_ai_stream_chunk';
-    readonly ACTION_AI_STREAM_START: 'action_ai_stream_start';
-    readonly ACTION_AI_STREAM_END: 'action_ai_stream_end';
     readonly ACTION_MODE_SET: 'action_mode_set';
     readonly ACTION_AIMODEL_SET: 'action_aimodel_set';
     readonly ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle';
     readonly ACTION_ACCOUNT_DATA_SET: 'action_account_data_set';
+    readonly ACTION_NOTES_REFETCH: 'action_notes_refetch';
+    readonly ACTION_CONTEXT_SETTINGS_SET: 'action_context_settings_set';
+
+    readonly ACTION_AI_STREAM_CHUNK: 'action_ai_stream_chunk';
+    readonly ACTION_AI_STREAM_START: 'action_ai_stream_start';
+    readonly ACTION_AI_STREAM_END: 'action_ai_stream_end';
+
     readonly ACTION_ACTIVE_DIALOG_SET: 'action_active_dialog_set';
     readonly ACTION_DIALOG_RENAMED: 'action_dialog_renamed';
     readonly ACTION_DIALOG_DELETED: 'action_dialog_deleted';
     readonly ACTION_DIALOG_CREATED: 'action_dialog_created';
-    readonly ACTION_NOTES_REFETCH: 'action_notes_refetch';
 
     readonly ACTION_FOLDER_RENAME: 'action_folder_rename';
     readonly ACTION_FOLDER_DELETE: 'action_folder_delete';

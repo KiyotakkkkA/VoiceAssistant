@@ -10,6 +10,7 @@ import { Dialog } from '../../types/Global';
 
 import AIMessagesStore from '../../store/AIMessagesStore';
 import StreamingAIStore from '../../store/StreamingAIStore';
+import SettingsStore from '../../store/SettingsStore';
 
 interface DialogsPanelProps {
   isVisible: boolean;
@@ -216,7 +217,7 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
                   <button
                     onClick={() => setHistoryPanelVisible(true)}
                     className={`p-1.5 rounded-lg transition-colors ${
-                      AIMessagesStore.getHistoryContext()
+                      SettingsStore.data.settings['current.ai.context'].enabled
                         ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                         : 'bg-gray-500/10 text-gray-400 hover:bg-gray-500/20'
                     }`}

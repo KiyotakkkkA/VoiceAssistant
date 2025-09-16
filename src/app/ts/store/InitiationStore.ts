@@ -18,6 +18,13 @@ class InitiationStore {
     constructor() {
         makeAutoObservable(this);
     }
+
+    applyInitState(newState: Partial<InitState>) {
+        this.state = {
+            ...this.state,
+            ...newState
+        };
+    }
 }
 
 export default new InitiationStore();

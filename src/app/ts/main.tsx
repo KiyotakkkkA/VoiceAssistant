@@ -40,18 +40,13 @@ const AppContent = observer(() => {
   };
 
   const setNotesData = (m: any) => {
-    if (m?.payload?.data?.notes) {
-      NotesStore.notes = m.payload.data.notes;
-    }
+    NotesStore.applyNotesData(m?.payload?.data?.notes || { notesList: {}, structure: [] });
   };
 
   const setInitialState = (m: any) => {
-    if (m?.payload?.data?.initialState) {
-      InitiationStore.state = { 
-        ...InitiationStore.state, 
-        ...m.payload.data.initialState 
-      };
-    }
+    InitiationStore.applyInitState(m?.payload?.data?.initialState || { 
+      voskModel: { exists: false, isDownloading: false }
+    });
   };
 
   const setThemesData = (m: any) => {
@@ -61,28 +56,19 @@ const AppContent = observer(() => {
   }
 
   const setModulesRegisteredData = (m: any) => {
-    ModulesStore.modules = {
-      ...ModulesStore.modules,
-      [m?.payload?.service]: {
-        service_id: m?.payload?.service || 'Неизвестный модуль',
-        service_name: m?.payload?.service_name || '[Нет имени]',
-        service_desc: m?.payload?.service_desc || '[Нет описания]',
-        enabled: false,
-        isReloading: false,
-        isEnabling: false,
-        isDisabling: false,
-      }
-    };
+    ModulesStore.applyModulesRegisteredData(m?.payload?.service, {
+      service_id: m?.payload?.service || 'Неизвестный модуль',
+      service_name: m?.payload?.service_name || '[Нет имени]',
+      service_desc: m?.payload?.service_desc || '[Нет описания]',
+      enabled: false,
+      isReloading: false,
+      isEnabling: false,
+      isDisabling: false,
+    });
   };
 
   const setModulesInitedData = (m: any) => {
-    ModulesStore.modules = {
-      ...ModulesStore.modules,
-      [m?.payload?.service]: {
-        ...ModulesStore.modules[m?.payload?.service],
-        enabled: true,
-      }
-    };
+    ModulesStore.enableModule(m?.payload?.service);
 
     if (InitiationStore.state.voskModel.isDownloading && m?.payload?.service === 'speech_rec_module') {
       InitiationStore.state.voskModel.isDownloading = false
@@ -91,14 +77,7 @@ const AppContent = observer(() => {
   };
 
   const setModulesStoppedData = (m: any) => {
-    ModulesStore.modules = {
-      ...ModulesStore.modules,
-      [m?.payload?.service]: {
-        ...ModulesStore.modules[m?.payload?.service],
-        isDisabling: false,
-        enabled: false,
-      }
-    };
+    ModulesStore.stopModule(m?.payload?.service);
   }
 
   const setGlobalMode = (m: any) => {

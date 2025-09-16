@@ -89,5 +89,5 @@ if "%1"=="--dev" (
     
 ) else (
     echo %BRIGHT_RED%[€]%RESET% ¥¨§Ά¥αβ­ ο ª®¬ ­¤  "%1"
-    echo α―®«μ§γ©β¥ --tr, --dev ¨«¨ --install
+    echo α―®«μ§γ©β¥ --build, --dev ¨«¨ --install
 )

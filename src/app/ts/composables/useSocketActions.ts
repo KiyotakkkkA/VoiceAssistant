@@ -106,7 +106,12 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_DIALOG_CREATED, '', { dialog_id: dialogId });
   };
 
+  const contextSettingsSet = (updates: { enabled: boolean, max_messages: number }) => {
+    sendServiceAction(EventsTopic.ACTION_CONTEXT_SETTINGS_SET, '', { updates });
+  }
+
   return {
+    contextSettingsSet,
     emitDialogCreated,
     emitDialogDeleted,
     emitDialogRenamed,

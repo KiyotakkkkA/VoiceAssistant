@@ -5,6 +5,10 @@ export const BASE_CONFIG_CONTENT = {
 export const BASE_SETTINGS_CONTENT = {
     'current.ai.model.id': '',
     'current.ai.api': {},
+    'current.ai.context': {
+        enabled: false,
+        max_messages: 10
+    },
     'current.ai.tools': {},
 
     'current.account.data': {},

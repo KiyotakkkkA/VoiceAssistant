@@ -158,19 +158,6 @@ class AIMessagesStore {
     getHistoryContext(): boolean {
         return this.data.useHistoryContext;
     }
-
-    getContextMessages(): DialogMessage[] {
-        if (!this.data.useHistoryContext) {
-            return [];
-        }
-        
-        const activeDialog = this.getActiveDialog();
-        if (!activeDialog) {
-            return [];
-        }
-        
-        return activeDialog.messages.slice(-10);
-    }
 }
 
 export default new AIMessagesStore();

@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { useSocketActions } from '../composables';
 import { ApiData, AccountData, ToolsData } from '../types/Global';
 
-const { accountDataSet, eventPanelToggle, setApiKeys, toolOff } = useSocketActions();
+const { accountDataSet, eventPanelToggle, setApiKeys, toolOff, contextSettingsSet} = useSocketActions();
 
 type Settings = {
     runtime: {
@@ -12,6 +12,10 @@ type Settings = {
     settings: {
         'current.ai.model.id': string;
         'current.ai.api': ApiData;
+        'current.ai.context': {
+            enabled: boolean;
+            max_messages: number;
+        };
         'current.ai.tools': ToolsData;
 
         'current.account.data': AccountData;
@@ -32,6 +36,10 @@ class SettingsStore {
         settings: {
             'current.ai.model.id': '',
             'current.ai.api': {},
+            'current.ai.context': {
+                enabled: false,
+                max_messages: 10
+            },
             'current.ai.tools': {},
             'current.account.data': {},
             'current.appearance.theme': '',
@@ -56,6 +64,17 @@ class SettingsStore {
 
     getAccountDataByID(id: string) {
         return this.data.settings['current.account.data']?.[id];
+    }
+
+    updateContextSettings(updates: { enabled?: boolean; max_messages?: number }) {
+        this.data.settings['current.ai.context'] = {
+            ...this.data.settings['current.ai.context'],
+            ...updates
+        };
+        contextSettingsSet({
+            enabled: this.data.settings['current.ai.context'].enabled,
+            max_messages: this.data.settings['current.ai.context'].max_messages
+        });
     }
 
     updateAccountData(updates: {key: string, value: string}[]) {

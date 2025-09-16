@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import AIMessagesStore from '../../../store/AIMessagesStore';
 import { RangeInput } from '../../atoms/input';
+
+import AIMessagesStore from '../../../store/AIMessagesStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 interface HistoryContextModalProps {
   isVisible: boolean;
@@ -12,13 +14,18 @@ const HistoryContextModal: React.FC<HistoryContextModalProps> = observer(({
   isVisible, 
   onClose 
 }) => {
-  const [contextLimit, setContextLimit] = useState(10);
+  
+  const setContextLimit = (value: number) => {
+    SettingsStore.updateContextSettings({ max_messages: value });
+  };
+
+  const setContextEnabled = (enabled: boolean) => {
+    SettingsStore.updateContextSettings({ enabled });
+  }
 
   if (!isVisible) return null;
 
   const activeDialog = AIMessagesStore.getActiveDialog();
-  const contextMessages = AIMessagesStore.getContextMessages();
-  const isHistoryEnabled = AIMessagesStore.getHistoryContext();
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -48,14 +55,14 @@ const HistoryContextModal: React.FC<HistoryContextModalProps> = observer(({
               </p>
             </div>
             <button
-              onClick={() => AIMessagesStore.toggleHistoryContext()}
+              onClick={() => setContextEnabled(!SettingsStore.data.settings['current.ai.context'].enabled)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                isHistoryEnabled ? 'bg-green-500' : 'bg-gray-300'
+                SettingsStore.data.settings['current.ai.context'].enabled ? 'bg-green-500' : 'bg-gray-300'
               }`}
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  isHistoryEnabled ? 'translate-x-6' : 'translate-x-1'
+                  SettingsStore.data.settings['current.ai.context'].enabled ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>
@@ -64,16 +71,18 @@ const HistoryContextModal: React.FC<HistoryContextModalProps> = observer(({
           {activeDialog && (
             <div className="p-3 rounded-lg bg-ui-bg-secondary/20 border border-ui-border-primary/30">
               <div className="flex items-center gap-2 mb-2">
-                <div className={`w-2 h-2 rounded-full ${isHistoryEnabled ? 'bg-green-400' : 'bg-gray-400'}`} />
+                <div className={`w-2 h-2 rounded-full ${SettingsStore.data.settings['current.ai.context'].enabled ? 'bg-green-400' : 'bg-gray-400'}`} />
                 <span className="text-sm font-medium text-ui-text-primary">
                   Текущий диалог
                 </span>
               </div>
               <div className="space-y-1 text-xs text-ui-text-muted">
-                <p>Всего сообщений: {activeDialog.messages.length}</p>
-                <p>В контексте: {isHistoryEnabled ? contextMessages.length : 0}</p>
+                <p>Всего сообщений: {activeDialog.messages.length / 2}</p>
+                <p>В контексте: {!SettingsStore.data.settings['current.ai.context'].enabled ? 0 : (
+                  Math.min(activeDialog.messages.length, SettingsStore.data.settings['current.ai.context'].max_messages) / 2
+                )}</p>
                 <p>
-                  Статус: {isHistoryEnabled ? 
+                  Статус: {SettingsStore.data.settings['current.ai.context'].enabled ? 
                     <span className="text-green-400">Контекст включен</span> : 
                     <span className="text-gray-400">Контекст отключен</span>
                   }
@@ -89,7 +98,7 @@ const HistoryContextModal: React.FC<HistoryContextModalProps> = observer(({
             <RangeInput
               min={1}
               max={20}
-              value={contextLimit}
+              value={SettingsStore.data.settings['current.ai.context'].max_messages}
               onChange={setContextLimit}
             />
             <p className="text-xs text-ui-text-muted mt-1">
