@@ -58,6 +58,8 @@ class Excecutor:
                 self.services["ai_service"].set_client_data(self.current_model_key, self.current_model_name, self.current_model_provider) # type: ignore
 
     def run(self, msg):
-        data = self.services["ai_service"].execute(msg['payload']['text']) # type: ignore
+        text = msg['payload']['text']
+        dialog_id = msg['payload'].get('dialog_id')
+        data = self.services["ai_service"].execute(text, dialog_id) # type: ignore
 
         yield data

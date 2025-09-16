@@ -1,5 +1,6 @@
 import os
 import time
+import json
 from typing import Optional, List, Dict, Any
 from interfaces import IService, IProvider
 from src.processing_module.tools import FileSystemTool, ModuleManagementTool, NetworkTool, SystemManagementTool, \
@@ -7,6 +8,8 @@ DockerTool, ToolManagementTool, GitHubTool, UserInfoTool, WebTool
 from enums.Events import EventsType, EventsTopic
 from src.processing_module.providers.ai.ProviderFactory import ProviderFactory
 from utils.EnvHelper import getenv
+from utils.CacheService import CacheService
+from paths import path_resolver
 
 header = f'''
     Instructions:
@@ -86,6 +89,79 @@ class AIService(IService):
     def get_tools(self):
         return self.tools_representation
 
+    def get_context_settings(self) -> Dict[str, Any]:
+        try:
+            with open(f"{path_resolver['global_path']}/settings.json", 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get("current.ai.context", {})
+        except Exception as e:
+            print(f"[AIService] Ошибка при чтении настроек контекста: {e}")
+            return {"enabled": False, "max_messages": 6}
+
+    def get_dialog_history(self, dialog_id: str, max_messages: int) -> List[Dict[str, str]]:
+        try:
+            cache_service = CacheService().getInstance()
+            dialogs_cache = cache_service.get_cache('dialogs_cache', {})
+            
+            if not dialogs_cache or dialog_id not in dialogs_cache:
+                return []
+            
+            dialog = dialogs_cache[dialog_id]
+            messages = dialog.get('messages', [])
+            
+            recent_messages = messages[-max_messages:] if len(messages) > max_messages else messages
+            
+            history = []
+            for message in recent_messages:
+                if message.get('user_prompt'):
+                    history.append({
+                        "role": "user", 
+                        "content": message['user_prompt']
+                    })
+                
+                if message.get('assistant_response'):
+                    assistant_content = ""
+                    if isinstance(message['assistant_response'], dict):
+                        final_stage = message['assistant_response'].get('final_stage', {})
+                        if isinstance(final_stage, dict):
+                            assistant_content = final_stage.get('content', '')
+                        else:
+                            assistant_content = str(final_stage)
+                    elif isinstance(message['assistant_response'], str):
+                        assistant_content = message['assistant_response']
+                    
+                    if assistant_content:
+                        history.append({
+                            "role": "assistant",
+                            "content": assistant_content
+                        })
+            
+            return history
+            
+        except Exception as e:
+            print(f"[AIService] Ошибка при получении истории диалога: {e}")
+            return []
+
+    def build_messages_with_context(self, text: str, dialog_id: Optional[str] = None) -> List[Dict[str, str]]:
+        context_settings = self.get_context_settings()
+        
+        messages = [{
+            "role": "assistant",
+            "content": header + text
+        }]
+        
+        if context_settings.get("enabled", False) and dialog_id:
+            max_messages = context_settings.get("max_messages", 6)
+            history = self.get_dialog_history(dialog_id, max_messages)
+            
+            if history:
+                messages = [messages[0]] + history + [{
+                    "role": "user",
+                    "content": text
+                }]
+        
+        return messages
+
     def setup_tools(self, state: dict = {}):
         self.tools = []
 
@@ -118,14 +194,12 @@ class AIService(IService):
         
         return self.provider.chat_stream(messages, self.tools)
 
-    def execute(self, text: str):  # type: ignore
+    def execute(self, text: str, dialog_id: Optional[str] = None):  # type: ignore
         if not self.provider:
             raise ValueError("Provider is not set. Please set it before executing.")
 
-        messages = [{
-            "role": "assistant",
-            "content": header + text
-        }]
+        # Используем новый метод для построения сообщений с контекстом
+        messages = self.build_messages_with_context(text, dialog_id)
 
         initial_accumulated_response = {'thinking': '', 'content': ''}
         final_accumulated_response = {'thinking': '', 'content': ''}
