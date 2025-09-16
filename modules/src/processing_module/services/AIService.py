@@ -198,7 +198,6 @@ class AIService(IService):
         if not self.provider:
             raise ValueError("Provider is not set. Please set it before executing.")
 
-        # Используем новый метод для построения сообщений с контекстом
         messages = self.build_messages_with_context(text, dialog_id)
 
         initial_accumulated_response = {'thinking': '', 'content': ''}

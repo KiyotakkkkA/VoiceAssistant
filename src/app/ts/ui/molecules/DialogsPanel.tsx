@@ -64,10 +64,6 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
     AIMessagesStore.setActiveDialog(dialogId);
   };
 
-  const clearActiveDialog = () => {
-    AIMessagesStore.clearActiveDialog();
-  };
-
   const activeDialog = AIMessagesStore.getActiveDialog();
   const totalDialogs = AIMessagesStore.data.dialogs.length;
 
@@ -227,13 +223,6 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
                       <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                     </svg>
                   </button>
-                  <button
-                    onClick={clearActiveDialog}
-                    className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
-                    title="Очистить диалог"
-                  >
-                    <IconTrash size={16} />
-                  </button>
                 </div>
               </div>
               {activeDialog && (
@@ -244,7 +233,7 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
                         <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
                       </svg>
                       <span className="text-ui-text-secondary font-medium">
-                        {activeDialog.messages.length} сообщени{activeDialog.messages.length !== 1 ? 'й' : 'е'}
+                        {activeDialog.messages.length / 2} сообщени{activeDialog.messages.length !== 1 ? 'й' : 'е'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-ui-bg-secondary/30 rounded-lg border border-ui-border-primary/10">

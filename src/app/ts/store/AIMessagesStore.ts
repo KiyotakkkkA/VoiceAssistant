@@ -139,14 +139,6 @@ class AIMessagesStore {
         }
     }
 
-    clearActiveDialog() {
-        const activeDialog = this.getActiveDialog();
-        if (activeDialog) {
-            activeDialog.messages = [];
-            activeDialog.updated_at = new Date();
-        }
-    }
-
     toggleHistoryContext() {
         this.data.useHistoryContext = !this.data.useHistoryContext;
     }
