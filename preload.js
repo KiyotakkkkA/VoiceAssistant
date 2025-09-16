@@ -1,7 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-try { console.log('[Preload] Script loaded (ESM).'); } catch (_) {}
-
 contextBridge.exposeInMainWorld('safeTimers', {
   setTimeout: (callback, delay) => setTimeout(callback, delay),
   setInterval: (callback, interval) => setInterval(callback, interval),

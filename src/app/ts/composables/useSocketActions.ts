@@ -94,7 +94,17 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_ACTIVE_DIALOG_SET, '', { dialog_id: dialogId });
   };
 
+  const emitDialogRenamed = (dialogId: string, newTitle: string) => {
+    sendServiceAction(EventsTopic.ACTION_DIALOG_RENAMED, '', { dialog_id: dialogId, new_title: newTitle });
+  }
+
+  const emitDialogDeleted = (dialogId: string) => {
+    sendServiceAction(EventsTopic.ACTION_DIALOG_DELETED, '', { dialog_id: dialogId });
+  };
+
   return {
+    emitDialogDeleted,
+    emitDialogRenamed,
     emitActiveDialog,
     setApiKeys,
     accountDataSet,

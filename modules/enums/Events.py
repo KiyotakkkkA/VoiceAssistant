@@ -17,6 +17,7 @@ class EventsTopic(enum.Enum):
     JSON_TOOLS_DATA_SET = 'json_tools_data_set'
     JSON_ACCOUNT_DATA_SET = 'json_account_data_set'
     JSON_ACTIVE_DIALOG_SET = 'json_active_dialog_set'
+    JSON_DIALOGS_DATA_SET = 'json_dialogs_data_set'
 
     RAW_TEXT_DATA_RECOGNIZED = 'raw_text_data_recognized'
 
@@ -32,6 +33,8 @@ class EventsTopic(enum.Enum):
     ACTION_EVENT_PANEL_TOGGLE = 'action_event_panel_toggle'
     ACTION_ACCOUNT_DATA_SET = 'action_account_data_set'
     ACTION_ACTIVE_DIALOG_SET = 'action_active_dialog_set'
+    ACTION_DIALOG_RENAMED = 'action_dialog_renamed'
+    ACTION_DIALOG_DELETED = 'action_dialog_deleted'
     ACTION_NOTES_REFETCH = 'action_notes_refetch'
 
     ACTION_FOLDER_RENAME = 'action_folder_rename'
@@ -40,11 +43,11 @@ class EventsTopic(enum.Enum):
     ACTION_FILE_WRITE = 'ACTION_FILE_WRITE'
     ACTION_FILE_DELETE = 'action_file_delete'
     ACTION_FILE_RENAME = 'action_file_rename'
+    ACTION_FILE_REWRITED = 'action_file_rewrited'
 
     ACTION_SERVICE_RELOAD = 'action_service_reload'
     ACTION_SERVICE_DISABLE = 'action_service_disable'
     ACTION_SERVICE_ENABLE = 'action_service_enable'
-    ACTION_FILE_REWRITED = 'action_file_rewrited'
 
     ACTION_INIT_DOWNLOADING_VOICE_MODEL = 'action_init_downloading_voice_model'
 

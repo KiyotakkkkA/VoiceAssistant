@@ -3,10 +3,9 @@ import { observer } from 'mobx-react-lite';
 import { Dialog } from '../../types/Global';
 import { IconPlus, IconMessage } from '../atoms/icons';
 import { AiMsgPreviewCard } from './widgets/cards';
+import { useSocketActions } from '../../composables/useSocketActions';
 
 import AIMessagesStore from '../../store/AIMessagesStore';
-import { useSocketActions } from '../../composables/useSocketActions';
-import { EventsTopic } from '../../../js/enums/Events';
 
 interface DialogsSidebarProps {
   isVisible: boolean;
@@ -72,20 +71,6 @@ const DialogsSidebar: React.FC<DialogsSidebarProps> = observer(({
     }
   };
 
-  const getMessagePreview = (dialog: Dialog): string => {
-    const lastUserMessage = dialog.messages
-      .filter(m => m.role === 'user')
-      .pop();
-    
-    if (!lastUserMessage) return 'Пустой диалог';
-    
-    const content = typeof lastUserMessage.content === 'string' 
-      ? lastUserMessage.content 
-      : 'Сложный запрос';
-    
-    return content.length > 40 ? content.substring(0, 40) + '...' : content;
-  };
-
   if (!isVisible) return null;
 
   const sortedDialogs = [...AIMessagesStore.data.dialogs].sort((a, b) => 
@@ -133,7 +118,6 @@ const DialogsSidebar: React.FC<DialogsSidebarProps> = observer(({
                 onDeleteDialog={handleDeleteDialog}
                 onEditTitleChange={setEditingTitle}
                 formatDate={formatDate}
-                getMessagePreview={getMessagePreview}
               />
             ))}
           </div>

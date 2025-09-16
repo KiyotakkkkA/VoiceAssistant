@@ -141,7 +141,6 @@ function createBaseDirStructure() {
 }
 
 function loadInitialData() {
-  // In dev __dirname root has init.properties; in packaged it resides next to executable (ROOT_DIR)
   const propertiesPath = path.join(ROOT_DIR, 'init.properties');
   if (fs.existsSync(propertiesPath)) {
     try {
@@ -229,7 +228,6 @@ function startWebSocketServer() {
 
   MsgBroker.init(wss, false);
   MsgBroker.onConnection((ws) => {
-    // Ensure notes directory exists before building structure (packaged builds may miss it if resources copied without subfolders)
     try {
       if (!fs.existsSync(paths.notes_path)) {
         fs.mkdirSync(paths.notes_path, { recursive: true });
@@ -241,7 +239,7 @@ function startWebSocketServer() {
     const settingsObject = services.json.get('settings');
     const themesObject = () => {
       try {
-        const themesDir = paths.themes_path; // already absolute
+        const themesDir = paths.themes_path;
         if (!fs.existsSync(themesDir)) {
           fs.mkdirSync(themesDir, { recursive: true });
         }
@@ -414,6 +412,8 @@ function startPythonProcess() {
     env: { 
       ...process.env, 
       PYTHONUNBUFFERED: '1',
+      PYTHONIOENCODING: 'utf-8',
+      PYTHONUTF8: '1',
       APP_ROOT: ROOT_DIR
     }
   });
@@ -428,7 +428,7 @@ function startPythonProcess() {
 function stopPythonProcess() {
   if (pythonProc) {
     console.log('[Python] Terminating...');
-    try { pythonProc.kill('SIGTERM'); } catch (e) { /* noop */ }
+    try { pythonProc.kill('SIGTERM'); } catch (e) { }
     pythonProc = null;
   }
 }

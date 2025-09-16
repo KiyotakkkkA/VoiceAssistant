@@ -98,8 +98,8 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
             toolsUsed: getToolsCount(aiMessage.content),
             hasThinking: hasThinking(aiMessage.content)
           });
-        } else {
-
+        } 
+        else {
           messageHistory.push({
             userText,
             aiResponse: '',

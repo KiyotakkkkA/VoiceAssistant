@@ -17,6 +17,7 @@ export const EventsTopic = {
     JSON_TOOLS_DATA_SET: 'json_tools_data_set',
     JSON_ACCOUNT_DATA_SET: 'json_account_data_set',
     JSON_ACTIVE_DIALOG_SET: 'json_active_dialog_set',
+    JSON_DIALOGS_DATA_SET: 'json_dialogs_data_set',
 
     RAW_TEXT_DATA_RECOGNIZED: 'raw_text_data_recognized',
 
@@ -33,6 +34,8 @@ export const EventsTopic = {
     ACTION_EVENT_PANEL_TOGGLE: 'action_event_panel_toggle',
     ACTION_ACCOUNT_DATA_SET: 'action_account_data_set',
     ACTION_ACTIVE_DIALOG_SET: 'action_active_dialog_set',
+    ACTION_DIALOG_RENAMED: 'action_dialog_renamed',
+    ACTION_DIALOG_DELETED: 'action_dialog_deleted',
     ACTION_NOTES_REFETCH: 'action_notes_refetch',
 
     ACTION_FOLDER_RENAME: 'action_folder_rename',

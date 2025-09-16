@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { Dialog, DialogMessage } from '../types/Global';
+import { useSocketActions } from '../composables';
 
 type Msg = {
     model_name: string;
@@ -14,6 +15,8 @@ type AIMessagesData = {
     useHistoryContext: boolean;
 }
 
+const { emitDialogRenamed, emitDialogDeleted } = useSocketActions();
+
 class AIMessagesStore {
     data: AIMessagesData = {
         aiMsgHistory: [],
@@ -24,9 +27,50 @@ class AIMessagesStore {
     
     constructor() {
         makeAutoObservable(this);
-        if (this.data.dialogs.length === 0) {
-            this.createDialog('Новый диалог');
-        }
+    }
+
+    applyDialogsData(dialogs: any) {
+        const now = new Date();
+        Object.entries(dialogs).forEach(([key, element]: [string, any]) => {
+            if (this.data.dialogs.find(d => d.id === key)) return;
+
+            const title = element.title || element.messages[0]?.user_prompt?.substring(0, 30) + (element.messages[0]?.user_prompt?.length > 30 ? '...' : '') || 'Диалог';
+
+            this.data.dialogs.push({
+                id: key,
+                title,
+                messages: (() => {
+                    const messages: DialogMessage[] = [];
+                    element.messages.forEach((exchange: any, exchangeIndex: number) => {
+                        if (exchange.user_prompt) {
+                            messages.push({
+                                id: `msg_${key}_${exchangeIndex}_user`,
+                                content: exchange.user_prompt,
+                                role: 'user',
+                                timestamp: new Date(exchange.timestamp || now),
+                                model_name: undefined
+                            });
+                        }
+                        
+                        if (exchange.assistant_response) {
+                            const assistantContent = exchange.assistant_response;
+                                
+                            messages.push({
+                                id: `msg_${key}_${exchangeIndex}_assistant`,
+                                content: assistantContent,
+                                role: 'assistant',
+                                timestamp: new Date(exchange.timestamp || now),
+                                model_name: exchange.model_name || 'Неизвестная модель'
+                            });
+                        }
+                    });
+                    return messages;
+                })(),
+                created_at: element.create_at ? new Date(element.create_at) : now,
+                updated_at: element.updated_at ? new Date(element.updated_at) : now,
+                is_active: false
+            })
+        });
     }
 
     clearAiHistory() {
@@ -70,6 +114,8 @@ class AIMessagesStore {
         if (dialog) {
             dialog.title = newTitle;
             dialog.updated_at = new Date();
+
+            emitDialogRenamed(dialogId, newTitle);
         }
     }
 
@@ -81,10 +127,10 @@ class AIMessagesStore {
             if (this.data.activeDialogId === dialogId) {
                 if (this.data.dialogs.length > 0) {
                     this.setActiveDialog(this.data.dialogs[0].id);
-                } else {
-                    this.createDialog('Новый диалог');
                 }
             }
+
+            emitDialogDeleted(dialogId);
         }
     }
 

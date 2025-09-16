@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Dialog } from '../../../../types/Global';
 import { IconPen, IconCheck, IconX, IconTrash } from '../../../atoms/icons';
+import { CanOkModal } from '../../modals';
 
 import AIMessagesStore from '../../../../store/AIMessagesStore';
 
@@ -16,7 +17,6 @@ interface AiMsgPreviewCardProps {
   onDeleteDialog: (dialogId: string, e: React.MouseEvent) => void;
   onEditTitleChange: (value: string) => void;
   formatDate: (date: Date) => string;
-  getMessagePreview: (dialog: Dialog) => string;
 }
 
 const AiMsgPreviewCard: React.FC<AiMsgPreviewCardProps> = observer(({ 
@@ -30,8 +30,19 @@ const AiMsgPreviewCard: React.FC<AiMsgPreviewCardProps> = observer(({
   onDeleteDialog,
   onEditTitleChange,
   formatDate,
-  getMessagePreview
 }) => {
+
+  const [isRemoveAppModalOpen, setRemoveAppModalOpen] = useState(false);
+  const [deletedDialogData, setDeletedDialogData] = useState<{ id: string; title: string }>({
+    id: '', title: ''
+  });
+
+  const handleDeleteDialog = (dialogId: string, dialogTitle: string) => {
+    onDeleteDialog(dialogId, new MouseEvent('click') as unknown as React.MouseEvent);
+    setDeletedDialogData({ id: '', title: '' });
+    setRemoveAppModalOpen(false);
+  };
+
   return (
     <div
       key={dialog.id}
@@ -87,7 +98,11 @@ const AiMsgPreviewCard: React.FC<AiMsgPreviewCardProps> = observer(({
                 </button>
                 {AIMessagesStore.data.dialogs.length > 1 && (
                   <button
-                    onClick={(e) => onDeleteDialog(dialog.id, e)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeletedDialogData({ id: dialog.id, title: dialog.title });
+                      setRemoveAppModalOpen(true);
+                    }}
                     className="p-1 rounded text-ui-text-muted hover:text-red-400 hover:bg-red-400/20"
                     title="Удалить диалог"
                   >
@@ -97,10 +112,6 @@ const AiMsgPreviewCard: React.FC<AiMsgPreviewCardProps> = observer(({
               </div>
             </div>
           )}
-          
-          <p className="text-xs text-ui-text-muted truncate mb-2">
-            {getMessagePreview(dialog)}
-          </p>
           
           <div className="flex items-center justify-between text-xs">
             <span className="text-ui-text-muted">
@@ -112,6 +123,17 @@ const AiMsgPreviewCard: React.FC<AiMsgPreviewCardProps> = observer(({
           </div>
         </div>
       </div>
+
+      <CanOkModal
+          isOpen={isRemoveAppModalOpen}
+          onClose={() => setRemoveAppModalOpen(false)}
+          onConfirm={() => handleDeleteDialog(deletedDialogData.id, deletedDialogData.title)}
+          title="Удалить приложение"
+          description={`Вы действительно хотите удалить диалог "${deletedDialogData.title}"? Это действие нельзя отменить.`}
+          confirmText="Удалить"
+          cancelText="Отмена"
+          type="danger"
+      />
     </div>
   );
 });

@@ -1,5 +1,5 @@
-import { R } from 'framer-motion/dist/types.d-DDSxwf0n';
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   isOpen: boolean;
@@ -95,8 +95,8 @@ const CanOkModal: React.FC<Props> = ({
 
   const currentStyle = typeStyles[type];
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0}}>
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
@@ -152,6 +152,8 @@ const CanOkModal: React.FC<Props> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export { CanOkModal };

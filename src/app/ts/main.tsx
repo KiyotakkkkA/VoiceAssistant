@@ -194,6 +194,9 @@ const AppContent = observer(() => {
       setSystemReady(true);
       setMode('waiting');
     },
+    [EventsTopic.JSON_DIALOGS_DATA_SET]: (m: any) => {
+      AIMessagesStore.applyDialogsData(m?.payload?.data?.dialogs);
+    },
     [EventsTopic.JSON_ACTIVE_DIALOG_SET]: (m: any) => {
       setActiveDialog(m);
     }

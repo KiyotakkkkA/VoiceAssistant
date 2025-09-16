@@ -56,6 +56,7 @@ ASSETS_NOTES_DIR = _r('assets', 'notes')
 GLOBAL_DIR = _r('global')
 TEMP_DIR = _r('temp')
 DATABASES_DIR = _r('databases')
+CACHE_DIR = _r('cache')
 
 path_resolver = {
     'voice_model_path': _as_str(VOICE_MODEL_DIR),
@@ -63,7 +64,8 @@ path_resolver = {
     'notes_path': _as_str(ASSETS_NOTES_DIR),
     'global_path': _as_str(GLOBAL_DIR),
     'temp_path': _as_str(TEMP_DIR),
-    'database_path': _as_str(DATABASES_DIR)
+    'database_path': _as_str(DATABASES_DIR),
+    'cache_path': _as_str(CACHE_DIR)
 }
 
 if os.getenv('DEBUG_PATHS') == '1':

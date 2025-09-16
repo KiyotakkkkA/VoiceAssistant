@@ -1,6 +1,3 @@
-"""
-LogService - Централизованная система логирования для модулей
-"""
 import os
 import logging
 import threading
