@@ -36,6 +36,7 @@ export const EventsTopic = {
     ACTION_ACTIVE_DIALOG_SET: 'action_active_dialog_set',
     ACTION_DIALOG_RENAMED: 'action_dialog_renamed',
     ACTION_DIALOG_DELETED: 'action_dialog_deleted',
+    ACTION_DIALOG_CREATED: 'action_dialog_created',
     ACTION_NOTES_REFETCH: 'action_notes_refetch',
 
     ACTION_FOLDER_RENAME: 'action_folder_rename',

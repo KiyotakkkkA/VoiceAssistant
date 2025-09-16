@@ -43,6 +43,33 @@ def run(stop_event):
     def handle_tool_on(msg):
         ToolsStore.update_tool_status(msg.get('payload', {}).get('toolName'), True)
         ToolsStore.refetch_tools()
+    
+    def handle_dialog_created(msg):
+        dialog_id = msg.get('payload', {}).get('dialog_id')
+        
+        if dialog_id:
+            dialogs_cache = CacheService().getInstance().get_cache('dialogs_cache', {})
+            
+            if dialogs_cache is None:
+                dialogs_cache = {}
+
+            if dialog_id not in dialogs_cache:
+                dialogs_cache[dialog_id] = {
+                    'title': 'Новый диалог',
+                    'create_at': datetime.now().isoformat(),
+                    'updated_at': datetime.now().isoformat(),
+                    'messages': []
+                }
+                CacheService().getInstance().set_cache('dialogs_cache', dialogs_cache)
+
+                client.emit({
+                    'type': EventsType.EVENT.value,
+                    'topic': EventsTopic.JSON_ACTIVE_DIALOG_SET.value,
+                    'payload': {
+                        'dialog_id': dialog_id
+                    },
+                    'from': 'processing_module'
+                })
 
     def handle_dialog_renamed(msg):
         dialog_id = msg.get('payload', {}).get('dialog_id')
@@ -71,7 +98,7 @@ def run(stop_event):
                 CacheService().getInstance().set_cache('dialogs_cache', dialogs_cache)
                 
                 if dialogs_cache:
-                    first_dialog_id = next(iter(dialogs_cache.keys()))
+                    first_dialog_id = list(dialogs_cache.keys())[0]
                     client.emit({
                         'type': EventsType.EVENT.value,
                         'topic': EventsTopic.JSON_ACTIVE_DIALOG_SET.value,
@@ -134,6 +161,7 @@ def run(stop_event):
     client.on(EventsTopic.ACTION_TOOL_ON.value, handle_tool_on)
     client.on(EventsTopic.ACTION_DIALOG_RENAMED.value, handle_dialog_renamed)
     client.on(EventsTopic.ACTION_DIALOG_DELETED.value, handle_dialog_deleted)
+    client.on(EventsTopic.ACTION_DIALOG_CREATED.value, handle_dialog_created)
 
     client.start(stop_event, block=False)
 

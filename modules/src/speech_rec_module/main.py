@@ -52,12 +52,6 @@ def run(stop_event):
             dialog_id = (msg.get('payload') or {}).get('dialog_id')
             if dialog_id:
                 _active_dialog_id['value'] = dialog_id
-                client.emit({
-                    'type': EventsType.EVENT.value,
-                    'topic': EventsTopic.JSON_ACTIVE_DIALOG_SET.value,
-                    'from': 'speech_rec_module',
-                    'payload': { 'dialog_id': dialog_id }
-                })
 
         client.on(EventsTopic.ACTION_ACTIVE_DIALOG_SET.value, set_active_dialog)
 

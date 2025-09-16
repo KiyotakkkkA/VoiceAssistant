@@ -102,7 +102,12 @@ export const useSocketActions = () => {
     sendServiceAction(EventsTopic.ACTION_DIALOG_DELETED, '', { dialog_id: dialogId });
   };
 
+  const emitDialogCreated = (dialogId: string) => {
+    sendServiceAction(EventsTopic.ACTION_DIALOG_CREATED, '', { dialog_id: dialogId });
+  };
+
   return {
+    emitDialogCreated,
     emitDialogDeleted,
     emitDialogRenamed,
     emitActiveDialog,

@@ -37,6 +37,7 @@ export const EventsTopic: {
     readonly ACTION_ACTIVE_DIALOG_SET: 'action_active_dialog_set';
     readonly ACTION_DIALOG_RENAMED: 'action_dialog_renamed';
     readonly ACTION_DIALOG_DELETED: 'action_dialog_deleted';
+    readonly ACTION_DIALOG_CREATED: 'action_dialog_created';
     readonly ACTION_NOTES_REFETCH: 'action_notes_refetch';
 
     readonly ACTION_FOLDER_RENAME: 'action_folder_rename';

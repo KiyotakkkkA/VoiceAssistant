@@ -2,24 +2,16 @@ import { makeAutoObservable } from 'mobx';
 import { Dialog, DialogMessage } from '../types/Global';
 import { useSocketActions } from '../composables';
 
-type Msg = {
-    model_name: string;
-    text: string;
-    timestamp?: Date;
-}
-
 type AIMessagesData = {
-    aiMsgHistory: Msg[];
     dialogs: Dialog[];
     activeDialogId: string | null;
     useHistoryContext: boolean;
 }
 
-const { emitDialogRenamed, emitDialogDeleted } = useSocketActions();
+const { emitDialogRenamed, emitDialogDeleted, emitDialogCreated } = useSocketActions();
 
 class AIMessagesStore {
     data: AIMessagesData = {
-        aiMsgHistory: [],
         dialogs: [],
         activeDialogId: null,
         useHistoryContext: true,
@@ -30,11 +22,14 @@ class AIMessagesStore {
     }
 
     applyDialogsData(dialogs: any) {
+
+        this.data.dialogs.length = 0;
+
         const now = new Date();
         Object.entries(dialogs).forEach(([key, element]: [string, any]) => {
             if (this.data.dialogs.find(d => d.id === key)) return;
 
-            const title = element.title || element.messages[0]?.user_prompt?.substring(0, 30) + (element.messages[0]?.user_prompt?.length > 30 ? '...' : '') || 'Диалог';
+            const title = element.title || element.messages[0]?.user_prompt?.substring(0, 30) + (element.messages[0]?.user_prompt?.length > 30 ? '...' : '');
 
             this.data.dialogs.push({
                 id: key,
@@ -73,10 +68,6 @@ class AIMessagesStore {
         });
     }
 
-    clearAiHistory() {
-        this.data.aiMsgHistory = [];
-    }
-
     createDialog(title: string = 'Новый диалог'): string {
         const now = new Date();
         const newDialog: Dialog = {
@@ -90,6 +81,7 @@ class AIMessagesStore {
         
         this.data.dialogs.push(newDialog);
         this.setActiveDialog(newDialog.id);
+        emitDialogCreated(newDialog.id);
         return newDialog.id;
     }
 
@@ -120,18 +112,8 @@ class AIMessagesStore {
     }
 
     deleteDialog(dialogId: string) {
-        const dialogIndex = this.data.dialogs.findIndex(d => d.id === dialogId);
-        if (dialogIndex !== -1) {
-            this.data.dialogs.splice(dialogIndex, 1);
-            
-            if (this.data.activeDialogId === dialogId) {
-                if (this.data.dialogs.length > 0) {
-                    this.setActiveDialog(this.data.dialogs[0].id);
-                }
-            }
-
-            emitDialogDeleted(dialogId);
-        }
+        this.data.dialogs = this.data.dialogs.filter(d => d.id !== dialogId);
+        emitDialogDeleted(dialogId);
     }
 
     addMessageToActiveDialog(content: string | any, role: 'user' | 'assistant', modelName?: string) {
