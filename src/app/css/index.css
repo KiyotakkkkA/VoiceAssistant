@@ -22,21 +22,10 @@ body {
 .animate-slide-in { animation: toastIn 0.45s cubic-bezier(.32,.72,.29,.99); }
 .animate-toast-bar { animation: toastBar 3.3s linear forwards; }
 
-.glass-panel { backdrop-filter: blur(6px); background: linear-gradient(145deg, rgba(34,34,34,0.72), rgba(24,24,24,0.72)); }
-.surface-soft { background: linear-gradient(160deg,#262626,#1f1f1f); }
-.border-grad { position: relative; }
-.border-grad:before { content:""; position:absolute; inset:0; padding:1px; border-radius:inherit; background:linear-gradient(120deg,rgba(0,122,204,0.5),rgba(13,188,121,0.4)); -webkit-mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000); mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events:none; opacity:.35; transition:opacity .4s; }
-.border-grad:hover:before { opacity:.85; }
-.card-hover-lift { transition: transform .45s cubic-bezier(.22,.68,.18,1), box-shadow .45s; }
-.card-hover-lift:hover { transform: translateY(-3px); box-shadow:0 4px 18px -4px rgba(0,0,0,.6),0 0 0 1px #2e2e2e; }
-.nav-accent { position:relative; }
-.nav-accent:before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:2px; background:linear-gradient(180deg,#007acc,#0dbc79); transform:scaleY(0); transition:transform .4s; }
-.nav-accent-active:before { transform:scaleY(1); }
-.fade-in { animation: fadeIn .5s ease; }
-@keyframes fadeIn { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:translateY(0);} }
-.json-code code span { transition: color .2s; }
-.dragging-border-animate { background:linear-gradient(90deg,#007acc,#0dbc79,#007acc); background-size:200% 100%; animation: borderRun 1.4s linear infinite; }
-@keyframes borderRun { 0% { background-position:0 0;} 100% {background-position:200% 0;} }
+.glass-panel { 
+  backdrop-filter: blur(6px); 
+  background: linear-gradient(145deg, rgba(34,34,34,0.72), rgba(24,24,24,0.72)); 
+}
 
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -65,4 +54,3 @@ body {
 .custom-scrollbar::-webkit-scrollbar-corner {
   background: transparent;
 }
-

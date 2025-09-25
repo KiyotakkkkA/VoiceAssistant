@@ -1,52 +1,95 @@
-import { Card } from '../../atoms';
+import React, { useContext, useEffect, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { GContext } from '../../../providers';
-import React, { useContext } from 'react';
+import { IconTerminal, IconShield, IconCheck, IconMicrophone, IconWarning } from '../../atoms/icons';
 
-interface Props { assistantName: string; mode: string; transcript: string | Object }
-const StatePanel: React.FC<Props> = ({ assistantName, mode }) => {
+import SettingsStore from '../../../store/SettingsStore';
+import ModulesStore from '../../../store/ModulesStore';
 
+interface Props { 
+  assistantName: string; 
+  mode: string; 
+  transcript: string | Object;
+  systemReady?: boolean;
+}
+
+const StatePanel: React.FC<Props> = observer(({ assistantName, mode, systemReady = false }) => {
   const ctx = useContext(GContext);
 
   if (!ctx?.states) return null;
 
-  const stateColors = {
-    'listening': {
-      main: 'bg-state-listening-bg',
-      alphaGradient: 'var(--state-listening-gradient)'
-    },
-    'waiting': {
-      main: 'bg-state-waiting-bg',
-      alphaGradient: 'var(--state-waiting-gradient)'
-    },
-    'initializing': {
-      main: 'bg-state-initializing-bg',
-      alphaGradient: 'var(--state-initializing-gradient)'
-    },
-    'thinking': {
-      main: 'bg-state-thinking-bg',
-      alphaGradient: 'var(--state-thinking-gradient)'
+  const getStatusColor = (mode: string) => {
+    switch (mode) {
+      case 'listening': return { bg: 'bg-badge-listening', text: 'text-white'};
+      case 'thinking': return { bg: 'bg-badge-thinking', text: 'text-black'};
+      case 'waiting': return { bg: 'bg-badge-waiting', text: 'text-white'};
+      case 'initializing': return { bg: 'bg-badge-initializing', text: 'text-white'};
+      default: return { bg: 'bg-gray-500/10', text: 'text-gray-400'};
     }
-  }
+  };
+
+  const statusColors = getStatusColor(mode);
 
   return (
-    <div className='px-3 pb-4 pt-2 space-y-4 overflow-y-auto h-full custom-scrollbar relative'>
-      <div className='relative'>
-        <div/>
-        <Card className='shadow-inner backdrop-blur-[1px]' title='Помощник' gradientColor={stateColors[mode as keyof typeof stateColors].alphaGradient}>
-          <div className='text-sm font-medium tracking-wide'>{assistantName || '—'}</div>
-        </Card>
-      </div>
-      <Card title='Режим' gradientColor={stateColors[mode as keyof typeof stateColors].alphaGradient}>
-        <div className='text-sm flex items-center gap-2'>
-          <span className='relative flex h-2.5 w-2.5'>
-            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${stateColors[mode as keyof typeof stateColors].main} opacity-40`}></span>
-            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${stateColors[mode as keyof typeof stateColors].main}`}></span>
-          </span>
-          {ctx.states[mode]}
+    <div className='p-4 space-y-4 h-full overflow-y-auto custom-scrollbar'>
+      <div className='space-y-3'>
+        <div className={`p-3 rounded-lg ${statusColors.bg} backdrop-blur-sm`}>
+          <div className={`text-lg font-semibold ${statusColors.text} text-center`}>
+            {!systemReady ? 'ИНИЦИАЛИЗАЦИЯ' : ctx.states[mode]}
+          </div>
         </div>
-      </Card>
+      </div>
+
+      <hr className='border-ui-border-primary' />
+
+      <div className='space-y-3'>
+        <div className='text-xs font-medium text-ui-text-accent uppercase tracking-wider'>Модули</div>
+        
+        <div className='space-y-2'>
+          <div className='flex items-center justify-between text-xs'>
+            <div className='flex items-center gap-2'>
+              <IconMicrophone size={14} />
+              <span className='text-ui-text-secondary'>Распознавание речи</span>
+            </div>
+            <div className={`w-2 h-2 rounded-full ${ModulesStore.modules['speech_rec_module']?.enabled ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+          </div>
+
+          <div className='flex items-center justify-between text-xs'>
+            <div className='flex items-center gap-2'>
+              <IconCheck size={14} />
+              <span className='text-ui-text-secondary'>Обработка команд</span>
+            </div>
+            <div className={`w-2 h-2 rounded-full ${ModulesStore.modules['processing_module']?.enabled ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+          </div>
+        </div>
+      </div>
+      
+      <div className='space-y-2'>
+        <div className='text-xs font-medium text-ui-text-accent uppercase tracking-wider'>Конфигурация</div>
+
+        <div className='text-xs space-y-1'>
+          <div className='flex justify-between'>
+            <span className='text-ui-text-secondary'>AI Модель</span>
+            <span className='text-ui-text-primary font-medium text-xs truncate max-w-[100px]'>
+              {SettingsStore.data.settings['current.ai.api']?.[SettingsStore.data.settings['current.ai.model.id']]?.name || 'Не выбрана'}
+            </span>
+          </div>
+
+          {SettingsStore.data.settings['current.interface.event_panel.state'] ? (
+            <div className='flex justify-between'>
+              <span className='text-ui-text-secondary'>Панель событий</span>
+              <span className='text-green-400 font-medium'>Включена</span>
+            </div>
+          ) : (
+            <div className='flex justify-between'>
+              <span className='text-ui-text-secondary'>Панель событий</span>
+              <span className='text-red-400 font-medium'>Выключена</span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
-};
+});
 
 export { StatePanel };

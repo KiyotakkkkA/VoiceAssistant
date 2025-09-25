@@ -38,16 +38,10 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
   if (!ctx?.states) return null;
 
   const modes = {
-    'NORMAL': { 
-      label: 'ОБЫЧНЫЙ', 
-      color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
-      border: 'border-blue-500/30'
-    },
+    'NORMAL': 'ОБЫЧНЫЙ',
   }
 
   const currentMode = SettingsStore.data.runtime['runtime.current.mode'] as keyof typeof modes;
-  const modeInfo = modes[currentMode] || modes.NORMAL;
 
   const pages: Record<string, Record<string, React.ReactNode>> = {
     home: {
@@ -90,39 +84,25 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
   const [activeTab, setActiveTab] = useState<
     'home' | 'zix' | 'apps' | 'settings' | 'notes'
   >('home');
-  const modeClass: Record<string,string> = {
-    'waiting': 'bg-badge-waiting text-white',
-    'listening': 'bg-badge-listening text-white',
-    'initializing': 'bg-badge-initializing text-white',
-    'thinking': 'bg-badge-thinking text-black'
-  };
   return (
     <div className='h-screen flex flex-col bg-ui-bg-primary text-ui-text-primary font-sans overflow-hidden relative'>
       <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-ui-bg-secondary border-b border-ui-border-primary select-none shadow-inner'>
         <div className='flex items-center gap-3'>
-          <Badge label={ctx.states[mode]} className={modeClass[mode]||'bg-badge-default text-white'} />
-          <span className='tracking-wider uppercase text-ui-text-secondary text-[14px]'>Голосовой ассистент</span>
-          <span className='text-sm text-ui-text-accent'>{assistantName||'—'}</span>
-          <span className='text-sm text-gray-400'> | </span>
-          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${modeInfo.bg} ${modeInfo.color} ${modeInfo.border} border backdrop-blur-sm`}>
-            <span className="font-semibold tracking-wide">{modeInfo.label}</span>
-          </div>
+          <span className='text-xs text-ui-text-secondary uppercase tracking-wider'>Голосовой ассистент - <span className='text-ui-text-accent font-medium'>{assistantName}</span></span>
         </div>
-        <div className='flex items-center gap-4 text-ui-text-secondary'>
-          <span className='opacity-70'>ws:{__SOCKET_PORT__}</span>
+        <div className='flex items-center gap-2 text-ui-text-secondary'>
           { SettingsStore.data.settings['current.interface.event_panel.state'] && (
-            <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-ui-bg-primary-light hover:bg-ui-bg-secondary-light text-xs border border-ui-border-primary transition-colors'>{logOpen?'Скрыть лог':'Показать лог'}</button>
+            <button onClick={()=>setLogOpen(o=>!o)} className='px-2 py-0.5 rounded bg-ui-bg-secondary-light/50 hover:bg-ui-bg-secondary-light text-xs border border-ui-border-primary transition-colors'>{logOpen?'Закрыть панель событий':'Открыть панель событий'}</button>
           )}
         </div>
       </div>
       <div className='flex-1 relative overflow-hidden flex'>
         <div className='w-60 bg-ui-bg-secondary border-r border-ui-border-primary flex flex-col text-xs'>
-          <div className='px-4 py-3 font-semibold text-ui-text-accent tracking-wide'>Состояния</div>
-          <div className='px-4 pb-4 overflow-y-auto custom-scrollbar'>
-            <StatePanel assistantName={assistantName} mode={mode} transcript={transcript} />
+          <div className='flex-1 overflow-hidden'>
+            <StatePanel assistantName={assistantName} mode={mode} transcript={transcript} systemReady={systemReady} />
           </div>
           <hr className='border-ui-border-primary' />
-          <div>
+          <div className='mt-auto'>
             {!InitiationStore.state.voskModel.exists && (
               <div className='flex flex-col m-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-[11px] text-red-400 items-center gap-2'>
                 <div className='flex items-center gap-2'>

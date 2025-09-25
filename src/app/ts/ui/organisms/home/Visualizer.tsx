@@ -18,20 +18,6 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
 
   const gctx = React.useContext(GContext);
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
-  const [lastMessageCount, setLastMessageCount] = useState(0);
-
-  useEffect(() => {
-    const activeDialog = AIMessagesStore.getActiveDialog();
-    const currentMessageCount = activeDialog?.messages.length || 0;
-    
-    if (currentMessageCount > lastMessageCount) {
-      setLastMessageCount(currentMessageCount);
-      if (!isHistoryVisible && currentMessageCount > 0) {
-        window.safeTimers.setTimeout(() => {
-        }, 500);
-      }
-    }
-  }, [AIMessagesStore.getActiveDialog()?.messages.length, isHistoryVisible, lastMessageCount]);
 
   if (!gctx?.states) return null;
 
@@ -98,7 +84,6 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
           );
       
       const interactiveBoost = 1;
-      const modeSpeedMultiplier = 1;
 
       if (flash>0) flash *= 0.92;
 
@@ -110,7 +95,7 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
         } else {
           if (m === 'listening') pulse = Math.sin(time*4 + p.baseR)*2.2 * interactiveBoost;
           else if (m === 'thinking') pulse = Math.sin(time*6 + p.baseR*2)*1.5;
-          p.a += p.spd * 0.002 * modeSpeedMultiplier + (
+          p.a += p.spd * 0.002 + (
             m==='listening' ? 0.0005*interactiveBoost :
             m==='thinking' ? 0.005 :
             0
@@ -206,14 +191,9 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
       </div>
       <div className='absolute inset-0 pointer-events-none flex items-center justify-center'>
         <div className='text-center'>
-          <div className='text-xs tracking-widest uppercase text-ui-text-secondary mb-2'>СТАТУС</div>
           <div className={`text-4xl font-light ${!systemReady ? 'text-red-400 drop-shadow-[0_0_6px_rgba(255,0,0,0.4)] animate-pulse' : ''}`}>
             {!systemReady ? 'ИНИЦИАЛИЗАЦИЯ' : gctx.states[mode]}
           </div>
-          
-          {!systemReady && (
-            <div className='mt-4 text-[10px] tracking-widest text-red-500/70 animate-[blink_1.2s_steps(2,start)_infinite]'>СИСТЕМА НЕ ГОТОВА</div>
-          )}
         </div>
       </div>
 
