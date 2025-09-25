@@ -79,7 +79,7 @@ const HistoryContextModal: React.FC<HistoryContextModalProps> = observer(({
               <div className="space-y-1 text-xs text-ui-text-muted">
                 <p>Всего сообщений: {activeDialog.messages.length / 2}</p>
                 <p>В контексте: {!SettingsStore.data.settings['current.ai.context'].enabled ? 0 : (
-                  Math.min(activeDialog.messages.length, SettingsStore.data.settings['current.ai.context'].max_messages) / 2
+                  Math.min(activeDialog.messages.length / 2, SettingsStore.data.settings['current.ai.context'].max_messages)
                 )}</p>
                 <p>
                   Статус: {SettingsStore.data.settings['current.ai.context'].enabled ? 

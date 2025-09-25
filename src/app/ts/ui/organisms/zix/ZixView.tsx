@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IconZix } from '../../atoms/icons';
-import { ZixAccountPanel } from '../../molecules/widgets/zix';
+import { ZixAccountPanel } from '../../molecules/panels';
 
 export const ZixView: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);

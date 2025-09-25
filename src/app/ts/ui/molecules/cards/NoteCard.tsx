@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import type { NoteItem } from "../../../../types/Global";
+import type { NoteItem } from "../../../types/Global";
 
-import NotesStore from "../../../../store/NotesStore";
+import NotesStore from "../../../store/NotesStore";
 
 interface Props {
   note: NoteItem;

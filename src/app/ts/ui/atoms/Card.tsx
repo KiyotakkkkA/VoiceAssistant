@@ -1,5 +1,12 @@
 import React from 'react';
-interface Props { title?: string; children: React.ReactNode; className?: string, gradientColor: string }
+
+interface Props {
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+  gradientColor: string;
+}
+
 const Card: React.FC<Props> = ({ title, children, className='', gradientColor }) => (
   <div className={`relative rounded-md border border-ui-border-primary bg-ui-bg-secondary-light overflow-hidden group ${className}`}>
     <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none'

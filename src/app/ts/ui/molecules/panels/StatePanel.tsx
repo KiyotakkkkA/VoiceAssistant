@@ -1,5 +1,5 @@
-import { Card } from '../atoms';
-import { GContext } from '../../providers';
+import { Card } from '../../atoms';
+import { GContext } from '../../../providers';
 import React, { useContext } from 'react';
 
 interface Props { assistantName: string; mode: string; transcript: string | Object }

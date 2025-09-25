@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconTrash } from '../../../atoms/icons';
+import { IconTrash } from '../../atoms/icons';
 
 interface App {
     id: string;

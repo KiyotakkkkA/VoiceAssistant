@@ -1,8 +1,8 @@
-import React, { memo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import NotesStore from "../../../store/NotesStore";
-import { NoteItem, NoteFolderItem } from '../../../types/Global';
-import { IconFolder } from '../../atoms/icons';
+import NotesStore from "../../store/NotesStore";
+import { NoteItem, NoteFolderItem } from '../../types/Global';
+import { IconFolder } from '../atoms/icons';
 
 interface RenderFolderTreeProps {
     items: { [key: string]: NoteItem | NoteFolderItem };

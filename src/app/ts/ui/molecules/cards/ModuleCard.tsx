@@ -1,8 +1,8 @@
 import React from 'react';
-import { Module } from "../../../../types/Global";
+import { Module } from "../../../types/Global";
 import { observer } from "mobx-react-lite";
-import ModulesStore from "../../../../store/ModulesStore";
-import { useSocketActions, useModuleHelpers, useModuleStatus } from "../../../../composables";
+import ModulesStore from "../../../store/ModulesStore";
+import { useSocketActions, useModuleHelpers, useModuleStatus } from "../../../composables";
 
 const getModuleIcon = (serviceId: string) => {
     const { getModuleIcon } = useModuleHelpers();

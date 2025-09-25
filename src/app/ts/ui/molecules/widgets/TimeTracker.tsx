@@ -1,6 +1,5 @@
-import React from "react";
 import { useTimer, useTimeFormatter } from "../../../composables";
-import { WidgetCard } from "./WidgetCard";
+import { WidgetCard } from "../cards/WidgetCard";
 
 const TimeTracker = () => {
     useTimer(1000);

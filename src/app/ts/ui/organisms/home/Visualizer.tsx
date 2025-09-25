@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GContext } from '../../../providers';
 import { TimeTracker, BatteryStatus } from '../../molecules/widgets';
-import { DialogsPanel } from '../../molecules';
+import { DialogsPanel } from '../../molecules/panels';
 import { observer } from 'mobx-react-lite';
 import { Dropdown } from '../../atoms/input';
 import { useSocketActions } from '../../../composables';

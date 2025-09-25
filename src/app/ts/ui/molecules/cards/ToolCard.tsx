@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconSettings } from '../../../atoms/icons';
+import { IconSettings } from '../../atoms/icons';
 
 interface ToolCardProps {
   name: string;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppCard } from '../../molecules/widgets/cards';
+import { AppCard } from '../../molecules/cards';
 import { TextInput } from '../../atoms/input';
 import { IconFolder, IconTrash } from '../../atoms/icons';
 import { FolderChooseModal, AppScanModal, CanOkModal } from '../../molecules/modals';

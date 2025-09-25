@@ -1,6 +1,5 @@
-import React from "react";
 import { useBattery } from "../../../composables";
-import { WidgetCard } from "./WidgetCard";
+import { WidgetCard } from "../cards/WidgetCard";
 
 const BatteryStatus = () => {
     const { level, charging, getBatteryColor, getBatteryIcon, getBatteryLabel } = useBattery();

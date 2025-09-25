@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import StreamingAIStore from '../../../../store/StreamingAIStore';
+import StreamingAIStore from '../../../store/StreamingAIStore';
 
-interface StreamingAIMessageProps {
+interface StreamingAIMessageCardProps {
   userText: string;
   modelName: string;
   timestamp?: Date;
 }
 
-const StreamingAIMessage: React.FC<StreamingAIMessageProps> = observer(({ 
+const StreamingAIMessageCard: React.FC<StreamingAIMessageCardProps> = observer(({ 
   userText, 
   modelName, 
   timestamp 
@@ -126,4 +126,4 @@ const StreamingAIMessage: React.FC<StreamingAIMessageProps> = observer(({
   );
 });
 
-export { StreamingAIMessage };
+export { StreamingAIMessageCard };

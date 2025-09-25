@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AiMessageCard } from './widgets/cards';
-import { StreamingAIMessage } from './widgets/ai';
+import { AiMessageCard } from '../cards';
+import { StreamingAIMessageCard } from '../cards';
 import { observer } from 'mobx-react-lite';
-import { IconFile, IconTrash, IconMessage } from '../atoms/icons';
-import { useDragResize } from '../../composables';
-import { DialogsSidebar } from './DialogsSidebar';
-import { HistoryContextModal } from './modals/HistoryContextModal';
-import { Dialog } from '../../types/Global';
+import { IconFile, IconTrash, IconMessage } from '../../atoms/icons';
+import { useDragResize } from '../../../composables';
+import { DialogsSidebar } from '../DialogsSidebar';
+import { HistoryContextModal } from '../modals/HistoryContextModal';
+import { Dialog } from '../../../types/Global';
 
-import AIMessagesStore from '../../store/AIMessagesStore';
-import StreamingAIStore from '../../store/StreamingAIStore';
-import SettingsStore from '../../store/SettingsStore';
+import AIMessagesStore from '../../../store/AIMessagesStore';
+import StreamingAIStore from '../../../store/StreamingAIStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 interface DialogsPanelProps {
   isVisible: boolean;
@@ -277,7 +277,7 @@ const DialogsPanel: React.FC<DialogsPanelProps> = observer(({
                   ))}
                   
                   {StreamingAIStore.isStreaming() && (
-                    <StreamingAIMessage
+                    <StreamingAIMessageCard
                       userText={StreamingAIStore.currentSession?.originalText || ''}
                       modelName={StreamingAIStore.currentSession?.modelName || 'Unknown'}
                       timestamp={StreamingAIStore.currentSession?.startTime}

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { IconZix } from "../../../atoms/icons";
+import { IconZix } from "../../atoms/icons";
 
 interface ZixAccountPanelProps {
   isConnected: boolean;
