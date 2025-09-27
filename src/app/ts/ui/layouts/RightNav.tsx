@@ -1,7 +1,7 @@
 import React from 'react';
-import { NavItem } from '../../molecules';
-import { IconApp, IconHome, IconSettings, IconNotes, IconZix } from '../../atoms/icons';
-import { useNavigation } from '../../../providers/NavigationProvider';
+import { NavItem } from '../molecules';
+import { IconApp, IconHome, IconSettings, IconNotes, IconZix } from '../atoms/icons';
+import { useNavigation } from '../../providers/NavigationProvider';
 
 const RightNav: React.FC = () => {
   const { navigateTo, isActive } = useNavigation();

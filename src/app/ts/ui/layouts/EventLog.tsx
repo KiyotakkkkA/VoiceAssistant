@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useToast } from '../../../composables';
+import { useToast } from '../../composables';
 
 interface Msg { type: string; topic: string; payload: any; from?: string; _ts?: number }
 interface Props { messages: Msg[] }

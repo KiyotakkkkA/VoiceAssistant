@@ -12,7 +12,7 @@ const providers = [
     { value: 'ollama', label: 'Ollama', description: 'Сервис-агрегатор для работы с AI моделями посредством API, разработанный компанией Ollama' },
 ];
 
-const ApiKeysField: React.FC = observer(() => {
+const ApiKeysView: React.FC = observer(() => {
     const [newName, setNewName] = useState('');
     const [newValue, setNewValue] = useState('');
     const [newProvider, setNewProvider] = useState(providers[1].value);
@@ -245,4 +245,4 @@ const ApiKeysField: React.FC = observer(() => {
     );
 });
 
-export { ApiKeysField };
+export { ApiKeysView };

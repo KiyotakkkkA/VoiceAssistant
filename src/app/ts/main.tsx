@@ -2,12 +2,13 @@ import ReactDOM from 'react-dom/client';
 import '../css/index.css';
 import { useEffect, useState } from 'react';
 import { socketClient } from './clients';
-import { MainLayout } from './ui/templates/MainLayout';
+import { MainLayout } from './ui/layouts/MainLayout';
+import { Router } from './Router';
 import { GlobalContext } from './providers';
 import { ToastProvider } from './providers/ToastProvider';
 import { NavigationProvider } from './providers/NavigationProvider';
 import { observer } from 'mobx-react-lite';
-import { EventsTopic, EventsType } from '../js/enums/Events';
+import { EventsTopic } from '../js/enums/Events';
 
 import SettingsStore from './store/SettingsStore';
 import ModulesStore from './store/ModulesStore';
@@ -217,7 +218,13 @@ const AppContent = observer(() => {
         messages={messages}
         apps={apps}
         systemReady={systemReady}
-      />
+      >
+        <Router
+          mode={mode}
+          apps={apps}
+          systemReady={systemReady}
+        />
+      </MainLayout>
     </GlobalContext>
   
   );

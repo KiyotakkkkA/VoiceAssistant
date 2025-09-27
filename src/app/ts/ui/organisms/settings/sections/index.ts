@@ -1,4 +1,4 @@
-export { ApiKeysField } from "./ApiKeysField";
+export { ApiKeysView } from "./ApiKeysView";
 export { ApperanceView } from "./ApperanceView";
 export { ModulesView } from "./ModulesView";
 export { ToolsView } from "./ToolsView";

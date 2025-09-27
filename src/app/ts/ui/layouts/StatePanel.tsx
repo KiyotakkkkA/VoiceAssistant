@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import { GContext } from '../../../providers';
-import { IconCheck, IconMicrophone } from '../../atoms/icons';
-import { useSettingsNavigation } from '../../../composables';
+import { GContext } from '../../providers';
+import { IconCheck, IconMicrophone } from '../atoms/icons';
+import { useSettingsNavigation } from '../../composables';
 
-import SettingsStore from '../../../store/SettingsStore';
-import ModulesStore from '../../../store/ModulesStore';
+import SettingsStore from '../../store/SettingsStore';
+import ModulesStore from '../../store/ModulesStore';
 
 interface Props { 
   mode: string;

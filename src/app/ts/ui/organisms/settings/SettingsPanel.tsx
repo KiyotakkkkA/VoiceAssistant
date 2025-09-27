@@ -2,7 +2,7 @@ import React, { createElement, useMemo } from 'react';
 import {
   SettingsSidebar,
   SettingsSection } from '../../molecules/settings';
-import { ApperanceView, ApiKeysField, ModulesView, ToolsView, AccountsView } from './sections';
+import { ApperanceView, ApiKeysView, ModulesView, ToolsView, AccountsView } from './sections';
 import { observer } from 'mobx-react-lite';
 import { useSettingsNavigation, SettingsGroup } from '../../../composables';
 
@@ -32,7 +32,7 @@ const SettingsPanel: React.FC = observer(() => {
         {
           id: 'apikeys',
           title: 'Ключи API',
-          component: ApiKeysField,
+          component: ApiKeysView,
           props: {}
         },
         {
