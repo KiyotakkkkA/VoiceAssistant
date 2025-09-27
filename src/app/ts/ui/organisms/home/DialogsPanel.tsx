@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AiMessageCard } from '../cards';
-import { StreamingAIMessageCard } from '../cards';
 import { observer } from 'mobx-react-lite';
-import { IconFile, IconTrash, IconMessage } from '../../atoms/icons';
+import { IconFile, IconMessage } from '../../atoms/icons';
 import { useDragResize } from '../../../composables';
-import { DialogsSidebar } from '../DialogsSidebar';
-import { HistoryContextModal } from '../modals/HistoryContextModal';
+import { HistoryContextModal } from '../../molecules/modals';
 import { Dialog } from '../../../types/Global';
+import { DialogsSidebar } from '../../molecules';
+import { AiMessageCard, StreamingAIMessageCard } from '../../molecules/cards';
 
 import AIMessagesStore from '../../../store/AIMessagesStore';
 import StreamingAIStore from '../../../store/StreamingAIStore';

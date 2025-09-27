@@ -1,10 +1,12 @@
 import React from 'react';
 import { GContext, useNavigation } from './providers';
-import { Visualizer } from './ui/organisms/home';
+import { 
+  HomePage,
+  ZixPage
+} from './ui/pages';
 import { AppsGrid } from './ui/organisms/applications';
 import { SettingsPanel } from './ui/organisms/settings';
 import { NotesView } from './ui/organisms/notes';
-import { ZixView } from './ui/organisms/zix';
 import { RightNav } from './ui/layouts/RightNav';
 import { observer } from 'mobx-react-lite';
 
@@ -22,11 +24,11 @@ export const Router: React.FC<Props> = observer(({ mode, systemReady=false }) =>
 
   const pages: Record<string, Record<string, React.ReactNode>> = {
     home: {
-      component: <Visualizer mode={mode} systemReady={systemReady} />,
+      component: <HomePage mode={mode} systemReady={systemReady} />,
       fullmode: false
     },
     zix: {
-      component: <ZixView />,
+      component: <ZixPage />,
       fullmode: true
     },
     apps: {

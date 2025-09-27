@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GContext } from '../../../providers';
 import { TimeTracker, BatteryStatus } from '../../molecules/widgets';
-import { DialogsPanel } from '../../molecules/panels';
 import { observer } from 'mobx-react-lite';
 import { Dropdown } from '../../atoms/input';
 import { useSocketActions } from '../../../composables';
@@ -16,7 +15,6 @@ interface Props {
 const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
 
   const gctx = React.useContext(GContext);
-  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
 
   if (!gctx?.states) return null;
 
@@ -195,12 +193,6 @@ const Visualizer: React.FC<Props> = observer(({ mode, systemReady = true }) => {
           </div>
         </div>
       </div>
-
-      <DialogsPanel
-        isVisible={isHistoryVisible}
-        onToggle={() => setIsHistoryVisible(!isHistoryVisible)}
-        isDropdownVisible={true}
-      />
     </div>
   );
 });

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { IconZix } from '../../atoms/icons';
-import { ZixAccountPanel } from '../../molecules/panels';
+import { IconZix } from '../atoms/icons';
+import { ZixAccountPanel } from '../molecules/panels';
 
-export const ZixView: React.FC = () => {
+const ZixPage: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [accountData, setAccountData] = useState<any>(null);
@@ -41,7 +41,7 @@ export const ZixView: React.FC = () => {
           />
         </aside>
 
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <header className="h-20 border-b border-ui-border-primary bg-ui-bg-primary-light">
             <div className="h-full px-6 flex items-center gap-4">
               <div className="w-12 h-12 bg-widget-accent-a rounded-xl flex items-center justify-center">
@@ -50,8 +50,10 @@ export const ZixView: React.FC = () => {
               <h1 className="text-xl font-bold">Zix Integration</h1>
             </div>
           </header>
-        </main>
+        </div>
       </div>
     </div>
   );
 };
+
+export { ZixPage };
