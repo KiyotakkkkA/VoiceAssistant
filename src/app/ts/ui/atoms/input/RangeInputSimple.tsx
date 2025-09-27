@@ -1,12 +1,12 @@
 
-interface RangeInputProps {
+interface RangeInputSimpleProps {
     min: number;
     max: number;
     value: number;
     onChange: (value: number) => void;
 }
 
-const RangeInput: React.FC<RangeInputProps> = ({ min, max, value, onChange }) => {
+const RangeInputSimple: React.FC<RangeInputSimpleProps> = ({ min, max, value, onChange }) => {
   return (
     <div className="flex items-center gap-3">
         <input
@@ -24,4 +24,4 @@ const RangeInput: React.FC<RangeInputProps> = ({ min, max, value, onChange }) =>
   );
 };
 
-export { RangeInput };
+export { RangeInputSimple };

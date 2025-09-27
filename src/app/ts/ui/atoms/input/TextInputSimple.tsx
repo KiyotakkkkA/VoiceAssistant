@@ -1,13 +1,13 @@
 import React from 'react';
 
-interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TextInputSimpleProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   className?: string;
   model?: string;
   placeholder?: string;
 }
 
-const TextInput: React.FC<TextFieldProps> = ({ label, className='', model, placeholder, ...rest }) => {
+const TextInputSimple: React.FC<TextInputSimpleProps> = ({ label, className='', model, placeholder, ...rest }) => {
   return (
     <div className="flex flex-col">
       {label && <label className="mb-1 text-sm font-medium text-ui-text-secondary">{label}</label>}
@@ -21,4 +21,4 @@ const TextInput: React.FC<TextFieldProps> = ({ label, className='', model, place
   );
 };
 
-export { TextInput };
+export { TextInputSimple };

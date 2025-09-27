@@ -1,12 +1,12 @@
 import React from 'react';
 
-interface CheckboxProps {
+interface CheckboxSimpleProps {
     className?: string;
     model?: boolean;
     onChange?: (value: boolean) => void;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ className, model, onChange, ...rest }) => {
+const CheckboxSimple: React.FC<CheckboxSimpleProps> = ({ className, model, onChange, ...rest }) => {
   return (
     <div className="flex flex-col">
       <input
@@ -20,4 +20,4 @@ const Checkbox: React.FC<CheckboxProps> = ({ className, model, onChange, ...rest
   );
 };
 
-export { Checkbox };
+export { CheckboxSimple };

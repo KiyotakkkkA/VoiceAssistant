@@ -1,6 +1,6 @@
-export { TextInput } from "./TextInput";
-export { Checkbox } from "./Checkbox";
 export { Dropdown } from "./Dropdown";
-export { SlidedCheckbox } from "./SlidedCheckbox";
-export { FloatingTextInput } from "./FloatingTextInput";
-export { RangeInput } from "./RangeInput";
+export { CheckboxSimple } from "./CheckboxSimple";
+export { CheckboxSlided } from "./CheckboxSlided";
+export { TextInputSimple } from "./TextInputSimple";
+export { TextInputFloating } from "./TextInputFloating";
+export { RangeInputSimple } from "./RangeInputSimple";

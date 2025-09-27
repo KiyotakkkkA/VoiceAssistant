@@ -1,6 +1,6 @@
 import React from 'react';
 import { CategoryItem } from '../../../atoms';
-import { Dropdown, Checkbox } from '../../../atoms/input';
+import { Dropdown, CheckboxSimple } from '../../../atoms/input';
 import { observer } from 'mobx-react-lite';
 import { useSocketActions } from '../../../../composables';
 
@@ -45,7 +45,7 @@ const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme, cur
         label="Панель событий"
         description="Управление видимостью нижней панели событий"
       >
-        <Checkbox
+        <CheckboxSimple
           className='w-5 h-5'
           model={currentEventPanelState}
           onChange={handleEventPanelToggle}

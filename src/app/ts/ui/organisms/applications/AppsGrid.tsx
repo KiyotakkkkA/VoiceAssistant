@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppCard } from '../../molecules/cards';
-import { TextInput } from '../../atoms/input';
+import { TextInputSimple } from '../../atoms/input';
 import { IconFolder, IconTrash } from '../../atoms/icons';
 import { FolderChooseModal, AppScanModal, CanOkModal } from '../../molecules/modals';
 
@@ -153,7 +153,7 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
 				<div className='mb-6 p-4 bg-ui-bg-secondary/30 rounded-lg border border-ui-border-primary'>
 					<div className='flex gap-3'>
 						<div className='flex-1'>
-							<TextInput
+							<TextInputSimple
 								placeholder='Добавить путь для поиска приложений (например: C:\Program Files)'
 							/>
 						</div>

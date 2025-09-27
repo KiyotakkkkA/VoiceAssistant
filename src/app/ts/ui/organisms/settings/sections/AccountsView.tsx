@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { FloatingTextInput } from '../../../atoms/input';
+import { TextInputFloating } from '../../../atoms/input';
 import { useState } from 'react';
 import { IconWarning, IconGithub, IconPen, IconCheck, IconX, IconKey } from '../../../atoms/icons';
 import { ToolTip } from '../../../atoms/feedback';
@@ -44,7 +44,7 @@ const FieldSet = observer(({ dataObject, setDataObject }: { dataObject: DataObje
                             {icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <FloatingTextInput
+                            <TextInputFloating
                                 disabled={!isChanging}
                                 className="w-full"
                                 label={label}

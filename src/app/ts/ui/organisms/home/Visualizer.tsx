@@ -7,7 +7,6 @@ import { Dropdown } from '../../atoms/input';
 import { useSocketActions } from '../../../composables';
 
 import SettingsStore from '../../../store/SettingsStore';
-import AIMessagesStore from '../../../store/AIMessagesStore';
 
 interface Props {
   mode: string;

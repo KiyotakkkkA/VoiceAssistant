@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { RangeInput } from '../../atoms/input';
+import { RangeInputSimple } from '../../atoms/input';
 
 import AIMessagesStore from '../../../store/AIMessagesStore';
 import SettingsStore from '../../../store/SettingsStore';
@@ -95,7 +95,7 @@ const HistoryContextModal: React.FC<HistoryContextModalProps> = observer(({
             <h4 className="font-medium text-ui-text-primary mb-2">
               Лимит контекстных сообщений
             </h4>
-            <RangeInput
+            <RangeInputSimple
               min={1}
               max={20}
               value={SettingsStore.data.settings['current.ai.context'].max_messages}

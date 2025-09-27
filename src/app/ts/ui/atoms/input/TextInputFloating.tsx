@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
-interface FloatingTextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TextInputFloatingProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   className?: string;
 }
 
-const FloatingTextInput: React.FC<FloatingTextInputProps> = ({
+const TextInputFloating: React.FC<TextInputFloatingProps> = ({
   label,
   className = "",
   value,
@@ -51,4 +51,4 @@ const FloatingTextInput: React.FC<FloatingTextInputProps> = ({
   );
 };
 
-export { FloatingTextInput };
+export { TextInputFloating };

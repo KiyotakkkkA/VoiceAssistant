@@ -1,13 +1,13 @@
 import React from 'react';
 
-interface SlidedCheckboxProps {
+interface CheckboxSlidedProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
 
-const SlidedCheckbox: React.FC<SlidedCheckboxProps> = ({ 
+const CheckboxSlided: React.FC<CheckboxSlidedProps> = ({ 
   checked, 
   onChange, 
   disabled = false,
@@ -66,4 +66,4 @@ const SlidedCheckbox: React.FC<SlidedCheckboxProps> = ({
   );
 };
 
-export { SlidedCheckbox };
+export { CheckboxSlided };

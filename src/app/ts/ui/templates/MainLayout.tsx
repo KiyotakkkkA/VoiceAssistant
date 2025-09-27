@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Toast } from '../atoms/feedback';
+import { Toast } from '../atoms/feedback';
 import { StatePanel } from '../molecules/panels';
 import { useState } from 'react';
 import { GContext } from '../../providers';

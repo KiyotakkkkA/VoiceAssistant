@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { TextInput, Dropdown } from '../../../atoms/input';
-import { CategoryItem } from '../../../atoms';
+import React, { useState } from 'react';
+import { TextInputSimple, Dropdown } from '../../../atoms/input';
 import { CanOkModal } from '../../../molecules/modals';
 import { IconPen, IconCopy, IconTrash } from '../../../atoms/icons';
 import { useToast } from '../../../../composables';
@@ -81,14 +80,14 @@ const ApiKeysField: React.FC = observer(() => {
             <div className="mb-6">                
                 <div className="bg-ui-bg-secondary/30 border border-ui-border-primary/30 rounded-lg p-4 space-y-3">
                     <div className="grid grid-cols-2 gap-3">
-                        <TextInput
+                        <TextInputSimple
                             placeholder="Например: OpenAI"
                             model={newName}
                             className="text-sm"
                             onChange={e => setNewName(e.target.value)}
                             onKeyDown={handleKeyPress}
                         />
-                        <TextInput
+                        <TextInputSimple
                             placeholder="sk-..."
                             model={newValue}
                             className="text-sm"
@@ -125,13 +124,13 @@ const ApiKeysField: React.FC = observer(() => {
                         {editId === key ? (
                             <div className="space-y-3">
                                 <div className="grid grid-cols-2 gap-3">
-                                    <TextInput
+                                    <TextInputSimple
                                         model={editName}
                                         className="text-sm"
                                         placeholder="Название модели"
                                         onChange={e => setEditName(e.target.value)}
                                     />
-                                    <TextInput
+                                    <TextInputSimple
                                         model={editValue}
                                         className="text-sm"
                                         type="password"

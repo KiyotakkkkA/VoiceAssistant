@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import { TextInput } from '../../atoms/input';
+import { TextInputSimple } from '../../atoms/input';
 import { ScrollArea, ContextMenu } from '../../atoms';
 import { NoteItem } from '../../../types/Global';
 import { RenderFolderTree } from '../../molecules';
@@ -326,7 +326,7 @@ const NotesView = observer(() => {
       <div className="w-80 bg-ui-bg-primary-light border-r border-ui-border-primary flex flex-col">
         <div className="p-4 border-b border-ui-border-primary">
           <div className="relative">
-            <TextInput
+            <TextInputSimple
               placeholder="Поиск заметок..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
