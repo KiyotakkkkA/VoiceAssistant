@@ -25,7 +25,6 @@ const AppContent = observer(() => {
   const [messages, setMessages] = useState<IncomingMsg[]>([]);
   const [mode, setMode] = useState<'waiting' | 'listening' | "initializing" | "thinking">('initializing');
   const [transcript, setTranscript] = useState({});
-  const [apps, setApps] = useState<Record<string, any>>({});
   const [systemReady, setSystemReady] = useState(false);
   const [theme, setTheme] = useState<Record<string, string> | null>(null);
 
@@ -216,12 +215,10 @@ const AppContent = observer(() => {
         mode={mode}
         transcript={transcript as any}
         messages={messages}
-        apps={apps}
         systemReady={systemReady}
       >
         <Router
           mode={mode}
-          apps={apps}
           systemReady={systemReady}
         />
       </MainLayout>

@@ -2,26 +2,25 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { StatePanel } from './StatePanel';
 import { Header } from './Header';
+import { Toast } from '../atoms/feedback';
+import { EventLog } from './EventLog';
 import { IconError } from '../atoms/icons';
 import { useDragResize, useSocketActions } from '../../composables';
 
 import InitiationStore from '../../store/InitiationStore';
 import SettingsStore from '../../store/SettingsStore';
-import { Toast } from '../atoms/feedback';
-import { EventLog } from './EventLog';
 
 interface MainLayoutProps {
     assistantName: string;
     children?: React.ReactNode;
     mode: 'waiting' | 'listening' | 'initializing' | 'thinking';
     messages: {type:string;topic:string;payload:any;from?:string}[];
-    apps: Record<string, any>;
     toasts?: { id:string; message:string }[];
     transcript: string;
     systemReady: boolean;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = observer(( { children, assistantName, mode, transcript, systemReady, messages, apps, toasts=[] } ) => {
+const MainLayout: React.FC<MainLayoutProps> = observer(( { children, assistantName, mode, transcript, systemReady, messages, toasts=[] } ) => {
     
     const { initDownloadingVoiceModel } = useSocketActions();
 

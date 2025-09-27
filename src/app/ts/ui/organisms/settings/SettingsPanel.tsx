@@ -1,4 +1,4 @@
-import React, { createElement, useMemo } from 'react';
+import React, { createElement } from 'react';
 import {
   SettingsSidebar,
   SettingsSection } from '../../molecules/settings';
@@ -6,13 +6,10 @@ import { ApperanceView, ApiKeysView, ModulesView, ToolsView, AccountsView } from
 import { observer } from 'mobx-react-lite';
 import { useSettingsNavigation, SettingsGroup } from '../../../composables';
 
-import SettingsStore from '../../../store/SettingsStore';
-import ModulesStore from '../../../store/ModulesStore';
-
 const SettingsPanel: React.FC = observer(() => {
   const { getCurrentSection, setActiveSection } = useSettingsNavigation();
 
-  const settingsGroups: SettingsGroup[] = useMemo(() => [
+  const settingsGroups: SettingsGroup[] = [
     {
       id: 'user',
       title: 'Пользователь',
@@ -21,7 +18,6 @@ const SettingsPanel: React.FC = observer(() => {
           id: 'accounts',
           title: 'Учетные записи',
           component: AccountsView,
-          props: {}
         }
       ]
     },
@@ -33,13 +29,11 @@ const SettingsPanel: React.FC = observer(() => {
           id: 'apikeys',
           title: 'Ключи API',
           component: ApiKeysView,
-          props: {}
         },
         {
           id: 'tools',
           title: 'Инструменты',
           component: ToolsView,
-          props: {}
         }
       ]
     },
@@ -51,22 +45,15 @@ const SettingsPanel: React.FC = observer(() => {
           id: 'interface',
           title: 'Интерфейс',
           component: ApperanceView,
-          props: {
-            themeNames: SettingsStore.data.runtime['runtime.appearance.themesList'],
-            currentTheme: SettingsStore.data.settings?.['current.appearance.theme'],
-          }
         },
         {
           id: 'modules',
           title: 'Модули',
           component: ModulesView,
-          props: {
-            modules: ModulesStore.modules || {},
-          }
         }
       ]
     }
-  ], [SettingsStore.data.runtime, SettingsStore.data.settings, ModulesStore.modules]);
+  ];
 
   const activeSection = getCurrentSection() || 'accounts';
   
@@ -105,7 +92,7 @@ const SettingsPanel: React.FC = observer(() => {
 
     return (
       <SettingsSection title={section.title}>
-        {createElement(section.component, section.props || {})}
+        {createElement(section.component || {})}
       </SettingsSection>
     );
   };

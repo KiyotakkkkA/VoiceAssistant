@@ -6,12 +6,8 @@ import { useSocketActions } from '../../../../composables';
 
 import SettingsStore from '../../../../store/SettingsStore';
 
-interface Props {
-  themeNames: string[];
-  currentTheme: string | null;
-}
 
-const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme }) => {
+const ApperanceView: React.FC = observer(() => {
   const { themeSet } = useSocketActions();
 
   const handleThemeChange = (newTheme: string) => {
@@ -22,7 +18,7 @@ const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme }) =
     SettingsStore.updateEventPanelState(value);
   };
 
-  const themeOptions = themeNames?.map(theme => ({
+  const themeOptions = SettingsStore.data.runtime['runtime.appearance.themesList']?.map(theme => ({
     value: theme,
     label: theme
   }));
@@ -35,7 +31,7 @@ const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme }) =
       >
         <Dropdown
           options={themeOptions || []}
-          value={currentTheme || ''}
+          value={SettingsStore.data.settings?.['current.appearance.theme'] || ''}
           onChange={handleThemeChange}
           placeholder="Выберите тему"
         />

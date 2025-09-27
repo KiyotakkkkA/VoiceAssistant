@@ -1,23 +1,24 @@
 import React from 'react';
 import { ModuleCard } from '../../../molecules/cards';
-import { Module } from '../../../../types/Global';
+
+import ModulesStore from '../../../../store/ModulesStore';
 
 import { observer } from 'mobx-react-lite';
 
-const ModulesView: React.FC<{ modules: { [key: string]: Module } }> = observer(({ modules }) => {
+const ModulesView: React.FC = observer(() => {
     return (
         <div className="space-y-6">
             <p className="text-ui-text-muted">Управление компонентами голосового ассистента</p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {Object.values(modules).map(module => {
+                {Object.values(ModulesStore.modules).map(module => {
                     return (
                         <ModuleCard key={module.service_id} module={module}/>
                     );
                 })}
             </div>
 
-            {Object.keys(modules).length === 0 && (
+            {Object.keys(ModulesStore.modules).length === 0 && (
                 <div className="text-center py-12">
                     <div className="w-16 h-16 rounded-full bg-ui-text-secondary/10 flex items-center justify-center mb-4 mx-auto">
                         <svg className="w-8 h-8 text-ui-text-secondary" fill="currentColor" viewBox="0 0 24 24">

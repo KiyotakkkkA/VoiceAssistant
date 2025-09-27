@@ -10,11 +10,10 @@ import { observer } from 'mobx-react-lite';
 
 interface Props {
   mode: string;
-  apps: Record<string, any>;
   systemReady?: boolean;
 }
 
-export const Router: React.FC<Props> = observer(({ mode, apps, systemReady=false }) => {
+export const Router: React.FC<Props> = observer(({ mode, systemReady=false }) => {
 
   const ctx = React.useContext(GContext);
   const { activeTab } = useNavigation();
@@ -31,7 +30,7 @@ export const Router: React.FC<Props> = observer(({ mode, apps, systemReady=false
       fullmode: true
     },
     apps: {
-      component: <AppsGrid apps={apps || {}} />,
+      component: <AppsGrid />,
       fullmode: true
     },
     settings: {

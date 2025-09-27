@@ -35,11 +35,7 @@ interface Stats {
     total_launches: number;
 }
 
-interface AppsGridProps {
-	apps: Record<string, any>;
-}
-
-const AppsGrid: React.FC<AppsGridProps> = ({ apps }) => {
+const AppsGrid: React.FC = () => {
     const [isRemoveAppModalOpen, setRemoveAppModalOpen] = useState(false);
     const [isRemoveFolderModalOpen, setRemoveFolderModalOpen] = useState(false);
     const [isFolderModalOpen, setFolderModalOpen] = useState(false);
