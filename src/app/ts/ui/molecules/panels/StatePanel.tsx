@@ -1,22 +1,24 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { GContext } from '../../../providers';
-import { IconTerminal, IconShield, IconCheck, IconMicrophone, IconWarning } from '../../atoms/icons';
+import { IconCheck, IconMicrophone } from '../../atoms/icons';
+import { useSettingsNavigation } from '../../../composables';
 
 import SettingsStore from '../../../store/SettingsStore';
 import ModulesStore from '../../../store/ModulesStore';
 
 interface Props { 
-  assistantName: string; 
-  mode: string; 
+  mode: string;
   transcript: string | Object;
   systemReady?: boolean;
 }
 
-const StatePanel: React.FC<Props> = observer(({ assistantName, mode, systemReady = false }) => {
+const StatePanel: React.FC<Props> = observer(({ mode, systemReady = false }) => {
   const ctx = useContext(GContext);
 
   if (!ctx?.states) return null;
+
+  const { navigateToSettings } = useSettingsNavigation();
 
   const getStatusColor = (mode: string) => {
     switch (mode) {
@@ -43,7 +45,14 @@ const StatePanel: React.FC<Props> = observer(({ assistantName, mode, systemReady
       <hr className='border-ui-border-primary' />
 
       <div className='space-y-3'>
-        <div className='text-xs font-medium text-ui-text-accent uppercase tracking-wider'>Модули</div>
+        <div className='text-xs font-medium text-ui-text-accent uppercase tracking-wider'>
+          <span 
+            className='cursor-pointer hover:underline transition-colors hover:text-ui-accent'
+            onClick={() => navigateToSettings('modules')}
+          >
+            Модули
+          </span>
+        </div>
         
         <div className='space-y-2'>
           <div className='flex items-center justify-between text-xs'>
@@ -65,7 +74,14 @@ const StatePanel: React.FC<Props> = observer(({ assistantName, mode, systemReady
       </div>
       
       <div className='space-y-2'>
-        <div className='text-xs font-medium text-ui-text-accent uppercase tracking-wider'>Конфигурация</div>
+        <div className='text-xs font-medium text-ui-text-accent uppercase tracking-wider'>
+          <span 
+            className='cursor-pointer hover:underline transition-colors hover:text-ui-accent'
+            onClick={() => navigateToSettings('interface')}
+          >
+            Конфигурация
+          </span>
+        </div>
 
         <div className='text-xs space-y-1'>
           <div className='flex justify-between'>

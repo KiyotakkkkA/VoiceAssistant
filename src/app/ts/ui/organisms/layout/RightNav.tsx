@@ -1,20 +1,19 @@
 import React from 'react';
 import { NavItem } from '../../molecules';
 import { IconApp, IconHome, IconSettings, IconNotes, IconZix } from '../../atoms/icons';
+import { useNavigation } from '../../../providers/NavigationProvider';
 
-interface Props {
-  active: string;
-  onChange: (tab: string) => void;
-}
-
-const RightNav: React.FC<Props> = ({ active, onChange }) => {
+const RightNav: React.FC = () => {
+  const { navigateTo, isActive } = useNavigation();
+  
   const items = [
-    { icon: <IconZix />, label: 'Zix', active: active === 'zix', onClick: () => onChange('zix') },
-    { icon: <IconHome />, label: 'Главная', active: active === 'home', onClick: () => onChange('home') },
-    { icon: <IconSettings />, label: 'Настройки', active: active === 'settings', onClick: () => onChange('settings') },
-    { icon: <IconApp />, label: 'Приложения', active: active === 'apps', onClick: () => onChange('apps') },
-    { icon: <IconNotes />, label: 'Заметки', active: active === 'notes', onClick: () => onChange('notes') },
+    { icon: <IconZix />, label: 'Zix', active: isActive('zix'), onClick: () => navigateTo('zix') },
+    { icon: <IconHome />, label: 'Главная', active: isActive('home'), onClick: () => navigateTo('home') },
+    { icon: <IconSettings />, label: 'Настройки', active: isActive('settings'), onClick: () => navigateTo('settings') },
+    { icon: <IconApp />, label: 'Приложения', active: isActive('apps'), onClick: () => navigateTo('apps') },
+    { icon: <IconNotes />, label: 'Заметки', active: isActive('notes'), onClick: () => navigateTo('notes') },
   ];
+  
   return (
     <nav className='h-full w-14 flex flex-col items-stretch th-panel border-l border-ui-border-primary th-panel-border select-none bg-ui-bg-secondary'> 
         <div className='flex-1 flex flex-col pt-2 gap-1'>

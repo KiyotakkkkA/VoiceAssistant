@@ -5,6 +5,7 @@ import { socketClient } from './clients';
 import { MainLayout } from './ui/templates/MainLayout';
 import { GlobalContext } from './providers';
 import { ToastProvider } from './providers/ToastProvider';
+import { NavigationProvider } from './providers/NavigationProvider';
 import { observer } from 'mobx-react-lite';
 import { EventsTopic, EventsType } from '../js/enums/Events';
 
@@ -224,7 +225,9 @@ const AppContent = observer(() => {
 
 const App = () => (
   <ToastProvider>
-    <AppContent />
+    <NavigationProvider>
+      <AppContent />
+    </NavigationProvider>
   </ToastProvider>
 );
 

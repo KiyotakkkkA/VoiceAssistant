@@ -2,7 +2,7 @@ import React from 'react';
 import { Toast } from '../atoms/feedback';
 import { StatePanel } from '../molecules/panels';
 import { useState } from 'react';
-import { GContext } from '../../providers';
+import { GContext, useNavigation } from '../../providers';
 import { Visualizer } from '../organisms/home';
 import { AppsGrid } from '../organisms/applications';
 import { SettingsPanel } from '../organisms/settings';
@@ -32,16 +32,11 @@ interface Props {
 export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, transcript, messages, apps, toasts=[], systemReady=false }) => {
 
   const ctx = React.useContext(GContext);
+  const { activeTab } = useNavigation();
 
   const { initDownloadingVoiceModel } = useSocketActions();
 
   if (!ctx?.states) return null;
-
-  const modes = {
-    'NORMAL': 'ОБЫЧНЫЙ',
-  }
-
-  const currentMode = SettingsStore.data.runtime['runtime.current.mode'] as keyof typeof modes;
 
   const pages: Record<string, Record<string, React.ReactNode>> = {
     home: {
@@ -81,9 +76,6 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
     if (!logOpen) return;
     onDragStart(e, setLogHeight, setDragging);
   };
-  const [activeTab, setActiveTab] = useState<
-    'home' | 'zix' | 'apps' | 'settings' | 'notes'
-  >('home');
   return (
     <div className='h-screen flex flex-col bg-ui-bg-primary text-ui-text-primary font-sans overflow-hidden relative'>
       <div className='h-9 flex items-center justify-between px-4 text-[11px] bg-ui-bg-secondary border-b border-ui-border-primary select-none shadow-inner'>
@@ -99,7 +91,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
       <div className='flex-1 relative overflow-hidden flex'>
         <div className='w-60 bg-ui-bg-secondary border-r border-ui-border-primary flex flex-col text-xs'>
           <div className='flex-1 overflow-hidden'>
-            <StatePanel assistantName={assistantName} mode={mode} transcript={transcript} systemReady={systemReady} />
+            <StatePanel mode={mode} transcript={transcript} systemReady={systemReady} />
           </div>
           <hr className='border-ui-border-primary' />
           <div className='mt-auto'>
@@ -129,7 +121,7 @@ export const MainLayout: React.FC<Props> = observer(({ assistantName, mode, tran
               {pages[activeTab].component}
             </div>
           </div>
-          <RightNav active={activeTab} onChange={(t: string)=>setActiveTab(t as 'home' | 'zix' | 'apps' | 'settings' | 'notes')} />
+          <RightNav />
         </div>
       </div>
       { SettingsStore.data.settings['current.interface.event_panel.state'] && (

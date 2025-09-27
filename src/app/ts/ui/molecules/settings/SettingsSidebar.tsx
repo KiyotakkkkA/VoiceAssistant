@@ -1,63 +1,17 @@
 import React, { useState } from 'react';
 import { Category } from '../../atoms';
-
-interface SettingsTab {
-  id: string;
-  title: string;
-  icon?: React.ReactNode;
-  children?: SettingsTab[];
-}
+import { SettingsGroup } from '../../../composables';
 
 interface Props {
   onTabSelect: (tabId: string) => void;
   activeTab: string;
+  settingsGroups: SettingsGroup[];
 }
 
-const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
+const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab, settingsGroups }) => {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(['accounts'])
+    new Set(['user'])
   );
-
-  const settingsTabs: SettingsTab[] = [
-    {
-      id: 'accounts',
-      title: 'Пользователь',
-      children: [
-        {
-          id: 'user-accounts',
-          title: 'Учетные записи',
-        },
-      ]
-    },
-    {
-      id: 'general',
-      title: 'Общее',
-      children: [
-        {
-          id: 'general-themes',
-          title: 'Интерфейс',
-        },
-        {
-          id: 'general-modules',
-          title: 'Модули'
-        }
-      ]
-    },
-    {
-      id: 'models',
-      title: 'Ассистент',
-      children: [
-        {
-          id: 'models-apikeys',
-          title: 'Ключи API',
-        },
-        {
-          id: 'models-tools',
-          title: 'Инструменты',
-        },
-      ]
-    },
-  ];
 
   const toggleCategory = (categoryId: string) => {
     const newExpanded = new Set(expandedCategories);
@@ -69,42 +23,35 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
     setExpandedCategories(newExpanded);
   };
 
-  const handleTabClick = (tabId: string, hasChildren: boolean = false) => {
-    if (!hasChildren) {
-      onTabSelect(tabId);
-    }
+  const handleTabClick = (sectionId: string) => {
+    onTabSelect(sectionId);
   };
 
-  const renderSettingsTab = (tab: SettingsTab, level: number = 0) => {
-    const hasChildren = tab.children && tab.children.length > 0;
-    const isExpanded = expandedCategories.has(tab.id);
-    const isActive = activeTab === tab.id;
-
-    if (hasChildren) {
-      return (
-        <Category
-          key={tab.id}
-          title={tab.title}
-          icon={tab.icon}
-          isExpanded={isExpanded}
-          onToggle={() => toggleCategory(tab.id)}
-        >
-          {tab.children!.map(child => renderSettingsTab(child, level + 1))}
-        </Category>
-      );
-    }
+  const renderSettingsGroup = (group: SettingsGroup) => {
+    const isExpanded = expandedCategories.has(group.id);
 
     return (
-      <button
-        key={tab.id}
-        onClick={() => handleTabClick(tab.id)}
-        className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-ui-text-secondary/10 transition-colors rounded-sm ${
-          isActive ? 'bg-widget-accent-a/10 text-widget-accent-a border-r-2 border-widget-accent-a' : 'text-ui-text-primary'
-        }`}
+      <Category
+        key={group.id}
+        title={group.title}
+        isExpanded={isExpanded}
+        onToggle={() => toggleCategory(group.id)}
       >
-        {tab.icon && <div className="text-ui-text-secondary">{tab.icon}</div>}
-        <span className="font-medium">{tab.title}</span>
-      </button>
+        {group.sections.map(section => (
+          <button
+            key={section.id}
+            onClick={() => handleTabClick(section.id)}
+            className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-ui-text-secondary/10 transition-colors rounded-sm ${
+              activeTab === section.id ? 'bg-widget-accent-a/10 text-widget-accent-a border-r-2 border-widget-accent-a' : 'text-ui-text-primary'
+            }`}
+          >
+            {section.icon && <div className="text-ui-text-secondary">{section.icon}</div>}
+            <div>
+              <span className="font-medium">{section.title}</span>
+            </div>
+          </button>
+        ))}
+      </Category>
     );
   };
 
@@ -115,7 +62,7 @@ const SettingsSidebar: React.FC<Props> = ({ onTabSelect, activeTab }) => {
       </div>
       
       <div className="space-y-1">
-        {settingsTabs.map(tab => renderSettingsTab(tab))}
+        {settingsGroups.map(group => renderSettingsGroup(group))}
       </div>
     </div>
   );

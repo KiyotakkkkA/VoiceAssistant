@@ -71,7 +71,7 @@ const ToolsView: React.FC = observer(() => {
 
               <div className='pl-4'>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {SettingsStore.data.settings['current.ai.tools'][category].functions.map(func => (
+                    {SettingsStore.data.settings['current.ai.tools']?.[category]?.functions?.map(func => (
                     <ToolCard
                         key={func.name}
                         name={func.name}

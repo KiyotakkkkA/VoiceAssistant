@@ -1,5 +1,7 @@
 import type { TEventTopicValue, TEventTypeValue } from '../../js/enums/Events.js';
 
+export type AppTab = 'home' | 'zix' | 'apps' | 'settings' | 'notes';
+
 export interface App {
     id: string | number;
     name: string;

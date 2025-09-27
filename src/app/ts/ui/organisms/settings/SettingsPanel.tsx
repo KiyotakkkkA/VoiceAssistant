@@ -1,59 +1,93 @@
-import React, { useState, createElement } from 'react';
+import React, { createElement, useMemo } from 'react';
 import {
   SettingsSidebar,
   SettingsSection } from '../../molecules/settings';
 import { ApperanceView, ApiKeysField, ModulesView, ToolsView, AccountsView } from './sections';
 import { observer } from 'mobx-react-lite';
+import { useSettingsNavigation, SettingsGroup } from '../../../composables';
 
 import SettingsStore from '../../../store/SettingsStore';
 import ModulesStore from '../../../store/ModulesStore';
 
-interface SectionConfig {
-  title: string;
-  component: React.ComponentType<any>;
-  props: Record<string, any>;
-}
-
 const SettingsPanel: React.FC = observer(() => {
-  const [activeTab, setActiveTab] = useState('user-accounts');
+  const { getCurrentSection, setActiveSection } = useSettingsNavigation();
 
-  const sections: Record<string, SectionConfig> = {
-      "user-accounts": {
-        title: "Пользователь / Учетные записи",
-        component: AccountsView,
-        props: {}
-      },
-      "models-apikeys": {
-        title: "Ассистент / Ключи API",
-        component: ApiKeysField,
-        props: {}
-      },
-      "models-tools": {
-        title: "Ассистент / Инструменты",
-        component: ToolsView,
-        props: {}
-      },
-      "general-themes": {
-        title: "Общее / Интерфейс",
-        component: ApperanceView,
-        props: {
-          themeNames: SettingsStore.data.runtime['runtime.appearance.themesList'],
-          currentTheme: SettingsStore.data.settings?.['current.appearance.theme'],
-          currentEventPanelState: SettingsStore.data.settings?.['current.interface.event_panel.state']
+  const settingsGroups: SettingsGroup[] = useMemo(() => [
+    {
+      id: 'user',
+      title: 'Пользователь',
+      sections: [
+        {
+          id: 'accounts',
+          title: 'Учетные записи',
+          component: AccountsView,
+          props: {}
         }
-      },
-      "general-modules": {
-        title: "Общее / Модули",
-        component: ModulesView,
-        props: {
-          modules: ModulesStore.modules || {},
+      ]
+    },
+    {
+      id: 'assistant',
+      title: 'Ассистент',
+      sections: [
+        {
+          id: 'apikeys',
+          title: 'Ключи API',
+          component: ApiKeysField,
+          props: {}
+        },
+        {
+          id: 'tools',
+          title: 'Инструменты',
+          component: ToolsView,
+          props: {}
         }
-      },
-    };
+      ]
+    },
+    {
+      id: 'general',
+      title: 'Общее',
+      sections: [
+        {
+          id: 'interface',
+          title: 'Интерфейс',
+          component: ApperanceView,
+          props: {
+            themeNames: SettingsStore.data.runtime['runtime.appearance.themesList'],
+            currentTheme: SettingsStore.data.settings?.['current.appearance.theme'],
+          }
+        },
+        {
+          id: 'modules',
+          title: 'Модули',
+          component: ModulesView,
+          props: {
+            modules: ModulesStore.modules || {},
+          }
+        }
+      ]
+    }
+  ], [SettingsStore.data.runtime, SettingsStore.data.settings, ModulesStore.modules]);
 
-  const renderContent = (activeTab: string) => {
+  const activeSection = getCurrentSection() || 'accounts';
+  
+  React.useEffect(() => {
+    if (!getCurrentSection()) {
+      setActiveSection('accounts');
+    }
+  }, [getCurrentSection, setActiveSection]);
 
-    if (!sections[activeTab as keyof typeof sections]) {
+  const findActiveSection = (sectionId: string) => {
+    for (const group of settingsGroups) {
+      const section = group.sections.find(s => s.id === sectionId);
+      if (section) return section;
+    }
+    return null;
+  };
+
+  const renderContent = (activeSectionId: string) => {
+    const section = findActiveSection(activeSectionId);
+    
+    if (!section) {
       return (
         <div className="flex items-center justify-center">
           <div className="text-center">
@@ -70,21 +104,22 @@ const SettingsPanel: React.FC = observer(() => {
     }
 
     return (
-      <SettingsSection title={sections[activeTab as keyof typeof sections].title}>
-        {createElement(sections[activeTab as keyof typeof sections].component, sections[activeTab as keyof typeof sections].props)}
+      <SettingsSection title={section.title}>
+        {createElement(section.component, section.props || {})}
       </SettingsSection>
-    )
+    );
   };
 
   return (
     <div className="h-full flex bg-ui-bg-primary">
       <SettingsSidebar 
-        onTabSelect={setActiveTab} 
-        activeTab={activeTab} 
+        onTabSelect={setActiveSection} 
+        activeTab={activeSection}
+        settingsGroups={settingsGroups}
       />
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="max-w-4xl mx-auto p-6">
-          {renderContent(activeTab)}
+          {renderContent(activeSection)}
         </div>
       </div>
     </div>

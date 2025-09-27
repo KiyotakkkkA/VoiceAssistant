@@ -9,10 +9,9 @@ import SettingsStore from '../../../../store/SettingsStore';
 interface Props {
   themeNames: string[];
   currentTheme: string | null;
-  currentEventPanelState: boolean;
 }
 
-const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme, currentEventPanelState }) => {
+const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme }) => {
   const { themeSet } = useSocketActions();
 
   const handleThemeChange = (newTheme: string) => {
@@ -47,7 +46,7 @@ const ApperanceView: React.FC<Props> = observer(({ themeNames, currentTheme, cur
       >
         <CheckboxSimple
           className='w-5 h-5'
-          model={currentEventPanelState}
+          model={SettingsStore.data.settings?.['current.interface.event_panel.state']}
           onChange={handleEventPanelToggle}
         />
       </CategoryItem>
