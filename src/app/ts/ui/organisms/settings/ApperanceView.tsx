@@ -1,10 +1,10 @@
 import React from 'react';
-import { CategoryItem } from '../../../atoms';
-import { Dropdown, CheckboxSimple } from '../../../atoms/input';
+import { CategoryItem } from '../../atoms';
+import { Dropdown, CheckboxSimple } from '../../atoms/input';
 import { observer } from 'mobx-react-lite';
-import { useSocketActions } from '../../../../composables';
+import { useSocketActions } from '../../../composables';
 
-import SettingsStore from '../../../../store/SettingsStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 
 const ApperanceView: React.FC = observer(() => {

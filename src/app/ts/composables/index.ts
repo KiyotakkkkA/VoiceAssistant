@@ -10,6 +10,7 @@ export { useExpandable } from './useExpandable';
 export { useToast } from './useToast';
 export { useAppNavigation } from './useAppNavigation';
 export { useSettingsNavigation } from './useSettingsNavigation';
+export { useNotesLogic } from './useNotesLogic';
 
 export type { ModuleTypeInfo } from './useModuleHelpers';
 export type { ModuleStatusConfig } from './useModuleStatus';

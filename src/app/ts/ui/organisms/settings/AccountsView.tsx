@@ -1,10 +1,10 @@
 import { observer } from 'mobx-react-lite';
-import { TextInputFloating } from '../../../atoms/input';
+import { TextInputFloating } from '../../atoms/input';
 import { useState } from 'react';
-import { IconWarning, IconGithub, IconPen, IconCheck, IconX, IconKey } from '../../../atoms/icons';
-import { ToolTip } from '../../../atoms/feedback';
+import { IconWarning, IconGithub, IconPen, IconCheck, IconX, IconKey } from '../../atoms/icons';
+import { ToolTip } from '../../atoms/feedback';
 
-import SettingsStore from '../../../../store/SettingsStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 type DataObject = {
     [key: string]: {

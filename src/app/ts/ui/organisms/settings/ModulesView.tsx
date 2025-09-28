@@ -1,7 +1,7 @@
 import React from 'react';
-import { ModuleCard } from '../../../molecules/cards';
+import { ModuleCard } from '../../molecules/cards';
 
-import ModulesStore from '../../../../store/ModulesStore';
+import ModulesStore from '../../../store/ModulesStore';
 
 import { observer } from 'mobx-react-lite';
 

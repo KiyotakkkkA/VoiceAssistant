@@ -2,11 +2,11 @@ import React from 'react';
 import { GContext, useNavigation } from './providers';
 import { 
   HomePage,
-  ZixPage
+  ZixPage,
+  SettingsPage,
+  AppsPage
 } from './ui/pages';
-import { AppsPage } from './ui/pages/AppsPage';
-import { SettingsPanel } from './ui/organisms/settings';
-import { NotesView } from './ui/organisms/notes';
+import { NotesPage } from './ui/pages/NotesPage';
 import { RightNav } from './ui/layouts/RightNav';
 import { observer } from 'mobx-react-lite';
 
@@ -36,11 +36,11 @@ export const Router: React.FC<Props> = observer(({ mode, systemReady=false }) =>
       fullmode: true
     },
     settings: {
-      component: <SettingsPanel />,
+      component: <SettingsPage />,
       fullmode: true
     },
     notes: {
-      component: <NotesView />,
+      component: <NotesPage />,
       fullmode: true
     }
   };

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { TextInputSimple, Dropdown } from '../../../atoms/input';
-import { CanOkModal } from '../../../molecules/modals';
-import { IconPen, IconCopy, IconTrash } from '../../../atoms/icons';
-import { useToast } from '../../../../composables';
+import { TextInputSimple, Dropdown } from '../../atoms/input';
+import { CanOkModal } from '../../molecules/modals';
+import { IconPen, IconCopy, IconTrash } from '../../atoms/icons';
+import { useToast } from '../../../composables';
 import { observer } from 'mobx-react-lite';
 
-import SettingsStore from '../../../../store/SettingsStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 const providers = [
     { value: 'router', label: 'OpenRouter', description: 'Сервис-агрегатор для работы с AI моделями посредством API, разработанный компанией OpenAI' },

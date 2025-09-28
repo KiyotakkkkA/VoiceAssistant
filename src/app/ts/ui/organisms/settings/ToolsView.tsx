@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { ToolCard } from '../../../molecules/cards';
-import { CheckboxSlided } from '../../../atoms/input';
-import { IconIdea, IconWarning } from '../../../atoms/icons';
-import { useSocketActions } from '../../../../composables';
-import { ToolTip } from '../../../atoms/feedback';
+import { ToolCard } from '../../molecules/cards';
+import { CheckboxSlided } from '../../atoms/input';
+import { IconIdea, IconWarning } from '../../atoms/icons';
+import { useSocketActions } from '../../../composables';
+import { ToolTip } from '../../atoms/feedback';
 
-import SettingsStore from '../../../../store/SettingsStore';
+import SettingsStore from '../../../store/SettingsStore';
 
 const ToolsView: React.FC = observer(() => {
 

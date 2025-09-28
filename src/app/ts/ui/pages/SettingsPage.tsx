@@ -1,12 +1,12 @@
 import React, { createElement } from 'react';
 import {
   SettingsSidebar,
-  SettingsSection } from '../../molecules/settings';
-import { ApperanceView, ApiKeysView, ModulesView, ToolsView, AccountsView } from './sections';
+  SettingsSection } from '../molecules/settings';
+import { ApperanceView, ApiKeysView, ModulesView, ToolsView, AccountsView } from '../organisms/settings';
 import { observer } from 'mobx-react-lite';
-import { useSettingsNavigation, SettingsGroup } from '../../../composables';
+import { useSettingsNavigation, SettingsGroup } from '../../composables';
 
-const SettingsPanel: React.FC = observer(() => {
+const SettingsPage: React.FC = observer(() => {
   const { getCurrentSection, setActiveSection } = useSettingsNavigation();
 
   const settingsGroups: SettingsGroup[] = [
@@ -113,4 +113,4 @@ const SettingsPanel: React.FC = observer(() => {
   );
 });
 
-export { SettingsPanel };
+export { SettingsPage };
