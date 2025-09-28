@@ -44,6 +44,11 @@ export class FileSystemService {
             let tempFilePath = path.join(dir, newFilename);
             let counter = 1;
 
+            let meta = path.parse(tempFilePath);
+
+            let base = meta.name;
+            let ext = meta.ext;
+
             while (fs.existsSync(tempFilePath)) {
                 tempFilePath = path.join(dir, `${base} (copy${counter > 1 ? ' ' + counter : ''})${ext}`);
                 counter++;
