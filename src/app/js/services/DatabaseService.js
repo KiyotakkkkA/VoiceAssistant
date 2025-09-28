@@ -81,12 +81,21 @@ export class DatabaseService {
     prepareStatements() {
         this.statements = {
             insertPath: this.db.prepare(`
-                INSERT OR IGNORE INTO app_paths (path, name) 
-                VALUES (?, ?)
+                INSERT OR REPLACE INTO app_paths (path, name, is_active) 
+                VALUES (?, ?, 1)
+            `),
+            
+            reactivatePath: this.db.prepare(`
+                UPDATE app_paths SET is_active = 1, last_scan = CURRENT_TIMESTAMP 
+                WHERE path = ?
             `),
             
             getPathId: this.db.prepare(`
                 SELECT id FROM app_paths WHERE path = ?
+            `),
+            
+            getActivePathId: this.db.prepare(`
+                SELECT id FROM app_paths WHERE path = ? AND is_active = 1
             `),
             
             updatePathScanTime: this.db.prepare(`
@@ -120,6 +129,10 @@ export class DatabaseService {
                 JOIN app_paths p ON a.path_id = p.id
                 WHERE p.is_active = 1
                 ORDER BY a.launch_count DESC, a.name ASC
+            `),
+
+            getAppsByPathId: this.db.prepare(`
+                SELECT * FROM apps WHERE path_id = ?
             `),
             
             searchApps: this.db.prepare(`
@@ -189,19 +202,69 @@ export class DatabaseService {
         }
     }
 
+    getActivePathId(folderPath) {
+        try {
+            const result = this.statements.getActivePathId.get(folderPath);
+            return result ? result.id : null;
+        } catch (error) {
+            console.error('[DatabaseService] Ошибка получения активного ID пути:', error);
+            return null;
+        }
+    }
+
     saveApps(folderPath, folderName, apps) {
         try {
             const transaction = this.db.transaction(() => {
-                this.statements.insertPath.run(folderPath, folderName);
+                const activePathId = this.getActivePathId(folderPath);
+                const anyPathId = this.getPathId(folderPath);
                 
-                const pathId = this.getPathId(folderPath);
-                if (!pathId) {
-                    throw new Error('Не удалось получить ID пути');
+                if (activePathId) {
+                    // Путь существует и активен - обновляем приложения
+                    return this.updateAppsForPath(activePathId, apps);
+                } else if (anyPathId) {
+                    // Путь существует но неактивен - реактивируем и обновляем
+                    this.statements.reactivatePath.run(folderPath);
+                    return this.updateAppsForPath(anyPathId, apps);
+                } else {
+                    // Новый путь - создаем и добавляем все приложения
+                    this.statements.insertPath.run(folderPath, folderName);
+                    
+                    const pathId = this.getPathId(folderPath);
+                    if (!pathId) {
+                        throw new Error('Не удалось получить ID пути');
+                    }
+                    
+                    for (const app of apps) {
+                        this.statements.insertApp.run(
+                            pathId,
+                            app.name,
+                            app.path,
+                            app.size || 0,
+                            app.type || '.exe',
+                            app.modified ? new Date(app.modified).toISOString() : new Date().toISOString()
+                        );
+                    }
+                    
+                    this.statements.updatePathScanTime.run(pathId);
                 }
-                
-                this.statements.deleteAppsByPath.run(pathId);
-                
-                for (const app of apps) {
+            });
+            
+            transaction();
+            return true;
+        } catch (error) {
+            console.error('[DatabaseService] Ошибка сохранения приложений:', error);
+            throw new Error(`Ошибка сохранения приложений: ${error.message}`);
+        }
+    }
+
+    updateAppsForPath(pathId, apps) {
+        try {
+            const existingApps = this.statements.getAppsByPathId.all(pathId);
+            const existingPaths = new Set(existingApps.map(app => app.path));
+            
+            let newAppsCount = 0;
+            for (const app of apps) {
+                if (!existingPaths.has(app.path)) {
                     this.statements.insertApp.run(
                         pathId,
                         app.name,
@@ -210,16 +273,17 @@ export class DatabaseService {
                         app.type || '.exe',
                         app.modified ? new Date(app.modified).toISOString() : new Date().toISOString()
                     );
+                    newAppsCount++;
                 }
-                
-                this.statements.updatePathScanTime.run(pathId);
-            });
+            }
             
-            transaction();
+            this.statements.updatePathScanTime.run(pathId);
+            
+            console.log(`[DatabaseService] Добавлено ${newAppsCount} новых приложений для существующего пути`);
             return true;
         } catch (error) {
-            console.error('[DatabaseService] Ошибка сохранения приложений:', error);
-            throw new Error(`Ошибка сохранения приложений: ${error.message}`);
+            console.error('[DatabaseService] Ошибка обновления приложений:', error);
+            throw error;
         }
     }
 

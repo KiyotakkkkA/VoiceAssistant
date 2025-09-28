@@ -4,7 +4,7 @@ import {
   HomePage,
   ZixPage
 } from './ui/pages';
-import { AppsGrid } from './ui/organisms/applications';
+import { AppsPage } from './ui/pages/AppsPage';
 import { SettingsPanel } from './ui/organisms/settings';
 import { NotesView } from './ui/organisms/notes';
 import { RightNav } from './ui/layouts/RightNav';
@@ -32,7 +32,7 @@ export const Router: React.FC<Props> = observer(({ mode, systemReady=false }) =>
       fullmode: true
     },
     apps: {
-      component: <AppsGrid />,
+      component: <AppsPage />,
       fullmode: true
     },
     settings: {

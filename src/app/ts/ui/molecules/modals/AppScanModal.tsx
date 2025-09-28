@@ -18,12 +18,47 @@ const AppScanModal: React.FC<AppScanModalProps> = ({
     const [selectedApps, setSelectedApps] = useState<Set<string | number>>(new Set());
     const [isScanning, setIsScanning] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
+    const [existingApps, setExistingApps] = useState<App[]>([]);
+    const [isExistingFolder, setIsExistingFolder] = useState(false);
 
     useEffect(() => {
         if (isOpen && folderPath) {
-            scanFolder();
+            checkIfFolderExists();
         }
     }, [isOpen, folderPath]);
+
+    const checkIfFolderExists = async () => {
+        try {
+            if (window.electronAPI?.getAppsFromDatabase) {
+                const result = await window.electronAPI.getAppsFromDatabase();
+                const existingPath = result.apps.paths.find(p => p.path === folderPath);
+                
+                if (existingPath) {
+                    setIsExistingFolder(true);
+                    const folderApps = result.apps.apps[existingPath.id] || [];
+                    const convertedApps: App[] = folderApps.map(app => ({
+                        id: app.id,
+                        name: app.name,
+                        path: app.path,
+                        type: app.type || 'executable',
+                        size: 0,
+                        modified: new Date(app.last_launched || Date.now())
+                    }));
+                    setExistingApps(convertedApps);
+                    const existingAppIds = new Set(folderApps.map(app => app.id));
+                    setSelectedApps(existingAppIds);
+                } else {
+                    setIsExistingFolder(false);
+                    setExistingApps([]);
+                }
+                
+                scanFolder();
+            }
+        } catch (error) {
+            console.error('Ошибка проверки существующей папки:', error);
+            scanFolder();
+        }
+    };
 
     const scanFolder = async () => {
         setIsScanning(true);
@@ -31,23 +66,33 @@ const AppScanModal: React.FC<AppScanModalProps> = ({
             if (window.electronAPI?.scanDirectory) {
                 const results = await window.electronAPI.scanDirectory(folderPath);
                 if (results.success) {
-                    const apps: App[] = results.apps.map((app, index) => ({
-                        id: index + 1,
+                    const newApps: App[] = results.apps.map((app, index) => ({
+                        id: `new_${index + 1}`, // Добавляем префикс для новых приложений
                         name: app.name,
                         path: app.path,
                         type: app.type,
                         size: 0,
                         modified: new Date()
                     }));
-                    setScannedApps(apps);
+
+                    const existingPaths = new Set(existingApps.map(app => app.path));
+                    const filteredNewApps = newApps.filter(app => !existingPaths.has(app.path));
+
+                    const allApps = [...existingApps, ...filteredNewApps];
+                    setScannedApps(allApps);
+
+                    if (isExistingFolder) {
+                        const existingAppIds = new Set(existingApps.map(app => app.id));
+                        setSelectedApps(existingAppIds);
+                    }
                 } else {
                     console.error('Ошибка сканирования:', results.error);
-                    setScannedApps([]);
+                    setScannedApps(existingApps);
                 }
             }
         } catch (error) {
             console.error('Ошибка сканирования:', error);
-            setScannedApps([]);
+            setScannedApps(existingApps);
         } finally {
             setIsScanning(false);
         }
@@ -115,8 +160,15 @@ const AppScanModal: React.FC<AppScanModalProps> = ({
             <div className="bg-ui-bg-primary border border-ui-border-primary rounded-lg w-full max-w-4xl mx-4 max-h-[80vh] flex flex-col">
                 <div className="flex items-center justify-between p-4 border-b border-ui-border-primary">
                     <div>
-                        <h2 className="text-lg font-semibold text-ui-text-primary">Найденные приложения</h2>
+                        <h2 className="text-lg font-semibold text-ui-text-primary">
+                            {isExistingFolder ? 'Повторное сканирование папки' : 'Найденные приложения'}
+                        </h2>
                         <p className="text-sm text-ui-text-muted font-mono">{folderPath}</p>
+                        {isExistingFolder && existingApps.length > 0 && (
+                            <p className="text-xs text-ui-text-accent mt-1">
+                                {existingApps.length} приложений уже добавлены (предвыбраны)
+                            </p>
+                        )}
                     </div>
                     <button
                         onClick={onClose}
@@ -179,8 +231,19 @@ const AppScanModal: React.FC<AppScanModalProps> = ({
                                             </svg>
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="font-medium text-ui-text-primary truncate">
-                                                {app.name}
+                                            <div className="flex items-center gap-2">
+                                                <div className="font-medium text-ui-text-primary truncate">
+                                                    {app.name}
+                                                </div>
+                                                {existingApps.some(existingApp => existingApp.path === app.path) ? (
+                                                    <span className="bg-ui-text-accent/10 text-ui-text-accent px-2 py-0.5 rounded text-xs font-medium">
+                                                        Уже добавлено
+                                                    </span>
+                                                ) : (
+                                                    <span className="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-xs font-medium">
+                                                        Новое
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="text-sm text-ui-text-muted font-mono truncate">
                                                 {app.path}

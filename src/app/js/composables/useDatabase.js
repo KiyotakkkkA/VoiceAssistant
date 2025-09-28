@@ -44,11 +44,11 @@ const useDatabase = () => {
 
     const deleteAppFromDatabase = (appId) => {
         try {
-            const success = services.database.deleteApp(appId);
+            const success = DatabaseService.getInstance().deleteApp(appId);
         
             if (success) {
-                const appsData = services.database.getAppsForUI();
-                const stats = services.database.getStats();
+                const appsData = DatabaseService.getInstance().getAppsForUI();
+                const stats = DatabaseService.getInstance().getStats();
                 
                 sendToAll(EventsType.EVENT, EventsTopic.DATABASE_APPS_UPDATED, {
                     apps: appsData,

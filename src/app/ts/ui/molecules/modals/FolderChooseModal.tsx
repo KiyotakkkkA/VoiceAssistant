@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IconFolder } from '../../atoms/icons';
+
+interface PathInfo {
+	id: number;
+	path: string;
+	name: string;
+	created_at: string;
+	app_count: number;
+}
 
 interface FolderChooseModalProps {
 	isOpen: boolean;
@@ -14,6 +22,28 @@ const FolderChooseModal: React.FC<FolderChooseModalProps> = ({
 }) => {
 	const [selectedFolder, setSelectedFolder] = useState<string>('');
 	const [isLoading, setIsLoading] = useState(false);
+	const [existingPaths, setExistingPaths] = useState<PathInfo[]>([]);
+	const [isLoadingPaths, setIsLoadingPaths] = useState(false);
+
+	useEffect(() => {
+		if (isOpen) {
+			loadExistingPaths();
+		}
+	}, [isOpen]);
+
+	const loadExistingPaths = async () => {
+		setIsLoadingPaths(true);
+		try {
+			if (window.electronAPI?.getAppsFromDatabase) {
+				const result = await window.electronAPI.getAppsFromDatabase();
+				setExistingPaths(result.apps.paths || []);
+			}
+		} catch (error) {
+			console.error('Ошибка загрузки существующих папок:', error);
+		} finally {
+			setIsLoadingPaths(false);
+		}
+	};
 
 	if (!isOpen) return null;
 
@@ -33,10 +63,14 @@ const FolderChooseModal: React.FC<FolderChooseModalProps> = ({
 		}
 	};
 
+	const handleSelectExistingFolder = (folderPath: string) => {
+		setSelectedFolder(folderPath);
+	};
+
 	const handleSelectFolder = () => {
 		if (selectedFolder) {
 			onSelectFolder(selectedFolder);
-			onClose();
+			handleClose();
 		}
 	};
 
@@ -60,13 +94,60 @@ const FolderChooseModal: React.FC<FolderChooseModalProps> = ({
 					</button>
 				</div>
 
-				<div className="p-6 space-y-4">
+				<div className="p-6 space-y-6">
+					{existingPaths.length > 0 && (
+						<div>
+							<h3 className="text-sm font-medium text-ui-text-primary mb-3">
+								Повторное сканирование существующих папок
+							</h3>
+							<div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
+								{existingPaths.map((pathInfo) => (
+									<button
+										key={pathInfo.id}
+										onClick={() => handleSelectExistingFolder(pathInfo.path)}
+										className={`w-full p-3 rounded-lg border transition-colors text-left ${
+											selectedFolder === pathInfo.path
+												? 'bg-ui-bg-accent/10 border-ui-text-accent text-ui-text-primary'
+												: 'bg-ui-bg-secondary/20 border-ui-border-primary hover:bg-ui-bg-secondary/40 text-ui-text-secondary hover:text-ui-text-primary'
+										}`}
+									>
+										<div className="flex items-start gap-3">
+											<IconFolder size={16} className="flex-shrink-0 mt-0.5" />
+											<div className="flex-1 min-w-0">
+												<div className="text-sm font-medium truncate">
+													{pathInfo.name}
+												</div>
+												<div className="text-xs opacity-75 font-mono truncate">
+													{pathInfo.path}
+												</div>
+												<div className="text-xs opacity-60 mt-1">
+													{pathInfo.app_count} приложений
+												</div>
+											</div>
+										</div>
+									</button>
+								))}
+							</div>
+						</div>
+					)}
+
+					{existingPaths.length > 0 && (
+						<div className="flex items-center gap-4">
+							<div className="flex-1 h-px bg-ui-border-primary"></div>
+							<span className="text-sm text-ui-text-secondary">или</span>
+							<div className="flex-1 h-px bg-ui-border-primary"></div>
+						</div>
+					)}
+
 					<div className="text-center">
 						<div className="w-16 h-16 rounded-full bg-ui-text-accent/10 flex items-center justify-center mx-auto mb-4">
 							<IconFolder size={32} className='text-ui-text-accent' />
 						</div>
-						<p className="text-ui-text-secondary mb-4">
-							Выберите папку для сканирования приложений
+						<h3 className="text-sm font-medium text-ui-text-primary mb-2">
+							Сканировать новую папку
+						</h3>
+						<p className="text-ui-text-secondary mb-4 text-sm">
+							Выберите папку для поиска новых приложений
 						</p>
 						
 						<button
