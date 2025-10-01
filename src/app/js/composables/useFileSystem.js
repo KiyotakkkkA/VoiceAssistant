@@ -98,6 +98,25 @@ const useFileSystem = () => {
             notes: FileSystemService.getInstance().buildNotesStructure(paths.notes_path)?.children || {}
         });
     }
+
+    const moveFile = (sourcePath, destinationPath) => {
+        if (!sourcePath || !destinationPath) {
+            console.error('Invalid parameters for moveFile');
+            return;
+        }
+
+        
+        const fileName = sourcePath.split('/').pop();
+        
+        const fullSourcePath = path.join(paths.notes_path, sourcePath);
+        const fullDestPath = path.join(paths.notes_path, destinationPath, fileName);
+
+        FileSystemService.getInstance().fileMove(fullSourcePath, fullDestPath);
+
+        sendToAll(EventsType.EVENT, EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA, {
+            notes: FileSystemService.getInstance().buildNotesStructure(paths.notes_path)?.children || {}
+        });
+    }
     
     const scanDirectory = (dirPath) => {
         try {
@@ -145,6 +164,7 @@ const useFileSystem = () => {
         createFolder,
         deleteFolder,
         renameFolder,
+        moveFile,
         scanDirectory,
         showOpenDialog
     }

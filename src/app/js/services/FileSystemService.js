@@ -60,6 +60,39 @@ export class FileSystemService {
         }
     }
 
+    fileMove(sourcePath, destinationPath) {
+        if (!fs.existsSync(sourcePath)) {
+            throw new Error(`Файл ${sourcePath} не найден`);
+        }
+
+        const destDir = path.dirname(destinationPath);
+        if (!fs.existsSync(destDir)) {
+            fs.mkdirSync(destDir, { recursive: true });
+        }
+
+        let finalDestPath = destinationPath;
+        let counter = 1;
+        const meta = path.parse(destinationPath);
+        const base = meta.name;
+        const ext = meta.ext;
+
+        while (fs.existsSync(finalDestPath)) {
+            finalDestPath = path.join(meta.dir, `${base} (${counter})${ext}`);
+            counter++;
+        }
+
+        try {
+            fs.renameSync(sourcePath, finalDestPath);
+        } catch (error) {
+            if (error.code === 'EXDEV') {
+                fs.copyFileSync(sourcePath, finalDestPath);
+                fs.unlinkSync(sourcePath);
+            } else {
+                throw error;
+            }
+        }
+    }
+
     folderCreate(dirPath, name) {
         const newPath = path.join(dirPath, name);
         if (!fs.existsSync(newPath)) {
@@ -138,8 +171,21 @@ export class FileSystemService {
                     const filePath = path.join(start_path, file);
                     const childStruct = this.buildNotesStructure(filePath, idCounter);
                     if (childStruct) {
-                        const fileName = path.parse(file).name;
-                        structure.children[fileName] = childStruct;
+                        const isFile = childStruct.type === 'file';
+                        const baseKey = isFile ? path.parse(file).name : file;
+                        
+                        let uniqueKey = baseKey;
+                        if (structure.children[uniqueKey]) {
+                            uniqueKey = isFile ? `file:${baseKey}` : `folder:${baseKey}`;
+
+                            const existingItem = structure.children[baseKey];
+                            delete structure.children[baseKey];
+                            const existingIsFile = existingItem.type === 'file';
+                            const existingKey = existingIsFile ? `file:${baseKey}` : `folder:${baseKey}`;
+                            structure.children[existingKey] = existingItem;
+                        }
+                        
+                        structure.children[uniqueKey] = childStruct;
                     }
                 });
             } catch (error) {

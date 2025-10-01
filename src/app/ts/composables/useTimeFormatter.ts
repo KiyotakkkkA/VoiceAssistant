@@ -1,13 +1,15 @@
+import { useCallback } from 'react';
+
 export const useTimeFormatter = () => {
-  const formatTime = (date: Date) => {
+  const formatTime = useCallback((date: Date) => {
     return date.toLocaleTimeString('ru-RU', { 
       hour: '2-digit', 
       minute: '2-digit',
       second: '2-digit'
     });
-  };
+  }, []);
 
-  const formatRelativeTime = (date: Date) => {
+  const formatRelativeTime = useCallback((date: Date) => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
@@ -23,9 +25,9 @@ export const useTimeFormatter = () => {
     } else {
       return `${diffDays} дн назад`;
     }
-  };
+  }, []);
 
-  const formatTimeParts = () => {
+  const formatTimeParts = useCallback(() => {
     const now = new Date();
     return {
       hours: now.getHours().toString().padStart(2,'0'),
@@ -34,7 +36,7 @@ export const useTimeFormatter = () => {
       date: now.toLocaleDateString('ru-RU', { weekday:'long', day:'numeric', month:'long'}),
       timezone: now.getTimezoneOffset() / -60
     };
-  };
+  }, []);
 
   return {
     formatTime,

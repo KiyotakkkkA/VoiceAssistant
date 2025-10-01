@@ -4,7 +4,7 @@ import NotesStore from '../store/NotesStore';
 
 export const useNotesLogic = () => {
   const { addToast } = useToast();
-  const { folderRename, folderCreate, folderDelete, fileWrite, fileDelete, fileRename, notesRefetch } = useSocketActions();
+  const { folderRename, folderCreate, folderDelete, fileWrite, fileDelete, fileRename, fileMove, notesRefetch } = useSocketActions();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('editor');
@@ -175,6 +175,11 @@ export const useNotesLogic = () => {
     setContextMenu({ visible: false, x: 0, y: 0, folderId: '', folderName: '', noteName: '' });
   }, []);
 
+  const handleMoveNote = useCallback((notePath: string, destinationFolder: string) => {
+    fileMove(notePath, destinationFolder);
+    addToast('Заметка перемещена!', 'success');
+  }, [fileMove, addToast]);
+
   return {
     searchQuery,
     viewMode,
@@ -211,6 +216,7 @@ export const useNotesLogic = () => {
     selectNote,
     closeContextMenu,
     clearFolderSelection,
+    handleMoveNote,
     
     notesRefetch
   };

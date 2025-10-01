@@ -48,6 +48,7 @@ const NotesPage = observer(() => {
     selectNote,
     closeContextMenu,
     clearFolderSelection,
+    handleMoveNote,
     
     notesRefetch
   } = useNotesLogic();
@@ -188,6 +189,7 @@ const NotesPage = observer(() => {
           onCancelRenameNote={cancelRenameNoteCallback}
           onSetRenameValue={setRenameValueCallback}
           onSetRenameNoteValue={setRenameNoteValueCallback}
+          onMoveNote={handleMoveNote}
         />
 
         <NotesListPanel

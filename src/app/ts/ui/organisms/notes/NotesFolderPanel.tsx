@@ -23,6 +23,7 @@ interface NotesFolderPanelProps {
   onCancelRenameNote: () => void;
   onSetRenameValue: (value: string) => void;
   onSetRenameNoteValue: (value: string) => void;
+  onMoveNote?: (notePath: string, destinationFolder: string) => void;
 }
 
 const NotesFolderPanel: React.FC<NotesFolderPanelProps> = ({
@@ -44,7 +45,8 @@ const NotesFolderPanel: React.FC<NotesFolderPanelProps> = ({
   onCancelRename,
   onCancelRenameNote,
   onSetRenameValue,
-  onSetRenameNoteValue
+  onSetRenameNoteValue,
+  onMoveNote
 }) => {
   return (
     <div className="p-4 border-b border-ui-border-primary">
@@ -90,6 +92,7 @@ const NotesFolderPanel: React.FC<NotesFolderPanelProps> = ({
             onCancelRenameNote={onCancelRenameNote}
             onSetRenameValue={onSetRenameValue}
             onSetRenameNoteValue={onSetRenameNoteValue}
+            onMoveNote={onMoveNote}
           />
         </div>
       </ScrollArea>

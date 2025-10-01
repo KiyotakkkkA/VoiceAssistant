@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 export interface ModuleStatusConfig {
   text: string;
   bgStyle: string;
@@ -5,7 +7,7 @@ export interface ModuleStatusConfig {
 }
 
 export const useModuleStatus = () => {
-  const getStatusConfig = (
+  const getStatusConfig = useCallback((
     isEnabled: boolean,
     isReloading: boolean,
     isEnabling: boolean,
@@ -44,9 +46,9 @@ export const useModuleStatus = () => {
     if (isReloading) return configs.reloading;
     if (!isEnabled) return configs.disabled;
     return configs.enabled;
-  };
+  }, []);
 
-  const getButtonConfig = (
+  const getButtonConfig = useCallback((
     isEnabled: boolean,
     isReloading: boolean,
     isEnabling: boolean,
@@ -60,7 +62,7 @@ export const useModuleStatus = () => {
       reloadText: isReloading ? 'Перезапускается...' : 'Перезапустить',
       enableText: isEnabling ? 'Включается...' : 'Включить'
     };
-  };
+  }, []);
 
   return {
     getStatusConfig,

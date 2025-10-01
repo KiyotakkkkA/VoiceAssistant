@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface BatteryInfo {
   level: number | null;
@@ -44,24 +44,24 @@ export const useBattery = () => {
     };
   }, []);
 
-  const getBatteryColor = () => {
+  const getBatteryColor = useCallback(() => {
     if (batteryInfo.level !== null && batteryInfo.level <= 20) {
       return 'from-widget-danger to-red-700';
     }
     return 'from-widget-accent-b to-widget-accent-a';
-  };
+  }, [batteryInfo.level]);
 
-  const getBatteryIcon = () => {
+  const getBatteryIcon = useCallback(() => {
     if (batteryInfo.charging) return '⚡';
     if (batteryInfo.level !== null && batteryInfo.level <= 20) return '🔋';
     return '🔌';
-  };
+  }, [batteryInfo.charging, batteryInfo.level]);
 
-  const getBatteryLabel = () => {
+  const getBatteryLabel = useCallback(() => {
     if (batteryInfo.charging === true) return 'Заряжается';
     if (batteryInfo.charging === false) return 'Не заряжается';
     return 'Батарея';
-  };
+  }, [batteryInfo.charging]);
 
   return {
     ...batteryInfo,

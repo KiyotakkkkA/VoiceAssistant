@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import * as Icons from '../ui/atoms/icons';
 
 export interface ModuleTypeInfo {
@@ -8,7 +8,7 @@ export interface ModuleTypeInfo {
 }
 
 export const useModuleHelpers = () => {
-  const getModuleIcon = (serviceId: string): React.ReactElement => {
+  const getModuleIcon = useCallback((serviceId: string): React.ReactElement => {
     const iconMap: Record<string, React.ReactElement> = {
       'orchestrator': React.createElement(Icons.IconShield, { className: "w-6 h-6" }),
       'processing_module': React.createElement(Icons.IconTerminal, { className: "w-6 h-6" }),
@@ -16,9 +16,9 @@ export const useModuleHelpers = () => {
     };
     
     return iconMap[serviceId] || React.createElement(Icons.IconFile, { className: "w-6 h-6" });
-  };
+  }, []);
 
-  const getModuleTypeInfo = (serviceId: string): ModuleTypeInfo => {
+  const getModuleTypeInfo = useCallback((serviceId: string): ModuleTypeInfo => {
     const typeMap: Record<string, ModuleTypeInfo> = {
       'orchestrator': { 
         type: 'Основной', 
@@ -42,9 +42,9 @@ export const useModuleHelpers = () => {
       color: 'text-gray-400', 
       bgColor: 'bg-gray-500/10'
     };
-  };
+  }, []);
 
-  const getModelIcon = (model: string): string => {
+  const getModelIcon = useCallback((model: string): string => {
     if (model.includes('gpt') || model.includes('openai')) {
       return '🤖';
     } else if (model.includes('claude')) {
@@ -53,7 +53,7 @@ export const useModuleHelpers = () => {
       return '💎';
     }
     return '🤖';
-  };
+  }, []);
 
   return {
     getModuleIcon,

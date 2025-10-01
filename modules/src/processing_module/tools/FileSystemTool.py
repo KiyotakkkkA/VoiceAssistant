@@ -53,6 +53,19 @@ class FileSystemTool(ITool):
         }
 
     @staticmethod
+    def setup_move_file_tool():
+        return {
+            "name": "move_file_tool",
+            "handler": FileSystemTool.move_file_handler,
+            "tool": ToolBuilder().set_name("move_file_tool")
+            .set_description('Tool that can move a file from one location to another; Use it when user asks to move, relocate or transfer a file')
+            .add_property("source_path", "The current path of the file to move")
+            .add_property("destination_path", "The destination path where the file should be moved")
+            .add_requirements(["source_path", "destination_path"])
+            .build()
+        }
+
+    @staticmethod
     def write_file_content_handler(**kwargs):
         file_path = kwargs.get("file_path")
         content = kwargs.get("content")
@@ -84,6 +97,41 @@ class FileSystemTool(ITool):
             with open(file_path, "r", encoding="utf-8") as file:
                 content = file.read()
             return {"content": content}
+        except Exception as e:
+            return {"error": str(e)}
+
+    @staticmethod
+    def move_file_handler(**kwargs):
+        source_path = kwargs.get("source_path")
+        destination_path = kwargs.get("destination_path")
+        
+        if not source_path:
+            return {"error": "source_path is required"}
+        if not destination_path:
+            return {"error": "destination_path is required"}
+
+        if not FileSystemTool.is_path_allowed(source_path):
+            return {"error": f"Moving from path '{source_path}' is not allowed. Allowed paths: {FileSystemTool.allowed_paths_to_write}"}
+        
+        if not FileSystemTool.is_path_allowed(destination_path):
+            return {"error": f"Moving to path '{destination_path}' is not allowed. Allowed paths: {FileSystemTool.allowed_paths_to_write}"}
+
+        if not os.path.exists(source_path):
+            return {"error": f"Source file '{source_path}' does not exist"}
+
+        try:
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            
+            import shutil
+            shutil.move(source_path, destination_path)
+            
+            FileSystemTool.add_socket_message_to_queue(
+                type=EventsType.EVENT.value,
+                topic=EventsTopic.HAVE_TO_BE_REFETCHED_NOTES_STRUCTURE_DATA.value,
+                data={}
+            )
+            
+            return {"success": True, "message": f"File moved from {source_path} to {destination_path}"}
         except Exception as e:
             return {"error": str(e)}
 
@@ -248,5 +296,6 @@ FileSystemTool.commands = [
     FileSystemTool.setup_open_app_tool(),
     FileSystemTool.setup_get_notes_tool(),
     FileSystemTool.setup_read_file_content_tool(),
-    FileSystemTool.setup_write_file_content_tool()
+    FileSystemTool.setup_write_file_content_tool(),
+    FileSystemTool.setup_move_file_tool()
 ]

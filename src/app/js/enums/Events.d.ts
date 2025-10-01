@@ -50,6 +50,7 @@ export const EventsTopic: {
     readonly ACTION_FILE_DELETE: 'action_file_delete';
     readonly ACTION_FILE_RENAME: 'action_file_rename';
     readonly ACTION_FILE_REWRITED: 'action_file_rewrited';
+    readonly ACTION_FILE_MOVE: 'action_file_move',
 
     readonly ACTION_SERVICE_RELOAD: 'action_service_reload';
     readonly ACTION_SERVICE_DISABLE: 'action_service_disable';

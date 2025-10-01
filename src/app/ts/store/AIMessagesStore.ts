@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { Dialog, DialogMessage } from '../types/Global';
-import { useSocketActions } from '../composables';
+import { SocketActions } from '../utils';
 
 type AIMessagesData = {
     dialogs: Dialog[];
@@ -8,7 +8,7 @@ type AIMessagesData = {
     useHistoryContext: boolean;
 }
 
-const { emitDialogRenamed, emitDialogDeleted, emitDialogCreated } = useSocketActions();
+const { emitDialogRenamed, emitDialogDeleted, emitDialogCreated } = SocketActions;
 
 class AIMessagesStore {
     data: AIMessagesData = {

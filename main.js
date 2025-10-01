@@ -58,6 +58,7 @@ const {
   createFolder,
   deleteFolder,
   renameFolder,
+  moveFile,
   scanDirectory,
   showOpenDialog
 } = useFileSystem();
@@ -305,6 +306,11 @@ function startWebSocketServer() {
   MsgBroker.onMessage({
     key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_DELETE],
     handler: (ws, msg) => { deleteFile(msg.payload.path); }
+  });
+
+  MsgBroker.onMessage({
+    key: [EventsType.SERVICE_ACTION, EventsTopic.ACTION_FILE_MOVE],
+    handler: (ws, msg) => { moveFile(msg.payload.sourcePath, msg.payload.destinationPath); }
   });
 
   MsgBroker.onMessage({

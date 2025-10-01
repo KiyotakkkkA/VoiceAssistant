@@ -42,7 +42,6 @@ export class DatabaseService {
 
     createTables() {
         const createTablesSQL = `
-            -- Таблица путей для поиска приложений
             CREATE TABLE IF NOT EXISTS app_paths (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 path TEXT UNIQUE NOT NULL,
@@ -52,7 +51,6 @@ export class DatabaseService {
                 is_active BOOLEAN DEFAULT 1
             );
 
-            -- Таблица приложений
             CREATE TABLE IF NOT EXISTS apps (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 path_id INTEGER NOT NULL,
@@ -68,7 +66,6 @@ export class DatabaseService {
                 FOREIGN KEY (path_id) REFERENCES app_paths(id) ON DELETE CASCADE
             );
 
-            -- Индексы для оптимизации
             CREATE INDEX IF NOT EXISTS idx_apps_name ON apps(name);
             CREATE INDEX IF NOT EXISTS idx_apps_launch_count ON apps(launch_count DESC);
             CREATE INDEX IF NOT EXISTS idx_apps_path_id ON apps(path_id);

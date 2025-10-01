@@ -48,6 +48,7 @@ export const EventsTopic = {
     ACTION_FILE_WRITE: 'ACTION_FILE_WRITE',
     ACTION_FILE_DELETE: 'action_file_delete',
     ACTION_FILE_RENAME: 'action_file_rename',
+    ACTION_FILE_MOVE: 'action_file_move',
     ACTION_FILE_REWRITED: 'action_file_rewrited',
 
     ACTION_SERVICE_RELOAD: 'action_service_reload',

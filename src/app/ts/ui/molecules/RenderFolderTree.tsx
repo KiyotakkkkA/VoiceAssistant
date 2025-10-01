@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import NotesStore from "../../store/NotesStore";
 import { NoteItem, NoteFolderItem } from '../../types/Global';
@@ -23,6 +23,7 @@ interface RenderFolderTreeProps {
     onCancelRenameNote: () => void;
     onSetRenameValue: (value: string) => void;
     onSetRenameNoteValue: (value: string) => void;
+    onMoveNote?: (notePath: string, destinationFolder: string) => void;
 }
 
 const RenderFolderTree = observer(({ 
@@ -43,8 +44,10 @@ const RenderFolderTree = observer(({
     onCancelRename,
     onCancelRenameNote,
     onSetRenameValue,
-    onSetRenameNoteValue
+    onSetRenameNoteValue,
+    onMoveNote
 }: RenderFolderTreeProps) => {
+    const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
 
     const selectFolder = useCallback((folderId: string) => {
         onSelectFolder(folderId);
@@ -97,16 +100,43 @@ const RenderFolderTree = observer(({
                 const fullPath = parentPath ? `${parentPath}/${key}` : key;
                 const isExpanded = NotesStore.expandedFolders.has(fullPath);
                 const isSelected = selectedFolder === fullPath;
+                const isDragOver = dragOverFolder === fullPath;
                 
                 if (item.type === 'folder') {
                     const folderItem = item as NoteFolderItem;
                     const childrenCount = Object.keys(folderItem.children).length;
                     
+                    const handleDrop = (e: React.DragEvent) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragOverFolder(null);
+                        
+                        const notePath = e.dataTransfer.getData('text/plain');
+                        if (notePath && onMoveNote) {
+                            onMoveNote(notePath, fullPath);
+                        }
+                    };
+
+                    const handleDragOver = (e: React.DragEvent) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        setDragOverFolder(fullPath);
+                    };
+
+                    const handleDragLeave = (e: React.DragEvent) => {
+                        e.preventDefault();
+                        setDragOverFolder(null);
+                    };
+                    
                     return (
                         <div key={fullPath}>
                             <div
                                 className={`flex items-center justify-between py-1 px-2 rounded cursor-pointer text-sm transition-colors ${
-                                    isSelected ? 'bg-widget-accent-a bg-opacity-20' : 'hover:bg-ui-bg-secondary-light'
+                                    isSelected 
+                                        ? 'bg-widget-accent-a bg-opacity-20' 
+                                        : isDragOver 
+                                        ? 'bg-widget-accent-b bg-opacity-30 border-2 border-widget-accent-b border-dashed' 
+                                        : 'hover:bg-ui-bg-secondary-light'
                                 }`}
                                 style={{ marginLeft: `${level * 12}px` }}
                                 onClick={() => {
@@ -114,6 +144,9 @@ const RenderFolderTree = observer(({
                                     selectFolder(fullPath);
                                 }}
                                 onContextMenu={(e) => handleContextMenu(e, fullPath, folderItem.name, '')}
+                                onDrop={handleDrop}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
                             >
                                 <div className="flex items-center gap-2">
                                     <svg
@@ -170,6 +203,7 @@ const RenderFolderTree = observer(({
                                         onCancelRenameNote={onCancelRenameNote}
                                         onSetRenameValue={onSetRenameValue}
                                         onSetRenameNoteValue={onSetRenameNoteValue}
+                                        onMoveNote={onMoveNote}
                                     />
                                 </div>
                             )}
@@ -177,9 +211,19 @@ const RenderFolderTree = observer(({
                     );
                 } else if (item.type === 'note') {
                     const noteItem = item as NoteItem;
+                    
+                    const handleNoteDragStart = (e: React.DragEvent) => {
+                        e.stopPropagation();
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', fullPath);
+                        e.dataTransfer.setData('noteId', String(noteItem.id));
+                    };
+                    
                     return (
                         <div
                             key={fullPath}
+                            draggable
+                            onDragStart={handleNoteDragStart}
                             onClick={() => selectNote(noteItem.id)}
                             className={`p-2 rounded cursor-pointer transition-colors ${
                                 NotesStore.selectedNoteId === noteItem.id

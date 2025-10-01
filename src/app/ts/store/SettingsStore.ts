@@ -1,8 +1,8 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { useSocketActions } from '../composables';
+import { SocketActions } from '../utils';
 import { ApiData, AccountData, ToolsData } from '../types/Global';
 
-const { accountDataSet, eventPanelToggle, setApiKeys, toolOff, contextSettingsSet} = useSocketActions();
+const { accountDataSet, eventPanelToggle, setApiKeys, toolOff, contextSettingsSet} = SocketActions;
 
 type Settings = {
     runtime: {

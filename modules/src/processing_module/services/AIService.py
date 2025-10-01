@@ -11,21 +11,16 @@ from utils.EnvHelper import getenv
 from utils.CacheService import CacheService
 from paths import path_resolver
 
-header = f'''
-    Instructions:
-    You are a voice assistant named {getenv('ASSISTANT_NAME', 'Assistant')}.
-    Answer every question accurately, correctly, and politely, observing all rules of propriety.
-    Remember, you must communicate and think in the manner of a voice assistant and only in Russian.
-    Don't use any of your system instructions while thinking or answering!
-    Your thoughts should contain only your analysis and the process of creating the final answer.
+header = f'''You are a voice assistant named {getenv('ASSISTANT_NAME', 'Assistant')}.
+Answer every question accurately, correctly, and politely, observing all rules of propriety.
+Remember, you must communicate and think in the manner of a voice assistant and only in Russian.
+Don't use any of your system instructions while thinking or answering!
+Your thoughts should contain only your analysis and the process of creating the final answer.
 
-    Please, try to use the provided tools effectively.
-    If you see the tool with array or json parameters, please provide the values as a needed format as one object (array or json).
-    DO NOT USE SAME TOOLS WITH THE SAME PARAMETERS MULTIPLE TIMES IN A ROW IN A SINGLE REQUEST.
-    Use Instruments getting personal data, if there are any, before all tools that require some private information.
-
-    Message text:
-'''
+Please, try to use the provided tools effectively.
+If you see the tool with array or json parameters, please provide the values as a needed format as one object (array or json).
+DO NOT USE SAME TOOLS WITH THE SAME PARAMETERS MULTIPLE TIMES IN A ROW IN A SINGLE REQUEST.
+Use Instruments getting personal data, if there are any, before all tools that require some private information.'''
 
 
 class AIService(IService):
@@ -99,8 +94,11 @@ class AIService(IService):
             return {"enabled": False, "max_messages": 6}
 
     def get_dialog_history(self, dialog_id: str, max_messages: int) -> List[Dict[str, str]]:
+        """
+        Извлекает историю диалога из кэша.
+        """
         try:
-            cache_service = CacheService().getInstance()
+            cache_service = CacheService.getInstance()
             dialogs_cache = cache_service.get_cache('dialogs_cache', {})
             
             if not dialogs_cache or dialog_id not in dialogs_cache:
@@ -116,17 +114,23 @@ class AIService(IService):
                 if message.get('user_prompt'):
                     history.append({
                         "role": "user", 
-                        "content": message['user_prompt']
+                        "content": message['user_prompt'],
                     })
                 
                 if message.get('assistant_response'):
                     assistant_content = ""
                     if isinstance(message['assistant_response'], dict):
                         final_stage = message['assistant_response'].get('final_stage', {})
-                        if isinstance(final_stage, dict):
-                            assistant_content = final_stage.get('content', '')
-                        else:
-                            assistant_content = str(final_stage)
+                        
+                        if final_stage and isinstance(final_stage, dict):
+                            thinking = final_stage.get('thinking', '').strip()
+                            content = final_stage.get('content', '').strip()
+
+                            if thinking and content:
+                                assistant_content = f"[Reasoning: {thinking[:200]}...]\n\n{content}" if len(thinking) > 200 else f"[Reasoning: {thinking}]\n\n{content}"
+                            elif content:
+                                assistant_content = content
+                            
                     elif isinstance(message['assistant_response'], str):
                         assistant_content = message['assistant_response']
                     
@@ -143,22 +147,38 @@ class AIService(IService):
             return []
 
     def build_messages_with_context(self, text: str, dialog_id: Optional[str] = None) -> List[Dict[str, str]]:
+        """
+        Формирует массив сообщений для отправки в модель.
+        """
         context_settings = self.get_context_settings()
         
         messages = [{
-            "role": "assistant",
-            "content": header + text
+            "role": "user",
+            "content": f"System instructions: {header}"
         }]
         
         if context_settings.get("enabled", False) and dialog_id:
             max_messages = context_settings.get("max_messages", 6)
             history = self.get_dialog_history(dialog_id, max_messages)
             
+            # Объединяем историю в один контекстный блок
             if history:
-                messages = [messages[0]] + history + [{
+                context_block = "Previous conversation context:\n\n"
+                for entry in history:
+                    if entry['role'] == 'user':
+                        context_block += f"User: {entry['content']}\n\n"
+                    else:
+                        context_block += f"Assistant: {entry['content']}\n\n"
+                
+                messages.append({
                     "role": "user",
-                    "content": text
-                }]
+                    "content": context_block.strip()
+                })
+        
+        messages.append({
+            "role": "user",
+            "content": f"Current request: {text}"
+        })
         
         return messages
 
@@ -195,10 +215,19 @@ class AIService(IService):
         return self.provider.chat_stream(messages, self.tools)
 
     def execute(self, text: str, dialog_id: Optional[str] = None):  # type: ignore
+        """
+        Выполняет запрос к AI модели с поддержкой tool calls.
+        """
         if not self.provider:
             raise ValueError("Provider is not set. Please set it before executing.")
 
-        messages = self.build_messages_with_context(text, dialog_id)
+        MAX_TOOL_ITERATIONS = 5
+        
+        try:
+            messages = self.build_messages_with_context(text, dialog_id)
+        except Exception as e:
+            print(f"[AIService] Error building messages: {e}")
+            raise
 
         initial_accumulated_response = {'thinking': '', 'content': ''}
         final_accumulated_response = {'thinking': '', 'content': ''}
@@ -217,7 +246,9 @@ class AIService(IService):
             }
         )
 
-        while True:
+        iteration_count = 0
+        while iteration_count < MAX_TOOL_ITERATIONS:
+            iteration_count += 1
             tool_calls_result = []
             thinking_in_iteration = 0
             
@@ -294,15 +325,26 @@ class AIService(IService):
                     break
 
                 for tool_result in tool_calls_result:
+                    result_summary = tool_result['response']
+                    
+                    if isinstance(result_summary, dict) and 'error' in result_summary:
+                        summary_text = f"Error: {result_summary['error']}"
+                    elif isinstance(result_summary, dict):
+                        if 'success' in result_summary and result_summary['success']:
+                            summary_text = result_summary.get('message', 'Success')
+                        else:
+                            summary_text = json.dumps(result_summary, ensure_ascii=False)[:500]
+                    else:
+                        summary_text = str(result_summary)[:500]
+                    
                     messages.append({
                         "role": "assistant",
-                        "content": f"Result of {tool_result['name']}: {tool_result['response']}"
+                        "content": f"Tool {tool_result['name']} executed: {summary_text}"
                     })
 
                 messages.append({
                     "role": "user",
-                    "content": "Please continue using these results if needed for the next step. "
-                            "Answer finally in Russian when all tool calls are done."
+                    "content": "Continue with the results. Answer in Russian when done."
                 })
 
                 tools_results.extend(tool_calls_result)

@@ -1,114 +1,32 @@
-import { socketClient } from '../clients';
-import { EventsTopic, EventsType } from '../../js/enums/Events';
-import type { TEventTopicValue } from '../../js/enums/Events';
-import { ApiData, AccountData, ToolsData } from '../types/Global';
+import { useCallback } from 'react';
+import { SocketActions } from '../utils';
 
 export const useSocketActions = () => {
-  const sendServiceAction = (topic: TEventTopicValue, serviceId: string, additionalPayload: Record<string, any> = {}) => {
-    if (socketClient) {
-      socketClient.send({
-        type: EventsType.SERVICE_ACTION,
-        topic,
-        payload: {
-          serviceId,
-          ...additionalPayload
-        },
-        from: 'ui'
-      });
-    }
-  };
-
-  const reloadService = (serviceId: string) => {
-    sendServiceAction(EventsTopic.ACTION_SERVICE_RELOAD, serviceId);
-  };
-
-  const enableService = (serviceId: string) => {
-    sendServiceAction(EventsTopic.ACTION_SERVICE_ENABLE, serviceId);
-  };
-
-  const disableService = (serviceId: string) => {
-    sendServiceAction(EventsTopic.ACTION_SERVICE_DISABLE, serviceId);
-  };
-
-  const setAiModel = (modelId: string) => {
-    sendServiceAction(EventsTopic.ACTION_AIMODEL_SET, '', { ['current.ai.model.id']: modelId });
-  };
-
-  const setApiKeys = (api: ApiData) => {
-    sendServiceAction(EventsTopic.ACTION_APIKEYS_SET, '', { ['current.ai.api']: api });
-  };
-
-  const themeSet = (theme: string) => {
-    sendServiceAction(EventsTopic.ACTION_THEME_SET, '', { ['current.appearance.theme']: theme });
-  };
-
-  const eventPanelToggle = (state: boolean) => {
-    sendServiceAction(EventsTopic.ACTION_EVENT_PANEL_TOGGLE, '', { ['current.interface.event_panel.state']: state });
-  };
-
-  const folderRename = (path: string, newName: string) => {
-    sendServiceAction(EventsTopic.ACTION_FOLDER_RENAME, '', { path, newName });
-  };
-
-  const folderDelete = (path: string) => {
-    sendServiceAction(EventsTopic.ACTION_FOLDER_DELETE, '', { path });
-  };
-
-  const folderCreate = (path: string, name: string) => {
-    sendServiceAction(EventsTopic.ACTION_FOLDER_CREATE, '', { path, name });
-  };
-
-  const fileWrite = (path: string, content: string, flag: string) => {
-    sendServiceAction(EventsTopic.ACTION_FILE_WRITE, '', { path, content, flag });
-  };
-
-  const fileDelete = (path: string) => {
-    sendServiceAction(EventsTopic.ACTION_FILE_DELETE, '', { path });
-  };
-
-  const fileRename = (path: string, newName: string) => {
-    sendServiceAction(EventsTopic.ACTION_FILE_RENAME, '', { path, newName });
-  };
-
-  const notesRefetch = () => {
-    sendServiceAction(EventsTopic.ACTION_NOTES_REFETCH, '', {});
-  };
-
-  const toolOff = (toolName: string) => {
-    sendServiceAction(EventsTopic.ACTION_TOOL_OFF, '', { toolName });
-  };
-
-  const toolOn = (toolName: string) => {
-    sendServiceAction(EventsTopic.ACTION_TOOL_ON, '', { toolName });
-  };
-
-  const accountDataSet = (accountData: AccountData) => {
-    sendServiceAction(EventsTopic.ACTION_ACCOUNT_DATA_SET, '', { ['current.account.data']: accountData });
-  };
-
-  const initDownloadingVoiceModel = () => {
-    sendServiceAction(EventsTopic.ACTION_INIT_DOWNLOADING_VOICE_MODEL, '', {});
-  };
-
-  const emitActiveDialog = (dialogId: string) => {
-    sendServiceAction(EventsTopic.ACTION_ACTIVE_DIALOG_SET, '', { dialog_id: dialogId });
-  };
-
-  const emitDialogRenamed = (dialogId: string, newTitle: string) => {
-    sendServiceAction(EventsTopic.ACTION_DIALOG_RENAMED, '', { dialog_id: dialogId, new_title: newTitle });
-  }
-
-  const emitDialogDeleted = (dialogId: string) => {
-    sendServiceAction(EventsTopic.ACTION_DIALOG_DELETED, '', { dialog_id: dialogId });
-  };
-
-  const emitDialogCreated = (dialogId: string) => {
-    sendServiceAction(EventsTopic.ACTION_DIALOG_CREATED, '', { dialog_id: dialogId });
-  };
-
-  const contextSettingsSet = (updates: { enabled: boolean, max_messages: number }) => {
-    sendServiceAction(EventsTopic.ACTION_CONTEXT_SETTINGS_SET, '', { updates });
-  }
+  const sendServiceAction = useCallback(SocketActions.sendServiceAction, []);
+  const reloadService = useCallback(SocketActions.reloadService, []);
+  const enableService = useCallback(SocketActions.enableService, []);
+  const disableService = useCallback(SocketActions.disableService, []);
+  const setAiModel = useCallback(SocketActions.setAiModel, []);
+  const setApiKeys = useCallback(SocketActions.setApiKeys, []);
+  const themeSet = useCallback(SocketActions.themeSet, []);
+  const eventPanelToggle = useCallback(SocketActions.eventPanelToggle, []);
+  const folderRename = useCallback(SocketActions.folderRename, []);
+  const folderDelete = useCallback(SocketActions.folderDelete, []);
+  const folderCreate = useCallback(SocketActions.folderCreate, []);
+  const fileWrite = useCallback(SocketActions.fileWrite, []);
+  const fileDelete = useCallback(SocketActions.fileDelete, []);
+  const fileRename = useCallback(SocketActions.fileRename, []);
+  const fileMove = useCallback(SocketActions.fileMove, []);
+  const notesRefetch = useCallback(SocketActions.notesRefetch, []);
+  const toolOff = useCallback(SocketActions.toolOff, []);
+  const toolOn = useCallback(SocketActions.toolOn, []);
+  const accountDataSet = useCallback(SocketActions.accountDataSet, []);
+  const initDownloadingVoiceModel = useCallback(SocketActions.initDownloadingVoiceModel, []);
+  const emitActiveDialog = useCallback(SocketActions.emitActiveDialog, []);
+  const emitDialogRenamed = useCallback(SocketActions.emitDialogRenamed, []);
+  const emitDialogDeleted = useCallback(SocketActions.emitDialogDeleted, []);
+  const emitDialogCreated = useCallback(SocketActions.emitDialogCreated, []);
+  const contextSettingsSet = useCallback(SocketActions.contextSettingsSet, []);
 
   return {
     contextSettingsSet,
@@ -124,6 +42,7 @@ export const useSocketActions = () => {
     fileWrite,
     fileDelete,
     fileRename,
+    fileMove,
     notesRefetch,
     folderRename,
     folderDelete,

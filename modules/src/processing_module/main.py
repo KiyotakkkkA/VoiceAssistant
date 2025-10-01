@@ -48,7 +48,7 @@ def run(stop_event):
         dialog_id = msg.get('payload', {}).get('dialog_id')
         
         if dialog_id:
-            dialogs_cache = CacheService().getInstance().get_cache('dialogs_cache', {})
+            dialogs_cache = CacheService.getInstance().get_cache('dialogs_cache', {})
             
             if dialogs_cache is None:
                 dialogs_cache = {}
@@ -60,7 +60,7 @@ def run(stop_event):
                     'updated_at': datetime.now().isoformat(),
                     'messages': []
                 }
-                CacheService().getInstance().set_cache('dialogs_cache', dialogs_cache)
+                CacheService.getInstance().set_cache('dialogs_cache', dialogs_cache)
 
                 client.emit({
                     'type': EventsType.EVENT.value,
@@ -76,7 +76,7 @@ def run(stop_event):
         new_title = msg.get('payload', {}).get('new_title')
         
         if dialog_id and new_title is not None:
-            dialogs_cache = CacheService().getInstance().get_cache('dialogs_cache', {})
+            dialogs_cache = CacheService.getInstance().get_cache('dialogs_cache', {})
             
             if dialog_id in dialogs_cache:
 
@@ -85,17 +85,17 @@ def run(stop_event):
 
                 dialogs_cache[dialog_id]['title'] = new_title
                 dialogs_cache[dialog_id]['updated_at'] = datetime.now().isoformat()
-                CacheService().getInstance().set_cache('dialogs_cache', dialogs_cache)
+                CacheService.getInstance().set_cache('dialogs_cache', dialogs_cache)
 
     def handle_dialog_deleted(msg):
         dialog_id = msg.get('payload', {}).get('dialog_id')
         
         if dialog_id:
-            dialogs_cache = CacheService().getInstance().get_cache('dialogs_cache', {})
+            dialogs_cache = CacheService.getInstance().get_cache('dialogs_cache', {})
             
             if dialogs_cache and dialog_id in dialogs_cache:
                 del dialogs_cache[dialog_id]
-                CacheService().getInstance().set_cache('dialogs_cache', dialogs_cache)
+                CacheService.getInstance().set_cache('dialogs_cache', dialogs_cache)
                 
                 if dialogs_cache:
                     first_dialog_id = list(dialogs_cache.keys())[0]
@@ -125,7 +125,7 @@ def run(stop_event):
             })
 
             if msg.get('payload', {}).get('dialog_id') is not None:
-                dialogs_cache = CacheService().getInstance().get_cache('dialogs_cache', {})
+                dialogs_cache = CacheService.getInstance().get_cache('dialogs_cache', {})
                 current_dialog_cache = dialogs_cache.get(msg.get('payload', {}).get('dialog_id'), {}) # type: ignore
 
                 current_dialog_cache['create_at'] = current_dialog_cache.get('create_at', datetime.now().isoformat())
@@ -140,7 +140,7 @@ def run(stop_event):
                     'model_name': executor.current_model_name or 'Неизвестная модель'
                 })
                 dialogs_cache[msg.get('payload', {}).get('dialog_id')] = current_dialog_cache # type: ignore
-                CacheService().getInstance().set_cache('dialogs_cache', dialogs_cache)
+                CacheService.getInstance().set_cache('dialogs_cache', dialogs_cache)
 
             for side_effect in service.get_socket_messages_queue():
                 client.emit({
@@ -196,7 +196,7 @@ def run(stop_event):
         'from': 'processing_module'
     })
 
-    cache = CacheService().getInstance()
+    cache = CacheService.getInstance()
     dialogs_data = cache.get_cache('dialogs_cache', {})
     
     client.emit({
