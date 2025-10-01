@@ -38,7 +38,6 @@ export const ZixAccountPanel: React.FC<ZixAccountPanelProps> = ({
         
         {isConnected && accountData ? (
           <div className="bg-ui-bg-secondary/30 border border-ui-border-primary/30 rounded-lg p-4 space-y-3">
-            {/* User Info Card */}
             <div className="flex items-center gap-3 p-3 bg-ui-bg-primary/50 rounded-md">
               <div className="w-8 h-8 bg-widget-accent-a rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                 {(accountData.username ?? "?").charAt(0).toUpperCase()}

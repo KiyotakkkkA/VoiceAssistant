@@ -28,8 +28,8 @@ class OllamaProvider(IProvider):
             ):
                 yield part
         except Exception as e:
-            print(f"Ollama chat stream error: {e}")
-            return
+            print(f"[OllamaProvider] Stream error: {type(e).__name__}: {e}")
+            raise
     
     def extract_thinking(self, part: Any) -> Optional[str]:
         try:

@@ -20,7 +20,10 @@ Your thoughts should contain only your analysis and the process of creating the 
 Please, try to use the provided tools effectively.
 If you see the tool with array or json parameters, please provide the values as a needed format as one object (array or json).
 DO NOT USE SAME TOOLS WITH THE SAME PARAMETERS MULTIPLE TIMES IN A ROW IN A SINGLE REQUEST.
-Use Instruments getting personal data, if there are any, before all tools that require some private information.'''
+Use Instruments getting personal data, if there are any, before all tools that require some private information.
+
+IMPORTANT: When you receive tool results, ALWAYS provide the COMPLETE information to the user. 
+Do NOT truncate, summarize, or cut off lists or data. If a tool returns a list of items, show ALL items to the user.'''
 
 
 class AIService(IService):
@@ -95,7 +98,8 @@ class AIService(IService):
 
     def get_dialog_history(self, dialog_id: str, max_messages: int) -> List[Dict[str, str]]:
         """
-        Извлекает историю диалога из кэша.
+        Извлекает последние N сообщений из истории диалога.
+        Возвращает список словарей с ролями 'user' и 'assistant'.
         """
         try:
             cache_service = CacheService.getInstance()
@@ -107,74 +111,82 @@ class AIService(IService):
             dialog = dialogs_cache[dialog_id]
             messages = dialog.get('messages', [])
             
+            # Берем последние max_messages сообщений
             recent_messages = messages[-max_messages:] if len(messages) > max_messages else messages
             
             history = []
-            for message in recent_messages:
-                if message.get('user_prompt'):
+            for msg in recent_messages:
+                # Добавляем запрос пользователя
+                if msg.get('user_prompt'):
                     history.append({
-                        "role": "user", 
-                        "content": message['user_prompt'],
+                        "role": "user",
+                        "content": msg['user_prompt']
                     })
                 
-                if message.get('assistant_response'):
-                    assistant_content = ""
-                    if isinstance(message['assistant_response'], dict):
-                        final_stage = message['assistant_response'].get('final_stage', {})
-                        
-                        if final_stage and isinstance(final_stage, dict):
-                            thinking = final_stage.get('thinking', '').strip()
-                            content = final_stage.get('content', '').strip()
-
-                            if thinking and content:
-                                assistant_content = f"[Reasoning: {thinking[:200]}...]\n\n{content}" if len(thinking) > 200 else f"[Reasoning: {thinking}]\n\n{content}"
-                            elif content:
-                                assistant_content = content
-                            
-                    elif isinstance(message['assistant_response'], str):
-                        assistant_content = message['assistant_response']
-                    
-                    if assistant_content:
+                # Добавляем ответ ассистента (только финальный content без reasoning)
+                if msg.get('assistant_response'):
+                    content = self._extract_assistant_content(msg['assistant_response'])
+                    if content:
                         history.append({
                             "role": "assistant",
-                            "content": assistant_content
+                            "content": content
                         })
             
             return history
             
         except Exception as e:
-            print(f"[AIService] Ошибка при получении истории диалога: {e}")
+            print(f"[AIService] Error loading dialog history: {e}")
             return []
+    
+    def _extract_assistant_content(self, response: Any) -> str:
+        """
+        Извлекает чистый контент ответа ассистента без reasoning блоков.
+        """
+        if isinstance(response, str):
+            return response
+        
+        if isinstance(response, dict):
+            final_stage = response.get('final_stage', {})
+            if final_stage and isinstance(final_stage, dict):
+                return final_stage.get('content', '').strip()
+        
+        return ""
 
     def build_messages_with_context(self, text: str, dialog_id: Optional[str] = None) -> List[Dict[str, str]]:
         """
-        Формирует массив сообщений для отправки в модель.
+        Формирует массив сообщений для отправки в AI модель.
+        
+        Структура:
+        1. System instructions (как user message)
+        2. История диалога в виде контекстного блока (если включена)
+        3. Текущий запрос пользователя
         """
         context_settings = self.get_context_settings()
         
+        # Системные инструкции всегда идут первыми
         messages = [{
             "role": "user",
             "content": f"System instructions: {header}"
         }]
         
+        # Добавляем историю диалога если включена
         if context_settings.get("enabled", False) and dialog_id:
             max_messages = context_settings.get("max_messages", 6)
             history = self.get_dialog_history(dialog_id, max_messages)
             
-            # Объединяем историю в один контекстный блок
             if history:
-                context_block = "Previous conversation context:\n\n"
+                # Формируем контекстный блок из истории
+                context_parts = ["Previous conversation:"]
                 for entry in history:
-                    if entry['role'] == 'user':
-                        context_block += f"User: {entry['content']}\n\n"
-                    else:
-                        context_block += f"Assistant: {entry['content']}\n\n"
+                    role = "User" if entry['role'] == 'user' else "Assistant"
+                    context_parts.append(f"{role}: {entry['content']}")
                 
                 messages.append({
                     "role": "user",
-                    "content": context_block.strip()
+                    "content": "\n\n".join(context_parts)
                 })
         
+        # Текущий запрос пользователя
         messages.append({
             "role": "user",
             "content": f"Current request: {text}"
@@ -333,9 +345,9 @@ class AIService(IService):
                         if 'success' in result_summary and result_summary['success']:
                             summary_text = result_summary.get('message', 'Success')
                         else:
-                            summary_text = json.dumps(result_summary, ensure_ascii=False)[:500]
+                            summary_text = json.dumps(result_summary, ensure_ascii=False)
                     else:
-                        summary_text = str(result_summary)[:500]
+                        summary_text = str(result_summary)
                     
                     messages.append({
                         "role": "assistant",
@@ -350,8 +362,14 @@ class AIService(IService):
                 tools_results.extend(tool_calls_result)
                 
             except Exception as e:
-                print(f"Error during execution: {e}")
-                final_accumulated_response = initial_accumulated_response
+                print(f"[AIService] Execution error in iteration {iteration_count}: {e}")
+                if initial_accumulated_response['content'] or initial_accumulated_response['thinking']:
+                    final_accumulated_response = initial_accumulated_response
+                else:
+                    final_accumulated_response = {
+                        'thinking': '',
+                        'content': f'Произошла ошибка при обработке запроса: {str(e)}'
+                    }
                 break
             
         total_time = time.time() - total_timer
